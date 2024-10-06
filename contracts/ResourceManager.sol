@@ -16,21 +16,20 @@ contract ResourceManager is IResourceManager, OwnableUpgradeable, ReentrancyGuar
         __Ownable_init();
         __ReentrancyGuard_init();
 
-        versions[0] = new IERC20[](_resources.length);
-        for (uint8 i = 0; i < _resources.length; i++) {
-            versions[0][i] = IERC20(_resources[i]);
-        }
-        currentVersion = 0;
-        emit ResourcesUpdated(0, versions[0]);
+        _updateResources(_resources);
     }
 
-    function updateResources(address[] memory _resources) external onlyOwner {
+    function _updateResources(address[] memory _resources) internal {
         currentVersion++;
         versions[currentVersion] = new IERC20[](_resources.length);
         for (uint8 i = 0; i < _resources.length; i++) {
             versions[currentVersion][i] = IERC20(_resources[i]);
         }
         emit ResourcesUpdated(currentVersion, versions[currentVersion]);
+    }
+
+    function updateResources(address[] memory _resources) external onlyOwner {
+        _updateResources(_resources);
     }
 
     function resources(uint16 version) public view override returns (IERC20[] memory) {
