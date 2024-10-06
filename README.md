@@ -1,1 +1,1 @@
-# gaiawar-contracts
+# gaiawar
