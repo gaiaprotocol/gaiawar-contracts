@@ -2,16 +2,27 @@
 pragma solidity ^0.8.24;
 
 import "./IUnitManager.sol";
-import "./IAssetManager.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
-contract UnitManager is IUnitManager, OwnableUpgradeable, ReentrancyGuardUpgradeable {
+contract UnitManager is IUnitManager, OwnableUpgradeable {
     mapping(uint256 => Unit) private units;
+    uint256 private nextUnitId;
+
+    event UnitAdded(
+        uint256 unitId,
+        uint16 hp,
+        uint16 damage,
+        uint8 attackRange,
+        uint16 assetVersion,
+        uint256[] trainCosts,
+        uint256 preUpgradeUnitId,
+        uint256 upgradeItemId
+    );
 
     function initialize() public initializer {
         __Ownable_init();
-        __ReentrancyGuard_init();
+
+        nextUnitId = 1;
     }
 
     function getUnit(uint256 unitId) external view override returns (Unit memory) {
@@ -19,7 +30,6 @@ contract UnitManager is IUnitManager, OwnableUpgradeable, ReentrancyGuardUpgrade
     }
 
     function addUnit(
-        uint256 unitId,
         uint16 hp,
         uint16 damage,
         uint8 attackRange,
@@ -28,6 +38,9 @@ contract UnitManager is IUnitManager, OwnableUpgradeable, ReentrancyGuardUpgrade
         uint256 preUpgradeUnitId,
         uint256 upgradeItemId
     ) external onlyOwner {
+        uint256 unitId = nextUnitId;
+        nextUnitId += 1;
+
         require(units[unitId].hp == 0, "Unit already exists");
 
         units[unitId] = Unit({
@@ -39,5 +52,7 @@ contract UnitManager is IUnitManager, OwnableUpgradeable, ReentrancyGuardUpgrade
             preUpgradeUnitId: preUpgradeUnitId,
             upgradeItemId: upgradeItemId
         });
+
+        emit UnitAdded(unitId, hp, damage, attackRange, assetVersion, trainCosts, preUpgradeUnitId, upgradeItemId);
     }
 }
