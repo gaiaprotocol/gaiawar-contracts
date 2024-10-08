@@ -582,7 +582,9 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, ERC1
     function buildBuilding(uint16 row, uint16 col, uint256 buildingId) external nonReentrant {
         require(row < mapRows, "Invalid row");
         require(col < mapCols, "Invalid col");
+
         IBuildingManager.Building memory building = buildingManager.getBuilding(buildingId);
+
         Tile storage tile = map[row][col];
         require(tile.occupant == address(0) || tile.occupant == msg.sender, "Tile is occupied by another player");
         require(tile.buildingId == 0, "There is already a building on this tile");
@@ -593,9 +595,12 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, ERC1
             require(isWithinPlayerHeadquartersRange(msg.sender, row, col), "Cannot build outside of allowed range");
             require(!isWithinEnemyBuildingRange(row, col, 3), "Cannot build near enemy building");
         }
+
         deductConstructionCosts(building);
+
         tile.occupant = msg.sender;
         tile.buildingId = uint16(buildingId);
+
         emit BuildingConstructed(msg.sender, row, col, buildingId);
     }
 
@@ -604,6 +609,7 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, ERC1
         uint16 endRow = row + range < mapRows ? row + range : mapRows - 1;
         uint16 startCol = col >= range ? col - range : 0;
         uint16 endCol = col + range < mapCols ? col + range : mapCols - 1;
+
         for (uint16 i = startRow; i <= endRow; i++) {
             for (uint16 j = startCol; j <= endCol; j++) {
                 uint16 distance = calculateDistance(row, col, i, j);
@@ -615,6 +621,7 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, ERC1
                 }
             }
         }
+
         return false;
     }
 
@@ -623,6 +630,7 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, ERC1
         uint16 endRow = row + 15 < mapRows ? row + 15 : mapRows - 1;
         uint16 startCol = col >= 15 ? col - 15 : 0;
         uint16 endCol = col + 15 < mapCols ? col + 15 : mapCols - 1;
+
         for (uint16 i = startRow; i <= endRow; i++) {
             for (uint16 j = startCol; j <= endCol; j++) {
                 Tile storage tile = map[i][j];
@@ -638,14 +646,18 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, ERC1
                 }
             }
         }
+
         return false;
     }
 
     function deductConstructionCosts(IBuildingManager.Building memory building) internal {
         IAssetManager.Asset memory asset = assetManager.getAsset(building.assetVersion);
+
         address[] memory resources = asset.resources;
         uint256[] memory costs = building.constructionCosts;
+
         require(resources.length == costs.length, "Resource and cost length mismatch");
+
         for (uint256 i = 0; i < resources.length; i++) {
             IERC20 token = IERC20(resources[i]);
             require(token.transferFrom(msg.sender, address(this), costs[i]), "Resource transfer failed");
@@ -655,16 +667,23 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, ERC1
     function upgradeBuilding(uint16 row, uint16 col, uint256 newBuildingId) external nonReentrant {
         require(row < mapRows, "Invalid row");
         require(col < mapCols, "Invalid col");
+
         Tile storage tile = map[row][col];
+
         require(tile.occupant == msg.sender, "Not your building");
         require(tile.buildingId != 0, "No building on this tile");
+
         IBuildingManager.Building memory currentBuilding = buildingManager.getBuilding(tile.buildingId);
         IBuildingManager.Building memory upgradedBuilding = buildingManager.getBuilding(newBuildingId);
+
         require(currentBuilding.level < upgradedBuilding.level, "Invalid upgrade");
         require(currentBuilding.isHeadquarters == upgradedBuilding.isHeadquarters, "Cannot change building type");
         require(upgradedBuilding.preUpgradeBuildingId == tile.buildingId, "Invalid upgrade path");
+
         deductConstructionCosts(upgradedBuilding);
+
         tile.buildingId = uint16(newBuildingId);
+
         emit BuildingConstructed(msg.sender, row, col, newBuildingId);
     }
 
@@ -674,22 +693,30 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, ERC1
         require(row < mapRows, "Invalid row");
         require(col < mapCols, "Invalid col");
         require(amount > 0, "Amount must be greater than zero");
+
         Tile storage tile = map[row][col];
+
         require(tile.occupant == msg.sender, "Not your tile");
         require(tile.buildingId != 0, "No building on this tile");
+
         bool canProduce = buildingManager.canProduceUnit(tile.buildingId, unitId);
         require(canProduce, "Building cannot produce this unit");
+
         IUnitManager.Unit memory unitInfo = unitManager.getUnit(unitId);
         require(unitInfo.upgradeItemId == 0, "Unit is not a producible unit");
+
         IAssetManager.Asset memory asset = assetManager.getAsset(unitInfo.assetVersion);
         address[] memory resources = asset.resources;
         uint256[] memory costs = unitInfo.trainCosts;
+
         require(resources.length == costs.length, "Mismatch in resources and costs length");
+
         for (uint256 i = 0; i < resources.length; i++) {
             uint256 totalCost = costs[i] * amount;
             IERC20 token = IERC20(resources[i]);
             require(token.transferFrom(msg.sender, address(this), totalCost), "Resource transfer failed");
         }
+
         bool unitExists = false;
         for (uint256 i = 0; i < tile.units.length; i++) {
             if (tile.units[i].unitId == unitId) {
@@ -701,11 +728,13 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, ERC1
         if (!unitExists) {
             tile.units.push(UnitAmount({unitId: unitId, amount: amount}));
         }
+
         uint16 totalUnits = 0;
         for (uint256 i = 0; i < tile.units.length; i++) {
             totalUnits += tile.units[i].amount;
         }
         require(totalUnits <= maxUnitsPerTile, "Exceeds max units per tile");
+
         emit UnitsTrained(msg.sender, row, col, unitId, amount);
     }
 
@@ -715,11 +744,15 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, ERC1
         require(row < mapRows, "Invalid row");
         require(col < mapCols, "Invalid col");
         require(amount > 0, "Amount must be greater than zero");
+
         Tile storage tile = map[row][col];
         require(tile.occupant == msg.sender, "Not your tile");
+
         IUnitManager.Unit memory unitInfo = unitManager.getUnit(unitId);
         require(unitInfo.preUpgradeUnitId != 0, "Unit cannot be upgraded");
+
         uint16 preUpgradeUnitId = uint16(unitInfo.preUpgradeUnitId);
+
         bool found = false;
         for (uint256 i = 0; i < tile.units.length; i++) {
             if (tile.units[i].unitId == preUpgradeUnitId) {
@@ -734,12 +767,16 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, ERC1
             }
         }
         require(found, "No units to upgrade");
+
         uint256 upgradeItemId = unitInfo.upgradeItemId;
         require(upgradeItemId != 0, "No upgrade item required");
+
         IAssetManager.Asset memory asset = assetManager.getAsset(unitInfo.assetVersion);
         address itemAddress = asset.item;
         IERC1155 itemToken = IERC1155(itemAddress);
+
         itemToken.safeTransferFrom(msg.sender, address(this), upgradeItemId, amount, "");
+
         bool unitExists = false;
         for (uint256 i = 0; i < tile.units.length; i++) {
             if (tile.units[i].unitId == unitId) {
@@ -751,11 +788,13 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, ERC1
         if (!unitExists) {
             tile.units.push(UnitAmount({unitId: unitId, amount: amount}));
         }
+
         uint16 totalUnits = 0;
         for (uint256 i = 0; i < tile.units.length; i++) {
             totalUnits += tile.units[i].amount;
         }
         require(totalUnits <= maxUnitsPerTile, "Exceeds max units per tile");
+
         emit UnitsUpgraded(msg.sender, row, col, unitId, amount);
     }
 
