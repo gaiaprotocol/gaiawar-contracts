@@ -4,6 +4,9 @@ pragma solidity ^0.8.24;
 interface IBuildingManager {
     struct Building {
         uint16 assetVersion;
-        mapping(address => uint256) constructionCosts;
+        uint256 preUpgradeBuildingId;
+        uint256[] constructionCosts;
     }
+
+    function buildings(uint256 buildingId) external view returns (Building memory);
 }

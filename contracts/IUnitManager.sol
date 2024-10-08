@@ -7,8 +7,10 @@ interface IUnitManager {
         uint16 damage;
         uint8 attackRange;
         uint16 assetVersion;
-        mapping(address => uint256) trainCosts;
+        uint256[] trainCosts;
         uint256 preUpgradeUnitId;
         uint256 upgradeItemId;
     }
+
+    function units(uint256 unitId) external view returns (Unit memory);
 }

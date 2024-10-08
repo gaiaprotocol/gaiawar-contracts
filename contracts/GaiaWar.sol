@@ -224,6 +224,8 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
             UnitAmount[] memory survivingDefenderUnits
         ) = simulateBattle(fromTile.units, toTile.units);
 
+        address defender = toTile.occupant;
+
         if (attackerWins) {
             Loot[] memory lootERC20;
             Loot1155[] memory lootERC1155;
@@ -250,7 +252,7 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
             }
         }
 
-        emit AttackResult(msg.sender, toTile.occupant, fromRow, fromCol, toRow, toCol, attackerWins);
+        emit AttackResult(msg.sender, defender, fromRow, fromCol, toRow, toCol, attackerWins);
     }
 
     struct UnitStats {
@@ -264,6 +266,7 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         UnitAmount[] storage defenderUnits
     )
         internal
+        view
         returns (
             bool attackerWins,
             UnitAmount[] memory survivingAttackerUnits,
@@ -278,7 +281,7 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
             uint16 unitId = attackerUnits[i].unitId;
             uint16 amount = attackerUnits[i].amount;
 
-            IUnitManager.Unit memory unit = unitManager.getUnitStats(unitId);
+            IUnitManager.Unit memory unit = unitManager.units(unitId);
 
             uint256 unitTotalHP = uint256(unit.hp) * amount;
             uint256 unitTotalDamage = uint256(unit.damage) * amount;
@@ -293,7 +296,7 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
             uint16 unitId = defenderUnits[i].unitId;
             uint16 amount = defenderUnits[i].amount;
 
-            IUnitManager.Unit memory unit = unitManager.getUnitStats(unitId);
+            IUnitManager.Unit memory unit = unitManager.units(unitId);
 
             uint256 unitTotalHP = uint256(unit.hp) * amount;
             uint256 unitTotalDamage = uint256(unit.damage) * amount;
@@ -382,8 +385,14 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         UnitAmount[] storage originalDefenderUnits,
         UnitAmount[] memory survivingDefenderUnits
     ) internal returns (Loot[] memory lootERC20, Loot1155[] memory lootERC1155) {
-        mapping(address => uint256) memory lootERC20Mapping;
-        mapping(bytes32 => uint256) memory lootERC1155Mapping;
+        uint256 maxLootERC20Size = 100;
+        uint256 maxLootERC1155Size = 100;
+
+        Loot[] memory tempLootERC20 = new Loot[](maxLootERC20Size);
+        uint256 lootERC20Count = 0;
+
+        Loot1155[] memory tempLootERC1155 = new Loot1155[](maxLootERC1155Size);
+        uint256 lootERC1155Count = 0;
 
         for (uint256 i = 0; i < originalDefenderUnits.length; i++) {
             uint16 unitId = originalDefenderUnits[i].unitId;
@@ -400,88 +409,140 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
             uint16 destroyedAmount = originalAmount - survivingAmount;
 
             if (destroyedAmount > 0) {
-                (
-                    address[] memory resources,
-                    uint256[] memory costs,
-                    address[] memory items,
-                    uint256[] memory itemIds,
-                    uint256[] memory itemAmounts
-                ) = unitManager.getUnitTrainCosts(unitId);
-
-                for (uint256 k = 0; k < resources.length; k++) {
-                    lootERC20Mapping[resources[k]] += costs[k] * destroyedAmount;
-                }
-
-                for (uint256 k = 0; k < items.length; k++) {
-                    bytes32 key = keccak256(abi.encodePacked(items[k], itemIds[k]));
-                    lootERC1155Mapping[key] += itemAmounts[k] * destroyedAmount;
-                }
+                (lootERC20Count, lootERC1155Count) = collectUnitCosts(
+                    unitId,
+                    destroyedAmount,
+                    tempLootERC20,
+                    lootERC20Count,
+                    tempLootERC1155,
+                    lootERC1155Count
+                );
             }
         }
 
         if (toTile.buildingId != 0) {
-            (
-                address[] memory resources,
-                uint256[] memory costs,
-                address[] memory items,
-                uint256[] memory itemIds,
-                uint256[] memory itemAmounts
-            ) = buildingManager.getBuildingConstructionCosts(toTile.buildingId);
-
-            for (uint256 j = 0; j < resources.length; j++) {
-                lootERC20Mapping[resources[j]] += costs[j];
-            }
-
-            for (uint256 j = 0; j < items.length; j++) {
-                bytes32 key = keccak256(abi.encodePacked(items[j], itemIds[j]));
-                lootERC1155Mapping[key] += itemAmounts[j];
-            }
-        }
-
-        uint256 lootERC20Count = 0;
-        address[] memory resourceList = assetManager.getAllResources();
-        for (uint256 i = 0; i < resourceList.length; i++) {
-            if (lootERC20Mapping[resourceList[i]] > 0) {
-                lootERC20Count++;
-            }
+            lootERC20Count = collectBuildingCosts(toTile.buildingId, tempLootERC20, lootERC20Count);
         }
 
         lootERC20 = new Loot[](lootERC20Count);
-        uint256 index = 0;
-        for (uint256 i = 0; i < resourceList.length; i++) {
-            address resource = resourceList[i];
-            uint256 amount = lootERC20Mapping[resource];
-            if (amount > 0) {
-                lootERC20[index] = Loot({resource: resource, amount: amount});
-                index++;
-            }
-        }
-
-        uint256 lootERC1155Count = 0;
-        bytes32[] memory keys = assetManager.getAllItemKeys();
-        for (uint256 i = 0; i < keys.length; i++) {
-            if (lootERC1155Mapping[keys[i]] > 0) {
-                lootERC1155Count++;
-            }
+        for (uint256 i = 0; i < lootERC20Count; i++) {
+            lootERC20[i] = tempLootERC20[i];
         }
 
         lootERC1155 = new Loot1155[](lootERC1155Count);
-        index = 0;
-        for (uint256 i = 0; i < keys.length; i++) {
-            uint256 amount = lootERC1155Mapping[keys[i]];
-            if (amount > 0) {
-                (address tokenAddress, uint256 tokenId) = assetManager.getItemByKey(keys[i]);
-                lootERC1155[index] = Loot1155({tokenAddress: tokenAddress, tokenId: tokenId, amount: amount});
-                index++;
+        for (uint256 i = 0; i < lootERC1155Count; i++) {
+            lootERC1155[i] = tempLootERC1155[i];
+        }
+    }
+
+    function addToLootERC20(
+        Loot[] memory lootArray,
+        address resource,
+        uint256 amount,
+        uint256 lootCount
+    ) internal pure returns (uint256) {
+        for (uint256 i = 0; i < lootCount; i++) {
+            if (lootArray[i].resource == resource) {
+                lootArray[i].amount += amount;
+                return lootCount;
             }
         }
+        require(lootCount < lootArray.length, "ERC20 loot array overflow");
+        lootArray[lootCount] = Loot({resource: resource, amount: amount});
+        return lootCount + 1;
+    }
 
-        return (lootERC20, lootERC1155);
+    function addToLootERC1155(
+        Loot1155[] memory lootArray,
+        address tokenAddress,
+        uint256 tokenId,
+        uint256 amount,
+        uint256 lootCount
+    ) internal pure returns (uint256) {
+        for (uint256 i = 0; i < lootCount; i++) {
+            if (lootArray[i].tokenAddress == tokenAddress && lootArray[i].tokenId == tokenId) {
+                lootArray[i].amount += amount;
+                return lootCount;
+            }
+        }
+        require(lootCount < lootArray.length, "ERC1155 loot array overflow");
+        lootArray[lootCount] = Loot1155({tokenAddress: tokenAddress, tokenId: tokenId, amount: amount});
+        return lootCount + 1;
+    }
+
+    function collectUnitCosts(
+        uint16 unitId,
+        uint256 destroyedAmount,
+        Loot[] memory tempLootERC20,
+        uint256 lootERC20Count,
+        Loot1155[] memory tempLootERC1155,
+        uint256 lootERC1155Count
+    ) internal returns (uint256, uint256) {
+        IUnitManager.Unit memory unit = unitManager.units(unitId);
+        IAssetManager.Asset memory asset = assetManager.assets(unit.assetVersion);
+
+        address[] memory resources = asset.resources;
+        uint256[] memory costs = unit.trainCosts;
+
+        require(resources.length == costs.length, "Mismatch in resources and costs length");
+
+        for (uint256 k = 0; k < resources.length; k++) {
+            uint256 totalAmount = costs[k] * destroyedAmount;
+            lootERC20Count = addToLootERC20(tempLootERC20, resources[k], totalAmount, lootERC20Count);
+        }
+
+        if (unit.upgradeItemId != 0) {
+            address itemAddress = asset.item;
+            uint256 totalAmount = destroyedAmount;
+            lootERC1155Count = addToLootERC1155(
+                tempLootERC1155,
+                itemAddress,
+                unit.upgradeItemId,
+                totalAmount,
+                lootERC1155Count
+            );
+        }
+
+        if (unit.preUpgradeUnitId != 0) {
+            (lootERC20Count, lootERC1155Count) = collectUnitCosts(
+                uint16(unit.preUpgradeUnitId),
+                destroyedAmount,
+                tempLootERC20,
+                lootERC20Count,
+                tempLootERC1155,
+                lootERC1155Count
+            );
+        }
+
+        return (lootERC20Count, lootERC1155Count);
+    }
+
+    function collectBuildingCosts(
+        uint16 buildingId,
+        Loot[] memory tempLootERC20,
+        uint256 lootERC20Count
+    ) internal returns (uint256) {
+        IBuildingManager.Building memory building = buildingManager.buildings(buildingId);
+        IAssetManager.Asset memory asset = assetManager.assets(building.assetVersion);
+
+        address[] memory resources = asset.resources;
+        uint256[] memory costs = building.constructionCosts;
+
+        require(resources.length == costs.length, "Mismatch in resources and costs length");
+
+        for (uint256 k = 0; k < resources.length; k++) {
+            uint256 totalAmount = costs[k];
+            lootERC20Count = addToLootERC20(tempLootERC20, resources[k], totalAmount, lootERC20Count);
+        }
+
+        if (building.preUpgradeBuildingId != 0) {
+            lootERC20Count = collectBuildingCosts(uint16(building.preUpgradeBuildingId), tempLootERC20, lootERC20Count);
+        }
+
+        return lootERC20Count;
     }
 
     function distributeLoot(Loot[] memory lootERC20, Loot1155[] memory lootERC1155, address attacker) internal {
-        uint256 attackerSharePercentage = 100 - ownerSharePercentage;
-
         for (uint256 i = 0; i < lootERC20.length; i++) {
             uint256 totalAmount = lootERC20[i].amount;
 
