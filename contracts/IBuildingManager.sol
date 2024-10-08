@@ -8,5 +8,5 @@ interface IBuildingManager {
         uint256[] constructionCosts;
     }
 
-    function buildings(uint256 buildingId) external view returns (Building memory);
+    function getBuilding(uint256 buildingId) external view returns (Building memory);
 }

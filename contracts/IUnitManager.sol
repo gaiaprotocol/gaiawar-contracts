@@ -12,5 +12,5 @@ interface IUnitManager {
         uint256 upgradeItemId;
     }
 
-    function units(uint256 unitId) external view returns (Unit memory);
+    function getUnit(uint256 unitId) external view returns (Unit memory);
 }

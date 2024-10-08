@@ -281,7 +281,7 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
             uint16 unitId = attackerUnits[i].unitId;
             uint16 amount = attackerUnits[i].amount;
 
-            IUnitManager.Unit memory unit = unitManager.units(unitId);
+            IUnitManager.Unit memory unit = unitManager.getUnit(unitId);
 
             uint256 unitTotalHP = uint256(unit.hp) * amount;
             uint256 unitTotalDamage = uint256(unit.damage) * amount;
@@ -296,7 +296,7 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
             uint16 unitId = defenderUnits[i].unitId;
             uint16 amount = defenderUnits[i].amount;
 
-            IUnitManager.Unit memory unit = unitManager.units(unitId);
+            IUnitManager.Unit memory unit = unitManager.getUnit(unitId);
 
             uint256 unitTotalHP = uint256(unit.hp) * amount;
             uint256 unitTotalDamage = uint256(unit.damage) * amount;
@@ -478,8 +478,8 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         Loot1155[] memory tempLootERC1155,
         uint256 lootERC1155Count
     ) internal returns (uint256, uint256) {
-        IUnitManager.Unit memory unit = unitManager.units(unitId);
-        IAssetManager.Asset memory asset = assetManager.assets(unit.assetVersion);
+        IUnitManager.Unit memory unit = unitManager.getUnit(unitId);
+        IAssetManager.Asset memory asset = assetManager.getAsset(unit.assetVersion);
 
         address[] memory resources = asset.resources;
         uint256[] memory costs = unit.trainCosts;
@@ -522,8 +522,8 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         Loot[] memory tempLootERC20,
         uint256 lootERC20Count
     ) internal returns (uint256) {
-        IBuildingManager.Building memory building = buildingManager.buildings(buildingId);
-        IAssetManager.Asset memory asset = assetManager.assets(building.assetVersion);
+        IBuildingManager.Building memory building = buildingManager.getBuilding(buildingId);
+        IAssetManager.Asset memory asset = assetManager.getAsset(building.assetVersion);
 
         address[] memory resources = asset.resources;
         uint256[] memory costs = building.constructionCosts;

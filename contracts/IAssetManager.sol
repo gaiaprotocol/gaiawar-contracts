@@ -9,5 +9,5 @@ interface IAssetManager {
 
     function currentVersion() external view returns (uint16);
 
-    function assets(uint16 version) external view returns (Asset memory);
+    function getAsset(uint16 version) external view returns (Asset memory);
 }
