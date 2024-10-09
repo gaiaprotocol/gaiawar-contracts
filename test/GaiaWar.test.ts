@@ -134,9 +134,9 @@ describe("GaiaWar Comprehensive Tests", function () {
       await assetManager.addAsset([testToken.target], testItem.target);
 
       // Mint ERC20 tokens to players
-      await testToken.mint(player1.target, ethers.parseEther("10000"));
-      await testToken.mint(player2.target, ethers.parseEther("10000"));
-      await testToken.mint(player3.target, ethers.parseEther("10000"));
+      await testToken.mint(player1.address, ethers.parseEther("10000"));
+      await testToken.mint(player2.address, ethers.parseEther("10000"));
+      await testToken.mint(player3.address, ethers.parseEther("10000"));
 
       // Players approve GaiaWar to spend their tokens
       await testToken
@@ -150,9 +150,9 @@ describe("GaiaWar Comprehensive Tests", function () {
         .approve(gaiaWar.target, ethers.MaxUint256);
 
       // Mint ERC1155 items to players
-      await testItem.mint(player1.target, 1, 1000, "0x");
-      await testItem.mint(player2.target, 1, 1000, "0x");
-      await testItem.mint(player3.target, 1, 1000, "0x");
+      await testItem.mint(player1.address, 1, 1000, "0x");
+      await testItem.mint(player2.address, 1, 1000, "0x");
+      await testItem.mint(player3.address, 1, 1000, "0x");
 
       // Players set approval for GaiaWar to handle their items
       await testItem
@@ -252,7 +252,7 @@ describe("GaiaWar Comprehensive Tests", function () {
       await assetManager.addAsset([testToken.target], testItem.target);
 
       // Mint tokens and approve GaiaWar
-      await testToken.mint(player1.target, ethers.parseEther("10000"));
+      await testToken.mint(player1.address, ethers.parseEther("10000"));
       await testToken
         .connect(player1)
         .approve(gaiaWar.target, ethers.MaxUint256);
@@ -278,10 +278,10 @@ describe("GaiaWar Comprehensive Tests", function () {
         gaiaWar.connect(player1).buildBuilding(5, 5, 1),
       )
         .to.emit(gaiaWar, "BuildingConstructed")
-        .withArgs(player1.target, 5, 5, 1);
+        .withArgs(player1.address, 5, 5, 1);
 
       const tile = await gaiaWar.map(5, 5);
-      expect(tile.occupant).to.equal(player1.target);
+      expect(tile.occupant).to.equal(player1.address);
       expect(tile.buildingId).to.equal(1);
     });
 
@@ -290,7 +290,7 @@ describe("GaiaWar Comprehensive Tests", function () {
       await gaiaWar.connect(player1).buildBuilding(5, 5, 1);
 
       // Player2 attempts to build near player1's headquarters
-      await testToken.mint(player2.target, ethers.parseEther("10000"));
+      await testToken.mint(player2.address, ethers.parseEther("10000"));
       await testToken
         .connect(player2)
         .approve(gaiaWar.target, ethers.MaxUint256);
@@ -309,7 +309,7 @@ describe("GaiaWar Comprehensive Tests", function () {
         gaiaWar.connect(player1).upgradeBuilding(5, 5, 2),
       )
         .to.emit(gaiaWar, "BuildingConstructed")
-        .withArgs(player1.target, 5, 5, 2);
+        .withArgs(player1.address, 5, 5, 2);
 
       const tile = await gaiaWar.map(5, 5);
       expect(tile.buildingId).to.equal(2);
@@ -332,12 +332,12 @@ describe("GaiaWar Comprehensive Tests", function () {
       await assetManager.addAsset([testToken.target], testItem.target);
 
       // Mint tokens and items
-      await testToken.mint(player1.target, ethers.parseEther("10000"));
+      await testToken.mint(player1.address, ethers.parseEther("10000"));
       await testToken
         .connect(player1)
         .approve(gaiaWar.target, ethers.MaxUint256);
 
-      await testItem.mint(player1.target, 1, 1000, "0x");
+      await testItem.mint(player1.address, 1, 1000, "0x");
       await testItem
         .connect(player1)
         .setApprovalForAll(gaiaWar.target, true);
@@ -382,7 +382,7 @@ describe("GaiaWar Comprehensive Tests", function () {
         gaiaWar.connect(player1).trainUnits(5, 5, 1, 10),
       )
         .to.emit(gaiaWar, "UnitsTrained")
-        .withArgs(player1.target, 5, 5, 1, 10);
+        .withArgs(player1.address, 5, 5, 1, 10);
 
       const units = await gaiaWar.getTileUnits(5, 5);
       expect(units.length).to.equal(1);
@@ -405,7 +405,7 @@ describe("GaiaWar Comprehensive Tests", function () {
         gaiaWar.connect(player1).upgradeUnits(5, 5, 2, 5),
       )
         .to.emit(gaiaWar, "UnitsUpgraded")
-        .withArgs(player1.target, 5, 5, 2, 5);
+        .withArgs(player1.address, 5, 5, 2, 5);
 
       const units = await gaiaWar.getTileUnits(5, 5);
       expect(units.length).to.equal(2);
@@ -421,7 +421,7 @@ describe("GaiaWar Comprehensive Tests", function () {
       // Transfer all items from player1 to player2
       await testItem
         .connect(player1)
-        .safeTransferFrom(player1.target, player2.target, 1, 1000, "0x");
+        .safeTransferFrom(player1.address, player2.address, 1, 1000, "0x");
 
       // Train basic units
       await gaiaWar.connect(player1).trainUnits(5, 5, 1, 10);
@@ -439,8 +439,8 @@ describe("GaiaWar Comprehensive Tests", function () {
       await assetManager.addAsset([testToken.target], testItem.target);
 
       // Mint tokens
-      await testToken.mint(player1.target, ethers.parseEther("10000"));
-      await testToken.mint(player2.target, ethers.parseEther("10000"));
+      await testToken.mint(player1.address, ethers.parseEther("10000"));
+      await testToken.mint(player2.address, ethers.parseEther("10000"));
       await testToken
         .connect(player1)
         .approve(gaiaWar.target, ethers.MaxUint256);
@@ -529,7 +529,7 @@ describe("GaiaWar Comprehensive Tests", function () {
       ).to.emit(gaiaWar, "AttackResult");
 
       const tile = await gaiaWar.map(10, 10);
-      expect(tile.occupant).to.equal(player1.target);
+      expect(tile.occupant).to.equal(player1.address);
     });
 
     it("should handle combat where defender wins", async function () {
@@ -547,7 +547,7 @@ describe("GaiaWar Comprehensive Tests", function () {
       ).to.emit(gaiaWar, "AttackResult");
 
       const tile = await gaiaWar.map(10, 10);
-      expect(tile.occupant).to.equal(player2.target);
+      expect(tile.occupant).to.equal(player2.address);
 
       // Verify that Player1's units are destroyed
       const fromTileUnits = await gaiaWar.getTileUnits(8, 8);
@@ -573,7 +573,7 @@ describe("GaiaWar Comprehensive Tests", function () {
 
       // Check balances after loot distribution
       const ownerBalance = await testToken.balanceOf(owner.target);
-      const player1Balance = await testToken.balanceOf(player1.target);
+      const player1Balance = await testToken.balanceOf(player1.address);
 
       expect(ownerBalance).to.be.gt(0);
       expect(player1Balance).to.be.gt(0);
