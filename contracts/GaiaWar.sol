@@ -16,9 +16,11 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
     IBuildingManager public buildingManager;
     IUnitManager public unitManager;
 
-    event AssetManagerSet(address indexed newAssetManager);
-    event BuildingManagerSet(address indexed newBuildingManager);
-    event UnitManagerSet(address indexed newUnitManager);
+    uint16 public mapRows;
+    uint16 public mapCols;
+    uint16 public maxUnitsPerTile;
+    uint16 public maxUnitMovementRange;
+    uint8 public ownerSharePercentage;
 
     struct UnitAmount {
         uint16 unitId;
@@ -33,24 +35,26 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
 
     mapping(uint16 => mapping(uint16 => Tile)) public map;
 
-    function getTileUnits(uint16 row, uint16 col) external view returns (UnitAmount[] memory) {
-        require(row < mapRows, "Invalid row");
-        require(col < mapCols, "Invalid column");
-        return map[row][col].units;
-    }
-
-    uint16 public mapRows;
-    uint16 public mapCols;
-
-    uint16 public maxUnitsPerTile;
-    uint16 public maxUnitMovementRange;
-
-    uint8 public ownerSharePercentage;
-
+    event AssetManagerSet(address indexed newAssetManager);
+    event BuildingManagerSet(address indexed newBuildingManager);
+    event UnitManagerSet(address indexed newUnitManager);
     event MapSizeUpdated(uint16 newRows, uint16 newCols);
     event MaxUnitsPerTileUpdated(uint16 newMaxUnits);
     event MaxUnitMovementRangeUpdated(uint16 newMaxRange);
     event OwnerSharePercentageUpdated(uint8 newPercentage);
+    event UnitsMoved(uint16 fromRow, uint16 fromCol, uint16 toRow, uint16 toCol, UnitAmount[] units);
+    event AttackResult(
+        address indexed attacker,
+        address indexed defender,
+        uint16 fromRow,
+        uint16 fromCol,
+        uint16 toRow,
+        uint16 toCol,
+        bool attackerWon
+    );
+    event BuildingConstructed(address indexed player, uint16 row, uint16 col, uint256 buildingId);
+    event UnitsTrained(address indexed player, uint16 row, uint16 col, uint16 unitId, uint16 amount);
+    event UnitsUpgraded(address indexed player, uint16 row, uint16 col, uint16 unitId, uint16 amount);
 
     function initialize(
         address _assetManager,
@@ -119,17 +123,11 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
         emit OwnerSharePercentageUpdated(_newPercentage);
     }
 
-    event UnitsMoved(uint16 fromRow, uint16 fromCol, uint16 toRow, uint16 toCol, UnitAmount[] units);
-
-    event AttackResult(
-        address indexed attacker,
-        address indexed defender,
-        uint16 fromRow,
-        uint16 fromCol,
-        uint16 toRow,
-        uint16 toCol,
-        bool attackerWon
-    );
+    function getTileUnits(uint16 row, uint16 col) external view returns (UnitAmount[] memory) {
+        require(row < mapRows, "Invalid row");
+        require(col < mapCols, "Invalid column");
+        return map[row][col].units;
+    }
 
     function calculateDistance(
         uint16 fromRow,
@@ -149,10 +147,8 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
         uint16 toCol,
         UnitAmount[] calldata unitsToMove
     ) external {
-        require(fromRow < mapRows, "Invalid fromRow");
-        require(fromCol < mapCols, "Invalid fromCol");
-        require(toRow < mapRows, "Invalid toRow");
-        require(toCol < mapCols, "Invalid toCol");
+        require(fromRow < mapRows && fromCol < mapCols, "Invalid from coordinates");
+        require(toRow < mapRows && toCol < mapCols, "Invalid to coordinates");
 
         uint16 distance = calculateDistance(fromRow, fromCol, toRow, toCol);
         require(distance <= maxUnitMovementRange, "Movement range exceeded");
@@ -161,7 +157,7 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
         Tile storage toTile = map[toRow][toCol];
 
         require(fromTile.occupant == msg.sender, "Not your units");
-        require(toTile.occupant == msg.sender || toTile.occupant == address(0), "Not your units");
+        require(toTile.occupant == msg.sender || toTile.occupant == address(0), "Tile occupied by another player");
 
         for (uint256 i = 0; i < unitsToMove.length; i++) {
             uint16 unitId = unitsToMove[i].unitId;
@@ -170,7 +166,7 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
             bool foundFromUnit = false;
             for (uint256 j = 0; j < fromTile.units.length; j++) {
                 if (fromTile.units[j].unitId == unitId) {
-                    require(amount <= fromTile.units[j].amount, "Invalid amount");
+                    require(amount <= fromTile.units[j].amount, "Not enough units");
                     fromTile.units[j].amount -= amount;
 
                     if (fromTile.units[j].amount == 0) {
@@ -199,10 +195,9 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
         }
 
         uint16 totalUnitsInToTile = 0;
-        for (uint256 j = 0; j < toTile.units.length; j++) {
-            totalUnitsInToTile += toTile.units[j].amount;
+        for (uint256 i = 0; i < toTile.units.length; i++) {
+            totalUnitsInToTile += toTile.units[i].amount;
         }
-
         require(totalUnitsInToTile <= maxUnitsPerTile, "Exceeds max units per tile");
 
         if (toTile.occupant == address(0) && toTile.units.length > 0) {
@@ -216,10 +211,8 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
     }
 
     function attack(uint16 fromRow, uint16 fromCol, uint16 toRow, uint16 toCol) external nonReentrant {
-        require(fromRow < mapRows, "Invalid fromRow");
-        require(fromCol < mapCols, "Invalid fromCol");
-        require(toRow < mapRows, "Invalid toRow");
-        require(toCol < mapCols, "Invalid toCol");
+        require(fromRow < mapRows && fromCol < mapCols, "Invalid from coordinates");
+        require(toRow < mapRows && toCol < mapCols, "Invalid to coordinates");
 
         uint16 distance = calculateDistance(fromRow, fromCol, toRow, toCol);
         require(distance <= maxUnitMovementRange, "Movement range exceeded");
@@ -228,10 +221,8 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
         Tile storage toTile = map[toRow][toCol];
 
         require(fromTile.occupant == msg.sender, "Not your units");
-        require(toTile.occupant != msg.sender, "Cannot attack your own units");
-        require(toTile.occupant != address(0), "No enemy units to attack");
-        require(fromTile.units.length > 0, "No units to attack with");
-        require(toTile.units.length > 0, "No enemy units to attack");
+        require(toTile.occupant != msg.sender && toTile.occupant != address(0), "Invalid target");
+        require(fromTile.units.length > 0 && toTile.units.length > 0, "No units to attack");
 
         (
             bool attackerWins,
@@ -339,46 +330,31 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
         uint256 attackerSurvivalRate = attackerTotalHP > 0 ? (remainingAttackerHP * 1e18) / attackerTotalHP : 0;
         uint256 defenderSurvivalRate = defenderTotalHP > 0 ? (remainingDefenderHP * 1e18) / defenderTotalHP : 0;
 
-        uint256 survivingAttackerCount = 0;
-        for (uint256 i = 0; i < attackerUnits.length; i++) {
-            uint16 amount = attackerUnits[i].amount;
-            uint16 survivingAmount = uint16((uint256(amount) * attackerSurvivalRate) / 1e18);
+        survivingAttackerUnits = calculateSurvivingUnits(attackerUnits, attackerSurvivalRate);
+        survivingDefenderUnits = calculateSurvivingUnits(defenderUnits, defenderSurvivalRate);
+    }
+
+    function calculateSurvivingUnits(
+        UnitAmount[] storage units,
+        uint256 survivalRate
+    ) internal view returns (UnitAmount[] memory survivingUnits) {
+        uint256 count = 0;
+        for (uint256 i = 0; i < units.length; i++) {
+            uint16 amount = units[i].amount;
+            uint16 survivingAmount = uint16((uint256(amount) * survivalRate) / 1e18);
             if (survivingAmount > 0) {
-                survivingAttackerCount++;
+                count++;
             }
         }
 
-        survivingAttackerUnits = new UnitAmount[](survivingAttackerCount);
+        survivingUnits = new UnitAmount[](count);
         uint256 index = 0;
-        for (uint256 i = 0; i < attackerUnits.length; i++) {
-            uint16 unitId = attackerUnits[i].unitId;
-            uint16 amount = attackerUnits[i].amount;
-            uint16 survivingAmount = uint16((uint256(amount) * attackerSurvivalRate) / 1e18);
-
+        for (uint256 i = 0; i < units.length; i++) {
+            uint16 unitId = units[i].unitId;
+            uint16 amount = units[i].amount;
+            uint16 survivingAmount = uint16((uint256(amount) * survivalRate) / 1e18);
             if (survivingAmount > 0) {
-                survivingAttackerUnits[index] = UnitAmount({unitId: unitId, amount: survivingAmount});
-                index++;
-            }
-        }
-
-        uint256 survivingDefenderCount = 0;
-        for (uint256 i = 0; i < defenderUnits.length; i++) {
-            uint16 amount = defenderUnits[i].amount;
-            uint16 survivingAmount = uint16((uint256(amount) * defenderSurvivalRate) / 1e18);
-            if (survivingAmount > 0) {
-                survivingDefenderCount++;
-            }
-        }
-
-        survivingDefenderUnits = new UnitAmount[](survivingDefenderCount);
-        index = 0;
-        for (uint256 i = 0; i < defenderUnits.length; i++) {
-            uint16 unitId = defenderUnits[i].unitId;
-            uint16 amount = defenderUnits[i].amount;
-            uint16 survivingAmount = uint16((uint256(amount) * defenderSurvivalRate) / 1e18);
-
-            if (survivingAmount > 0) {
-                survivingDefenderUnits[index] = UnitAmount({unitId: unitId, amount: survivingAmount});
+                survivingUnits[index] = UnitAmount({unitId: unitId, amount: survivingAmount});
                 index++;
             }
         }
@@ -450,41 +426,6 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
         }
     }
 
-    function addToLootERC20(
-        Loot[] memory lootArray,
-        address resource,
-        uint256 amount,
-        uint256 lootCount
-    ) internal pure returns (uint256) {
-        for (uint256 i = 0; i < lootCount; i++) {
-            if (lootArray[i].resource == resource) {
-                lootArray[i].amount += amount;
-                return lootCount;
-            }
-        }
-        require(lootCount < lootArray.length, "ERC20 loot array overflow");
-        lootArray[lootCount] = Loot({resource: resource, amount: amount});
-        return lootCount + 1;
-    }
-
-    function addToLootERC1155(
-        Loot1155[] memory lootArray,
-        address tokenAddress,
-        uint256 tokenId,
-        uint256 amount,
-        uint256 lootCount
-    ) internal pure returns (uint256) {
-        for (uint256 i = 0; i < lootCount; i++) {
-            if (lootArray[i].tokenAddress == tokenAddress && lootArray[i].tokenId == tokenId) {
-                lootArray[i].amount += amount;
-                return lootCount;
-            }
-        }
-        require(lootCount < lootArray.length, "ERC1155 loot array overflow");
-        lootArray[lootCount] = Loot1155({tokenAddress: tokenAddress, tokenId: tokenId, amount: amount});
-        return lootCount + 1;
-    }
-
     function collectUnitCosts(
         uint16 unitId,
         uint256 destroyedAmount,
@@ -501,9 +442,9 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
 
         require(resources.length == costs.length, "Mismatch in resources and costs length");
 
-        for (uint256 k = 0; k < resources.length; k++) {
-            uint256 totalAmount = costs[k] * destroyedAmount;
-            lootERC20Count = addToLootERC20(tempLootERC20, resources[k], totalAmount, lootERC20Count);
+        for (uint256 i = 0; i < resources.length; i++) {
+            uint256 totalAmount = costs[i] * destroyedAmount;
+            lootERC20Count = addToLootERC20(tempLootERC20, resources[i], totalAmount, lootERC20Count);
         }
 
         if (unit.upgradeItemId != 0) {
@@ -545,9 +486,9 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
 
         require(resources.length == costs.length, "Mismatch in resources and costs length");
 
-        for (uint256 k = 0; k < resources.length; k++) {
-            uint256 totalAmount = costs[k];
-            lootERC20Count = addToLootERC20(tempLootERC20, resources[k], totalAmount, lootERC20Count);
+        for (uint256 i = 0; i < resources.length; i++) {
+            uint256 totalAmount = costs[i];
+            lootERC20Count = addToLootERC20(tempLootERC20, resources[i], totalAmount, lootERC20Count);
         }
 
         if (building.preUpgradeBuildingId != 0) {
@@ -555,6 +496,41 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
         }
 
         return lootERC20Count;
+    }
+
+    function addToLootERC20(
+        Loot[] memory lootArray,
+        address resource,
+        uint256 amount,
+        uint256 lootCount
+    ) internal pure returns (uint256) {
+        for (uint256 i = 0; i < lootCount; i++) {
+            if (lootArray[i].resource == resource) {
+                lootArray[i].amount += amount;
+                return lootCount;
+            }
+        }
+        require(lootCount < lootArray.length, "ERC20 loot array overflow");
+        lootArray[lootCount] = Loot({resource: resource, amount: amount});
+        return lootCount + 1;
+    }
+
+    function addToLootERC1155(
+        Loot1155[] memory lootArray,
+        address tokenAddress,
+        uint256 tokenId,
+        uint256 amount,
+        uint256 lootCount
+    ) internal pure returns (uint256) {
+        for (uint256 i = 0; i < lootCount; i++) {
+            if (lootArray[i].tokenAddress == tokenAddress && lootArray[i].tokenId == tokenId) {
+                lootArray[i].amount += amount;
+                return lootCount;
+            }
+        }
+        require(lootCount < lootArray.length, "ERC1155 loot array overflow");
+        lootArray[lootCount] = Loot1155({tokenAddress: tokenAddress, tokenId: tokenId, amount: amount});
+        return lootCount + 1;
     }
 
     function distributeLoot(Loot[] memory lootERC20, Loot1155[] memory lootERC1155, address attacker) internal {
@@ -583,17 +559,14 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
         }
     }
 
-    event BuildingConstructed(address indexed player, uint16 row, uint16 col, uint256 buildingId);
-
     function buildBuilding(uint16 row, uint16 col, uint256 buildingId) external nonReentrant {
-        require(row < mapRows, "Invalid row");
-        require(col < mapCols, "Invalid col");
+        require(row < mapRows && col < mapCols, "Invalid coordinates");
 
         IBuildingManager.Building memory building = buildingManager.getBuilding(buildingId);
 
         Tile storage tile = map[row][col];
-        require(tile.occupant == address(0) || tile.occupant == msg.sender, "Tile is occupied by another player");
-        require(tile.buildingId == 0, "There is already a building on this tile");
+        require(tile.occupant == address(0) || tile.occupant == msg.sender, "Tile occupied by another player");
+        require(tile.buildingId == 0, "Building already exists on this tile");
 
         if (building.isHeadquarters) {
             require(!isWithinEnemyBuildingRange(row, col, 3), "Cannot build near enemy building");
@@ -676,8 +649,7 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
     }
 
     function upgradeBuilding(uint16 row, uint16 col, uint256 newBuildingId) external nonReentrant {
-        require(row < mapRows, "Invalid row");
-        require(col < mapCols, "Invalid col");
+        require(row < mapRows && col < mapCols, "Invalid coordinates");
 
         Tile storage tile = map[row][col];
 
@@ -698,11 +670,8 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
         emit BuildingConstructed(msg.sender, row, col, newBuildingId);
     }
 
-    event UnitsTrained(address indexed player, uint16 row, uint16 col, uint16 unitId, uint16 amount);
-
     function trainUnits(uint16 row, uint16 col, uint16 unitId, uint16 amount) external nonReentrant {
-        require(row < mapRows, "Invalid row");
-        require(col < mapCols, "Invalid col");
+        require(row < mapRows && col < mapCols, "Invalid coordinates");
         require(amount > 0, "Amount must be greater than zero");
 
         Tile storage tile = map[row][col];
@@ -749,11 +718,8 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
         emit UnitsTrained(msg.sender, row, col, unitId, amount);
     }
 
-    event UnitsUpgraded(address indexed player, uint16 row, uint16 col, uint16 unitId, uint16 amount);
-
     function upgradeUnits(uint16 row, uint16 col, uint16 unitId, uint16 amount) external nonReentrant {
-        require(row < mapRows, "Invalid row");
-        require(col < mapCols, "Invalid col");
+        require(row < mapRows && col < mapCols, "Invalid coordinates");
         require(amount > 0, "Amount must be greater than zero");
 
         Tile storage tile = map[row][col];
