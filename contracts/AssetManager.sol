@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.27;
 
 import "./IAssetManager.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -12,7 +12,7 @@ contract AssetManager is IAssetManager, OwnableUpgradeable {
     event AssetAdded(uint16 version, address[] resources, address item);
 
     function initialize() public initializer {
-        __Ownable_init();
+        __Ownable_init(msg.sender);
     }
 
     function getAsset(uint16 version) external view override returns (Asset memory) {

@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.27;
 
 import "./IAssetManager.sol";
 import "./IBuildingManager.sol";
 import "./IUnitManager.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
-import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Receiver.sol";
+import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 
-contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, ERC1155Receiver {
+contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC1155Receiver {
     IAssetManager public assetManager;
     IBuildingManager public buildingManager;
     IUnitManager public unitManager;
@@ -32,6 +32,12 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, ERC1
     }
 
     mapping(uint16 => mapping(uint16 => Tile)) public map;
+
+    function getTileUnits(uint16 row, uint16 col) external view returns (UnitAmount[] memory) {
+        require(row < mapRows, "Invalid row");
+        require(col < mapCols, "Invalid column");
+        return map[row][col].units;
+    }
 
     uint16 public mapRows;
     uint16 public mapCols;
@@ -56,7 +62,7 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, ERC1
         uint16 _maxUnitMovementRange,
         uint8 _ownerSharePercentage
     ) public initializer {
-        __Ownable_init();
+        __Ownable_init(msg.sender);
         __ReentrancyGuard_init();
 
         assetManager = IAssetManager(_assetManager);
@@ -818,9 +824,7 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, ERC1
         return this.onERC1155BatchReceived.selector;
     }
 
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view virtual override(ERC165, ERC1155Receiver) returns (bool) {
-        return super.supportsInterface(interfaceId);
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
+        return interfaceId == type(IERC1155Receiver).interfaceId || super.supportsInterface(interfaceId);
     }
 }

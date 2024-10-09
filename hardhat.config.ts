@@ -1,36 +1,18 @@
-require("@nomicfoundation/hardhat-toolbox");
-require("@openzeppelin/hardhat-upgrades");
-require("dotenv/config");
+import { HardhatUserConfig } from "hardhat/config";
+import "@nomicfoundation/hardhat-toolbox";
 
-const accounts = [process.env.DEV_WALLET_PRIVATE_KEY];
-
-module.exports = {
+const config: HardhatUserConfig = {
   solidity: {
     compilers: [{
-      version: "0.8.24",
+      version: "0.8.27",
       settings: {
         viaIR: true,
+        optimizer: {
+          enabled: true,
+        },
       },
     }],
   },
-  networks: {
-    /*"base-mainnet": {
-      url: "https://mainnet.base.org",
-      accounts,
-      chainId: 8453,
-      gasPrice: 1000000000,
-    },
-    "base-sepolia": {
-      url: "https://sepolia.base.org",
-      accounts,
-      chainId: 84532,
-      gasPrice: 1000000000,
-    },*/
-  },
-  etherscan: {
-    apiKey: {
-      base: process.env.BASESCAN_API_KEY,
-      opera: process.env.FTMSCAN_API_KEY,
-    },
-  },
 };
+
+export default config;
