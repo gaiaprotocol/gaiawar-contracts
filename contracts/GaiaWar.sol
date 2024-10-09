@@ -598,7 +598,7 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
         if (building.isHeadquarters) {
             require(!isWithinEnemyBuildingRange(row, col, 3), "Cannot build near enemy building");
         } else {
-            require(isWithinPlayerHeadquartersRange(msg.sender, row, col), "Cannot build outside of allowed range");
+            require(isWithinPlayerHeadquartersRange(msg.sender, row, col, 7), "Cannot build outside of allowed range");
             require(!isWithinEnemyBuildingRange(row, col, 3), "Cannot build near enemy building");
         }
 
@@ -631,11 +631,16 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
         return false;
     }
 
-    function isWithinPlayerHeadquartersRange(address player, uint16 row, uint16 col) internal view returns (bool) {
-        uint16 startRow = row >= 15 ? row - 15 : 0;
-        uint16 endRow = row + 15 < mapRows ? row + 15 : mapRows - 1;
-        uint16 startCol = col >= 15 ? col - 15 : 0;
-        uint16 endCol = col + 15 < mapCols ? col + 15 : mapCols - 1;
+    function isWithinPlayerHeadquartersRange(
+        address player,
+        uint16 row,
+        uint16 col,
+        uint16 range
+    ) internal view returns (bool) {
+        uint16 startRow = row >= range ? row - range : 0;
+        uint16 endRow = row + range < mapRows ? row + range : mapRows - 1;
+        uint16 startCol = col >= range ? col - range : 0;
+        uint16 endCol = col + range < mapCols ? col + range : mapCols - 1;
 
         for (uint16 i = startRow; i <= endRow; i++) {
             for (uint16 j = startCol; j <= endCol; j++) {
