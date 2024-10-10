@@ -133,13 +133,15 @@ contract TrainingManager is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         IMapStorage.UnitAmount[] memory tileUnits = mapStorage.getTileUnits(row, col);
 
         bool found = false;
-        uint256 newLength = tileUnits.length;
+        uint256 removeIndex = tileUnits.length; // Initialize with an invalid index
+
         for (uint256 i = 0; i < tileUnits.length; i++) {
             if (tileUnits[i].unitId == preUpgradeUnitId) {
                 require(tileUnits[i].amount >= amount, "Not enough units to upgrade");
+                // Decrease the amount
                 tileUnits[i].amount -= amount;
                 if (tileUnits[i].amount == 0) {
-                    newLength--;
+                    removeIndex = i; // Mark this index for removal
                 }
                 found = true;
                 break;
@@ -154,33 +156,43 @@ contract TrainingManager is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         address itemAddress = asset.item;
         IERC1155 itemToken = IERC1155(itemAddress);
 
+        // Transfer the upgrade items
         itemToken.safeTransferFrom(msg.sender, address(this), upgradeItemId, amount, "");
 
-        IMapStorage.UnitAmount[] memory newTileUnits = new IMapStorage.UnitAmount[](newLength);
-        uint256 index = 0;
-        bool upgradedUnitExists = false;
-
-        for (uint256 i = 0; i < tileUnits.length; i++) {
-            if (tileUnits[i].amount > 0) {
-                if (tileUnits[i].unitId == unitId) {
-                    newTileUnits[index] = IMapStorage.UnitAmount({
-                        unitId: unitId,
-                        amount: tileUnits[i].amount + amount
-                    });
-                    upgradedUnitExists = true;
-                } else {
-                    newTileUnits[index] = tileUnits[i];
+        if (removeIndex < tileUnits.length) {
+            // Create a new array without the removed element
+            IMapStorage.UnitAmount[] memory newTileUnits = new IMapStorage.UnitAmount[](tileUnits.length - 1);
+            uint256 newIndex = 0;
+            for (uint256 i = 0; i < tileUnits.length; i++) {
+                if (i != removeIndex) {
+                    newTileUnits[newIndex] = tileUnits[i];
+                    newIndex++;
                 }
-                index++;
+            }
+            tileUnits = newTileUnits;
+        }
+
+        // Now, add or update the upgraded units
+        bool unitExists = false;
+        for (uint256 i = 0; i < tileUnits.length; i++) {
+            if (tileUnits[i].unitId == unitId) {
+                tileUnits[i].amount += amount;
+                unitExists = true;
+                break;
             }
         }
-
-        if (!upgradedUnitExists) {
-            require(index < newLength, "Array bounds exceeded");
-            newTileUnits[index] = IMapStorage.UnitAmount({unitId: unitId, amount: amount});
+        if (!unitExists) {
+            // Create a new array with an additional slot for the new unit
+            IMapStorage.UnitAmount[] memory extendedTileUnits = new IMapStorage.UnitAmount[](tileUnits.length + 1);
+            for (uint256 i = 0; i < tileUnits.length; i++) {
+                extendedTileUnits[i] = tileUnits[i];
+            }
+            extendedTileUnits[tileUnits.length] = IMapStorage.UnitAmount({unitId: unitId, amount: amount});
+            tileUnits = extendedTileUnits;
         }
 
-        mapStorage.updateTileUnits(row, col, newTileUnits);
+        // Update the tile units in storage
+        mapStorage.updateTileUnits(row, col, tileUnits);
 
         emit UnitsUpgraded(msg.sender, row, col, unitId, amount);
     }
