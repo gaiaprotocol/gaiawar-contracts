@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { UnitManager, UnitManager__factory } from "../../typechain-types";
+import { UnitManager, UnitManager__factory } from "../typechain-types";
 
 describe("UnitManager", function () {
   let UnitManagerFactory: UnitManager__factory;

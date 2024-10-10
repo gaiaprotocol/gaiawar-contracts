@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { AssetManager, AssetManager__factory } from "../../typechain-types";
+import { AssetManager, AssetManager__factory } from "../typechain-types";
 
 describe("AssetManager", function () {
   let AssetManagerFactory: AssetManager__factory;

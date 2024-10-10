@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { BuildingManager, BuildingManager__factory } from "../../typechain-types";
+import { BuildingManager, BuildingManager__factory } from "../typechain-types";
 
 describe("BuildingManager", function () {
   let BuildingManagerFactory: BuildingManager__factory;
