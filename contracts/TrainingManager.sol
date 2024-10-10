@@ -71,51 +71,64 @@ contract TrainingManager is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     function trainUnits(uint16 row, uint16 col, uint16 unitId, uint16 amount) external nonReentrant {
         require(amount > 0, "Amount must be greater than zero");
 
+        // Fetch tile details
         address tileOccupant = mapStorage.getTileOccupant(row, col);
         uint16 tileBuildingId = mapStorage.getTileBuildingId(row, col);
 
         require(tileOccupant == msg.sender, "Not your tile");
         require(tileBuildingId != 0, "No building on this tile");
 
+        // Verify building can produce the unit
         bool canProduce = buildingRegistry.canProduceUnit(tileBuildingId, unitId);
         require(canProduce, "Building cannot produce this unit");
 
+        // Fetch unit information
         IUnitRegistry.Unit memory unitInfo = unitRegistry.getUnit(unitId);
         require(unitInfo.upgradeItemId == 0, "Unit is not a producible unit");
 
+        // Fetch asset information
         IAssetRegistry.Asset memory asset = assetRegistry.getAsset(unitInfo.assetVersion);
         address[] memory resources = asset.resources;
         uint256[] memory costs = unitInfo.trainCosts;
 
         require(resources.length == costs.length, "Mismatch in resources and costs length");
 
+        // Calculate total costs and perform resource transfers
         for (uint256 i = 0; i < resources.length; i++) {
             uint256 totalCost = costs[i] * amount;
             IERC20 token = IERC20(resources[i]);
             require(token.transferFrom(msg.sender, address(this), totalCost), "Resource transfer failed");
         }
 
+        // Retrieve current units on the tile
         IMapStorage.UnitAmount[] memory tileUnits = mapStorage.getTileUnits(row, col);
-
+        uint256 unitIndex = tileUnits.length; // Default to an invalid index
         bool unitExists = false;
+
+        // Find if the unit already exists
         for (uint256 i = 0; i < tileUnits.length; i++) {
             if (tileUnits[i].unitId == unitId) {
-                tileUnits[i].amount += amount;
+                unitIndex = i;
                 unitExists = true;
                 break;
             }
         }
 
         if (unitExists) {
-            mapStorage.updateTileUnits(row, col, tileUnits);
+            // Update the existing unit amount
+            tileUnits[unitIndex].amount += amount;
         } else {
+            // Create a new array with an additional slot for the new unit
             IMapStorage.UnitAmount[] memory newTileUnits = new IMapStorage.UnitAmount[](tileUnits.length + 1);
             for (uint256 i = 0; i < tileUnits.length; i++) {
                 newTileUnits[i] = tileUnits[i];
             }
             newTileUnits[tileUnits.length] = IMapStorage.UnitAmount({unitId: unitId, amount: amount});
-            mapStorage.updateTileUnits(row, col, newTileUnits);
+            tileUnits = newTileUnits;
         }
+
+        // Update the tile units in storage
+        mapStorage.updateTileUnits(row, col, tileUnits);
 
         emit UnitsTrained(msg.sender, row, col, unitId, amount);
     }
