@@ -3,8 +3,9 @@ pragma solidity ^0.8.27;
 
 import "./IMapStorage.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC1155/utils/ERC1155HolderUpgradeable.sol";
 
-contract MapStorage is IMapStorage, OwnableUpgradeable {
+contract MapStorage is IMapStorage, OwnableUpgradeable, ERC1155HolderUpgradeable {
     struct Tile {
         address occupant;
         uint16 buildingId;
@@ -30,6 +31,7 @@ contract MapStorage is IMapStorage, OwnableUpgradeable {
 
     function initialize(uint16 _mapRows, uint16 _mapCols, uint16 _maxUnitsPerTile) public initializer {
         __Ownable_init(msg.sender);
+        __ERC1155Holder_init();
 
         mapRows = _mapRows;
         mapCols = _mapCols;

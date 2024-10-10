@@ -146,7 +146,7 @@ contract ConstructionManager is OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
         for (uint256 i = 0; i < resources.length; i++) {
             IERC20 token = IERC20(resources[i]);
-            require(token.transferFrom(msg.sender, address(this), costs[i]), "Resource transfer failed");
+            require(token.transferFrom(msg.sender, address(mapStorage), costs[i]), "Resource transfer failed");
         }
     }
 

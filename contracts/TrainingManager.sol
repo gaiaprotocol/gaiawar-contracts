@@ -97,7 +97,7 @@ contract TrainingManager is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         for (uint256 i = 0; i < resources.length; i++) {
             uint256 totalCost = costs[i] * amount;
             IERC20 token = IERC20(resources[i]);
-            require(token.transferFrom(msg.sender, address(this), totalCost), "Resource transfer failed");
+            require(token.transferFrom(msg.sender, address(mapStorage), totalCost), "Resource transfer failed");
         }
 
         // Retrieve current units on the tile
@@ -170,7 +170,7 @@ contract TrainingManager is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         IERC1155 itemToken = IERC1155(itemAddress);
 
         // Transfer the upgrade items
-        itemToken.safeTransferFrom(msg.sender, address(this), upgradeItemId, amount, "");
+        itemToken.safeTransferFrom(msg.sender, address(mapStorage), upgradeItemId, amount, "");
 
         if (removeIndex < tileUnits.length) {
             // Create a new array without the removed element
