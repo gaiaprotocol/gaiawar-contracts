@@ -51,10 +51,10 @@ contract ConstructionManager is OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
     function constructBuilding(uint16 row, uint16 col, uint16 buildingId) external nonReentrant {
         IBuildingRegistry.Building memory building = buildingRegistry.getBuilding(buildingId);
-        address occupant = mapStorage.getTileOccupant(row, col);
+        address tileOccupant = mapStorage.getTileOccupant(row, col);
         uint16 tileBuildingId = mapStorage.getTileBuildingId(row, col);
 
-        require(occupant == address(0) || occupant == msg.sender, "Tile occupied by another player");
+        require(tileOccupant == address(0) || tileOccupant == msg.sender, "Tile occupied by another player");
         require(tileBuildingId == 0, "Building already exists on this tile");
 
         if (building.isHeadquarters) {
@@ -93,9 +93,9 @@ contract ConstructionManager is OwnableUpgradeable, ReentrancyGuardUpgradeable {
             for (uint16 j = startCol; j <= endCol; j++) {
                 uint16 distance = calculateDistance(row, col, i, j);
                 if (distance <= range) {
-                    address occupant = mapStorage.getTileOccupant(i, j);
+                    address tileOccupant = mapStorage.getTileOccupant(i, j);
                     uint16 tileBuildingId = mapStorage.getTileBuildingId(i, j);
-                    if (occupant != address(0) && occupant != msg.sender && tileBuildingId != 0) {
+                    if (tileOccupant != address(0) && tileOccupant != msg.sender && tileBuildingId != 0) {
                         return true;
                     }
                 }
@@ -118,10 +118,10 @@ contract ConstructionManager is OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
         for (uint16 i = startRow; i <= endRow; i++) {
             for (uint16 j = startCol; j <= endCol; j++) {
-                address occupant = mapStorage.getTileOccupant(i, j);
+                address tileOccupant = mapStorage.getTileOccupant(i, j);
                 uint16 tileBuildingId = mapStorage.getTileBuildingId(i, j);
 
-                if (occupant == player && tileBuildingId != 0) {
+                if (tileOccupant == player && tileBuildingId != 0) {
                     IBuildingRegistry.Building memory building = buildingRegistry.getBuilding(tileBuildingId);
                     if (building.isHeadquarters) {
                         uint16 distance = calculateDistance(row, col, i, j);
@@ -151,10 +151,10 @@ contract ConstructionManager is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     }
 
     function upgradeBuilding(uint16 row, uint16 col, uint16 newBuildingId) external nonReentrant {
-        address occupant = mapStorage.getTileOccupant(row, col);
+        address tileOccupant = mapStorage.getTileOccupant(row, col);
         uint16 tileBuildingId = mapStorage.getTileBuildingId(row, col);
 
-        require(occupant == msg.sender, "Not your building");
+        require(tileOccupant == msg.sender, "Not your building");
         require(tileBuildingId != 0, "No building on this tile");
 
         IBuildingRegistry.Building memory currentBuilding = buildingRegistry.getBuilding(tileBuildingId);

@@ -5,15 +5,15 @@ import "./IBuildingRegistry.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 contract BuildingRegistry is IBuildingRegistry, OwnableUpgradeable {
-    mapping(uint256 => Building) private buildings;
-    uint256 private nextBuildingId;
+    mapping(uint16 => Building) private buildings;
+    uint16 private nextBuildingId;
 
-    mapping(uint256 => mapping(uint256 => bool)) private buildingToUnitProduction;
+    mapping(uint16 => mapping(uint16 => bool)) private buildingToUnitProduction;
 
     event BuildingAdded(
-        uint256 buildingId,
+        uint16 buildingId,
         uint16 assetVersion,
-        uint256 preUpgradeBuildingId,
+        uint16 preUpgradeBuildingId,
         uint256[] constructionCosts,
         bool isHeadquarters
     );
@@ -24,17 +24,17 @@ contract BuildingRegistry is IBuildingRegistry, OwnableUpgradeable {
         nextBuildingId = 1;
     }
 
-    function getBuilding(uint256 buildingId) external view override returns (Building memory) {
+    function getBuilding(uint16 buildingId) external view override returns (Building memory) {
         return buildings[buildingId];
     }
 
     function addBuilding(
-        uint256 preUpgradeBuildingId,
+        uint16 preUpgradeBuildingId,
         uint16 assetVersion,
         uint256[] calldata constructionCosts,
         bool isHeadquarters
     ) external onlyOwner {
-        uint256 buildingId = nextBuildingId;
+        uint16 buildingId = nextBuildingId;
         nextBuildingId += 1;
 
         require(buildings[buildingId].assetVersion == 0, "Building already exists");
@@ -50,19 +50,19 @@ contract BuildingRegistry is IBuildingRegistry, OwnableUpgradeable {
         emit BuildingAdded(buildingId, assetVersion, preUpgradeBuildingId, constructionCosts, isHeadquarters);
     }
 
-    function addProducibleUnits(uint256 buildingId, uint256[] calldata unitIds) external onlyOwner {
-        for (uint256 i = 0; i < unitIds.length; i++) {
+    function addProducibleUnits(uint16 buildingId, uint16[] calldata unitIds) external onlyOwner {
+        for (uint16 i = 0; i < unitIds.length; i++) {
             buildingToUnitProduction[buildingId][unitIds[i]] = true;
         }
     }
 
-    function removeProducibleUnits(uint256 buildingId, uint256[] calldata unitIds) external onlyOwner {
-        for (uint256 i = 0; i < unitIds.length; i++) {
+    function removeProducibleUnits(uint16 buildingId, uint16[] calldata unitIds) external onlyOwner {
+        for (uint16 i = 0; i < unitIds.length; i++) {
             buildingToUnitProduction[buildingId][unitIds[i]] = false;
         }
     }
 
-    function canProduceUnit(uint256 buildingId, uint256 unitId) external view returns (bool) {
+    function canProduceUnit(uint16 buildingId, uint16 unitId) external view override returns (bool) {
         return buildingToUnitProduction[buildingId][unitId];
     }
 }

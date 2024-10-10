@@ -1,31 +1,22 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.27;
 
+import "./IUnitRegistry.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract UnitRegistry is OwnableUpgradeable {
-    struct Unit {
-        uint16 hp;
-        uint16 damage;
-        uint8 attackRange;
-        uint16 assetVersion;
-        uint256[] trainCosts;
-        uint256 preUpgradeUnitId;
-        uint256 upgradeItemId;
-    }
-
-    mapping(uint256 => Unit) private units;
-    uint256 private nextUnitId;
+contract UnitRegistry is IUnitRegistry, OwnableUpgradeable {
+    mapping(uint16 => Unit) private units;
+    uint16 private nextUnitId;
 
     event UnitAdded(
-        uint256 unitId,
+        uint16 unitId,
         uint16 hp,
         uint16 damage,
         uint8 attackRange,
         uint16 assetVersion,
         uint256[] trainCosts,
-        uint256 preUpgradeUnitId,
-        uint256 upgradeItemId
+        uint16 preUpgradeUnitId,
+        uint16 upgradeItemId
     );
 
     function initialize() public initializer {
@@ -34,7 +25,7 @@ contract UnitRegistry is OwnableUpgradeable {
         nextUnitId = 1;
     }
 
-    function getUnit(uint256 unitId) external view returns (Unit memory) {
+    function getUnit(uint16 unitId) external view override returns (Unit memory) {
         return units[unitId];
     }
 
@@ -44,10 +35,10 @@ contract UnitRegistry is OwnableUpgradeable {
         uint8 attackRange,
         uint16 assetVersion,
         uint256[] calldata trainCosts,
-        uint256 preUpgradeUnitId,
-        uint256 upgradeItemId
+        uint16 preUpgradeUnitId,
+        uint16 upgradeItemId
     ) external onlyOwner {
-        uint256 unitId = nextUnitId;
+        uint16 unitId = nextUnitId;
         nextUnitId += 1;
 
         require(units[unitId].hp == 0, "Unit already exists");
