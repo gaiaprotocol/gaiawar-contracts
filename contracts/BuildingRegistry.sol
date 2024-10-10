@@ -1,17 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.27;
 
+import "./IBuildingRegistry.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract BuildingRegistry is OwnableUpgradeable {
-    struct Building {
-        uint256 preUpgradeBuildingId;
-        uint8 level;
-        uint16 assetVersion;
-        uint256[] constructionCosts;
-        bool isHeadquarters;
-    }
-
+contract BuildingRegistry is IBuildingRegistry, OwnableUpgradeable {
     mapping(uint256 => Building) private buildings;
     uint256 private nextBuildingId;
 
@@ -31,7 +24,7 @@ contract BuildingRegistry is OwnableUpgradeable {
         nextBuildingId = 1;
     }
 
-    function getBuilding(uint256 buildingId) external view returns (Building memory) {
+    function getBuilding(uint256 buildingId) external view override returns (Building memory) {
         return buildings[buildingId];
     }
 

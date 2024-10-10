@@ -13,7 +13,7 @@ import {
   TestERC20__factory,
   UnitManager,
   UnitManager__factory,
-} from "../typechain-types";
+} from "../../typechain-types";
 
 describe("GaiaWar Comprehensive Tests", function () {
   let GaiaWarFactory: GaiaWar__factory;

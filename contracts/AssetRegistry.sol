@@ -1,14 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.27;
 
+import "./IAssetRegistry.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract AssetRegistry is OwnableUpgradeable {
-    struct Asset {
-        address[] resources;
-        address item;
-    }
-
+contract AssetRegistry is IAssetRegistry, OwnableUpgradeable {
     uint16 public currentVersion;
 
     mapping(uint16 => Asset) private assets;
@@ -19,7 +15,7 @@ contract AssetRegistry is OwnableUpgradeable {
         __Ownable_init(msg.sender);
     }
 
-    function getAsset(uint16 version) external view returns (Asset memory) {
+    function getAsset(uint16 version) external view override returns (Asset memory) {
         return assets[version];
     }
 

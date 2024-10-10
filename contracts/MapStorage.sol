@@ -1,22 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.27;
 
+import "./IMapStorage.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract MapStorage is OwnableUpgradeable {
-    struct UnitAmount {
-        uint16 unitId;
-        uint16 amount;
-    }
-
+contract MapStorage is IMapStorage, OwnableUpgradeable {
     struct Tile {
         address occupant;
         uint16 buildingId;
         UnitAmount[] units;
     }
 
-    uint16 public mapRows;
-    uint16 public mapCols;
+    uint16 public override mapRows;
+    uint16 public override mapCols;
     uint16 public maxUnitsPerTile;
 
     mapping(uint16 => mapping(uint16 => Tile)) public map;
@@ -24,9 +20,13 @@ contract MapStorage is OwnableUpgradeable {
 
     event MapSizeUpdated(uint16 newRows, uint16 newCols);
     event MaxUnitsPerTileUpdated(uint16 newMaxUnits);
-    event TileUpdated(uint16 row, uint16 col, address occupant, uint16 buildingId, UnitAmount[] units);
+
     event WhitelistAdded(address indexed account);
     event WhitelistRemoved(address indexed account);
+
+    event TileOccupantUpdated(uint16 row, uint16 col, address occupant);
+    event TileBuildingUpdated(uint16 row, uint16 col, uint16 buildingId);
+    event TileUnitsUpdated(uint16 row, uint16 col, UnitAmount[] units);
 
     function initialize(uint16 _mapRows, uint16 _mapCols, uint16 _maxUnitsPerTile) public initializer {
         __Ownable_init(msg.sender);
@@ -71,22 +71,37 @@ contract MapStorage is OwnableUpgradeable {
         _;
     }
 
-    function updateTile(
-        uint16 row,
-        uint16 col,
-        address occupant,
-        uint16 buildingId,
-        UnitAmount[] memory units
-    ) external onlyWhitelisted {
+    function getTileOccupant(uint16 row, uint16 col) external view override returns (address) {
         require(row < mapRows && col < mapCols, "Invalid coordinates");
+        return map[row][col].occupant;
+    }
 
-        uint16 totalUnits = 0;
-        for (uint256 i = 0; i < units.length; i++) {
-            totalUnits += units[i].amount;
-        }
-        require(totalUnits <= maxUnitsPerTile, "Exceeds max units per tile");
+    function getTileBuildingId(uint16 row, uint16 col) external view override returns (uint16) {
+        require(row < mapRows && col < mapCols, "Invalid coordinates");
+        return map[row][col].buildingId;
+    }
 
-        map[row][col] = Tile(occupant, buildingId, units);
-        emit TileUpdated(row, col, occupant, buildingId, units);
+    function getTileUnits(uint16 row, uint16 col) external view override returns (UnitAmount[] memory) {
+        require(row < mapRows && col < mapCols, "Invalid coordinates");
+        return map[row][col].units;
+    }
+
+    function updateTileOccupant(uint16 row, uint16 col, address occupant) external override onlyWhitelisted {
+        require(row < mapRows && col < mapCols, "Invalid coordinates");
+        map[row][col].occupant = occupant;
+        emit TileOccupantUpdated(row, col, occupant);
+    }
+
+    function updateTileBuildingId(uint16 row, uint16 col, uint16 buildingId) external override onlyWhitelisted {
+        require(row < mapRows && col < mapCols, "Invalid coordinates");
+        map[row][col].buildingId = buildingId;
+        emit TileBuildingUpdated(row, col, buildingId);
+    }
+
+    function updateTileUnits(uint16 row, uint16 col, UnitAmount[] memory units) external override onlyWhitelisted {
+        require(row < mapRows && col < mapCols, "Invalid coordinates");
+        require(units.length <= maxUnitsPerTile, "Too many units");
+        map[row][col].units = units;
+        emit TileUnitsUpdated(row, col, units);
     }
 }
