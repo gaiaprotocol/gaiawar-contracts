@@ -20,6 +20,7 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
     uint16 public mapCols;
     uint16 public maxUnitsPerTile;
     uint16 public maxUnitMovementRange;
+    uint8 public maxBattleRounds;
     uint8 public ownerSharePercentage;
 
     struct UnitAmount {
@@ -41,6 +42,7 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
     event MapSizeUpdated(uint16 newRows, uint16 newCols);
     event MaxUnitsPerTileUpdated(uint16 newMaxUnits);
     event MaxUnitMovementRangeUpdated(uint16 newMaxRange);
+    event MaxBattleRoundsUpdated(uint8 newMaxRounds);
     event OwnerSharePercentageUpdated(uint8 newPercentage);
     event UnitsMoved(uint16 fromRow, uint16 fromCol, uint16 toRow, uint16 toCol, UnitAmount[] units);
     event AttackResult(
@@ -64,6 +66,7 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
         uint16 _mapCols,
         uint16 _maxUnitsPerTile,
         uint16 _maxUnitMovementRange,
+        uint8 _maxBattleRounds,
         uint8 _ownerSharePercentage
     ) public initializer {
         __Ownable_init(msg.sender);
@@ -76,6 +79,7 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
         mapCols = _mapCols;
         maxUnitsPerTile = _maxUnitsPerTile;
         maxUnitMovementRange = _maxUnitMovementRange;
+        maxBattleRounds = _maxBattleRounds;
         ownerSharePercentage = _ownerSharePercentage;
 
         emit AssetManagerSet(_assetManager);
@@ -84,6 +88,7 @@ contract GaiaWar is OwnableUpgradeable, ReentrancyGuardUpgradeable, ERC165, IERC
         emit MapSizeUpdated(_mapRows, _mapCols);
         emit MaxUnitsPerTileUpdated(_maxUnitsPerTile);
         emit MaxUnitMovementRangeUpdated(_maxUnitMovementRange);
+        emit MaxBattleRoundsUpdated(_maxBattleRounds);
         emit OwnerSharePercentageUpdated(_ownerSharePercentage);
     }
 
