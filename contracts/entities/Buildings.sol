@@ -2,9 +2,9 @@
 pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "./BuildingsInterface.sol";
+import "./IBuildings.sol";
 
-contract Buildings is OwnableUpgradeable, BuildingsInterface {
+contract Buildings is OwnableUpgradeable, IBuildings {
     struct Building {
         uint16 previousBuildingId;
         ConstructionCost[] constructionCosts;
@@ -26,6 +26,10 @@ contract Buildings is OwnableUpgradeable, BuildingsInterface {
 
     function getConstructionCosts(uint16 buildingId) external view returns (ConstructionCost[] memory) {
         return buildings[buildingId].constructionCosts;
+    }
+
+    function canBeConstructed(uint16 buildingId) external view returns (bool) {
+        return buildings[buildingId].canBeConstructed;
     }
 
     function initialize() public initializer {
@@ -59,7 +63,6 @@ contract Buildings is OwnableUpgradeable, BuildingsInterface {
     function setConstructability(uint16 buildingId, bool canBeConstructed) external onlyOwner {
         require(buildingId < nextBuildingId, "Building does not exist");
 
-        Building storage building = buildings[buildingId];
-        building.canBeConstructed = canBeConstructed;
+        buildings[buildingId].canBeConstructed = canBeConstructed;
     }
 }

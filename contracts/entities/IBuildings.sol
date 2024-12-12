@@ -3,7 +3,7 @@ pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-interface BuildingsInterface {
+interface IBuildings {
     struct ConstructionCost {
         IERC20 tokenAddress;
         uint256 amount;
@@ -14,4 +14,6 @@ interface BuildingsInterface {
     function getConstructionRange(uint16 buildingId) external view returns (uint16);
 
     function getConstructionCosts(uint16 buildingId) external view returns (ConstructionCost[] memory);
+
+    function canBeConstructed(uint16 buildingId) external view returns (bool);
 }

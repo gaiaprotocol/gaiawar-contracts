@@ -2,15 +2,15 @@
 pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "./entities/BuildingsInterface.sol";
+import "./entities/IBuildings.sol";
 
 contract Battleground is OwnableUpgradeable {
-    BuildingsInterface public buildingsContract;
+    IBuildings public buildingsContract;
     address public constructionContract;
 
     struct Coordinates {
-        uint256 x;
-        uint256 y;
+        uint16 x;
+        uint16 y;
     }
 
     struct Tile {
@@ -21,14 +21,14 @@ contract Battleground is OwnableUpgradeable {
     uint16 public width;
     uint16 public height;
 
-    mapping(uint256 => mapping(uint256 => Tile)) public tiles;
+    mapping(uint16 => mapping(uint16 => Tile)) public tiles;
     mapping(address => Coordinates[]) public userHeadquarters;
 
     event BuildingsContractSet(address buildingsContract);
     event ConstructionContractSet(address constructionContract);
-    event BuildingPlaced(uint256 x, uint256 y, address indexed occupant, uint16 buildingId);
+    event BuildingPlaced(uint16 x, uint16 y, address indexed occupant, uint16 buildingId);
 
-    function getTile(uint256 x, uint256 y) external view returns (Tile memory) {
+    function getTile(uint16 x, uint16 y) external view returns (Tile memory) {
         return tiles[x][y];
     }
 
@@ -44,7 +44,7 @@ contract Battleground is OwnableUpgradeable {
     }
 
     function setBuildingsContract(address _buildingsContract) external onlyOwner {
-        buildingsContract = BuildingsInterface(_buildingsContract);
+        buildingsContract = IBuildings(_buildingsContract);
 
         emit BuildingsContractSet(_buildingsContract);
     }
@@ -60,12 +60,7 @@ contract Battleground is OwnableUpgradeable {
         _;
     }
 
-    function placeBuilding(
-        uint256 x,
-        uint256 y,
-        address occupant,
-        uint16 buildingId
-    ) external onlyConstructionContract {
+    function placeBuilding(uint16 x, uint16 y, address occupant, uint16 buildingId) external onlyConstructionContract {
         require(x < width, "X coordinate out of bounds");
         require(y < height, "Y coordinate out of bounds");
         require(tiles[x][y].occupant == address(0), "Tile already occupied");
@@ -79,7 +74,7 @@ contract Battleground is OwnableUpgradeable {
         emit BuildingPlaced(x, y, occupant, buildingId);
     }
 
-    function removeBuilding(uint256 x, uint256 y) external onlyConstructionContract {
+    function removeBuilding(uint16 x, uint16 y) external onlyConstructionContract {
         require(x < width, "X coordinate out of bounds");
         require(y < height, "Y coordinate out of bounds");
 
