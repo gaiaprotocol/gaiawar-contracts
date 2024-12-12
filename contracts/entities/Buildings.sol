@@ -1,23 +1,32 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.27;
+pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "./BuildingsInterface.sol";
 
-contract Buildings is OwnableUpgradeable {
-    struct ConstructionCost {
-        address tokenAddress;
-        uint256 amount;
-    }
-
+contract Buildings is OwnableUpgradeable, BuildingsInterface {
     struct Building {
-        uint256 previousBuildingId;
+        uint16 previousBuildingId;
         ConstructionCost[] constructionCosts;
         bool isHeadquarters;
+        uint16 constructionRange;
         bool canBeConstructed;
     }
 
-    uint256 public nextBuildingId;
-    mapping(uint256 => Building) public buildings;
+    uint16 public nextBuildingId;
+    mapping(uint16 => Building) public buildings;
+
+    function isHeadquarters(uint16 buildingId) external view returns (bool) {
+        return buildings[buildingId].isHeadquarters;
+    }
+
+    function getConstructionRange(uint16 buildingId) external view returns (uint16) {
+        return buildings[buildingId].constructionRange;
+    }
+
+    function getConstructionCosts(uint16 buildingId) external view returns (ConstructionCost[] memory) {
+        return buildings[buildingId].constructionCosts;
+    }
 
     function initialize() public initializer {
         __Ownable_init(msg.sender);
@@ -26,26 +35,28 @@ contract Buildings is OwnableUpgradeable {
     }
 
     function addBuilding(
-        uint256 previousBuildingId,
+        uint16 previousBuildingId,
         ConstructionCost[] calldata constructionCosts,
         bool isHeadquarters,
+        uint16 constructionRange,
         bool canBeConstructed
     ) external onlyOwner {
         require(previousBuildingId < nextBuildingId, "Previous building does not exist");
         require(constructionCosts.length > 0, "Construction costs must be provided");
 
-        uint256 buildingId = nextBuildingId;
+        uint16 buildingId = nextBuildingId;
         nextBuildingId += 1;
 
         buildings[buildingId] = Building({
             previousBuildingId: previousBuildingId,
             constructionCosts: constructionCosts,
             isHeadquarters: isHeadquarters,
+            constructionRange: constructionRange,
             canBeConstructed: canBeConstructed
         });
     }
 
-    function setConstructability(uint256 buildingId, bool canBeConstructed) external onlyOwner {
+    function setConstructability(uint16 buildingId, bool canBeConstructed) external onlyOwner {
         require(buildingId < nextBuildingId, "Building does not exist");
 
         Building storage building = buildings[buildingId];
