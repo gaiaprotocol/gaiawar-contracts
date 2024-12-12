@@ -1,18 +1,20 @@
 import fs from "fs";
 import path from "path";
 
-const CONTRACTS = [
-  "MapStorage",
+const CONTRACT_PATHS = [
+  "Battleground",
+  "entities/Buildings",
+  "actions/Construction",
 ];
 
-for (const contract of CONTRACTS) {
-  const filename = path.basename(contract, path.extname(contract));
+for (const contractPath of CONTRACT_PATHS) {
+  const filename = path.basename(contractPath, path.extname(contractPath));
   const abiSource = fs.readFileSync(
-    `../artifacts/contracts/${contract}.sol/${filename}.json`,
+    `../artifacts/contracts/${contractPath}.sol/${filename}.json`,
     "utf-8",
   );
   fs.writeFileSync(
-    `../../gaiawar-interface/game/contracts/artifacts/${filename}.json`,
+    `../../gaiawar-interface/game/contracts/artifacts/${contractPath}.json`,
     abiSource,
   );
 }
