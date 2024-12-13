@@ -1,5 +1,6 @@
 import { parseEther } from "ethers";
 import { ethers } from "hardhat";
+import { Buildings } from "../../../typechain-types/index.js";
 
 const BUILDINGS_ADDRESS = "0xC911108F80B792A0E1f69FEd013b720CA1e49Dcd";
 
@@ -92,7 +93,7 @@ const buildings: {
 
 async function main() {
   const Buildings = await ethers.getContractFactory("Buildings");
-  const contract = Buildings.attach(BUILDINGS_ADDRESS);
+  const contract = Buildings.attach(BUILDINGS_ADDRESS) as Buildings;
 
   for (const [index, building] of buildings.entries()) {
     const tx = await contract.addBuilding(
