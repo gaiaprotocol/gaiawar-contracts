@@ -17,7 +17,7 @@ const buildings: {
   isHeadquarters: boolean;
   constructionRange: number;
 }[] = [
-  // Headquarters Level 1
+  // Castle Level 1
   {
     previousBuildingId: 0,
     constructionCosts: [
@@ -27,7 +27,7 @@ const buildings: {
     isHeadquarters: true,
     constructionRange: 3,
   },
-  // Headquarters Level 2
+  // Castle Level 2
   {
     previousBuildingId: 1,
     constructionCosts: [
@@ -37,7 +37,7 @@ const buildings: {
     isHeadquarters: true,
     constructionRange: 3,
   },
-  // Headquarters Level 3
+  // Castle Level 3
   {
     previousBuildingId: 2,
     constructionCosts: [
