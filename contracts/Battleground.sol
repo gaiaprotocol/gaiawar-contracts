@@ -32,6 +32,31 @@ contract Battleground is OwnableUpgradeable {
         return tiles[x][y];
     }
 
+    function getTileArea(
+        uint16 startX,
+        uint16 startY,
+        uint16 endX,
+        uint16 endY
+    ) external view returns (Tile[][] memory) {
+        require(startX <= endX && startX < width, "Invalid X start coordinate");
+        require(startY <= endY && startY < height, "Invalid Y start coordinate");
+        require(endX < width, "X end coordinate out of bounds");
+        require(endY < height, "Y end coordinate out of bounds");
+
+        uint16 areaWidth = endX - startX + 1;
+        uint16 areaHeight = endY - startY + 1;
+
+        Tile[][] memory area = new Tile[][](areaHeight);
+        for (uint16 y = 0; y < areaHeight; y++) {
+            area[y] = new Tile[](areaWidth);
+            for (uint16 x = 0; x < areaWidth; x++) {
+                area[y][x] = tiles[startX + x][startY + y];
+            }
+        }
+
+        return area;
+    }
+
     function hasHeadquarters(address user) external view returns (bool) {
         return userHeadquarters[user].length > 0;
     }
