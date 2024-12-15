@@ -52,13 +52,13 @@ contract Construction is OwnableUpgradeable {
     function _hasNearbyHeadquarters(int16 x, int16 y) private view returns (bool) {
         for (int16 dx = -int16(headquartersSearchRange); dx <= int16(headquartersSearchRange); dx++) {
             int16 nx = x + dx;
-            if (nx < 0 || nx < battleground.minTileX() || nx > battleground.maxTileX()) {
+            if (nx < battleground.minTileX() || nx > battleground.maxTileX()) {
                 continue;
             }
 
             for (int16 dy = -int16(headquartersSearchRange); dy <= int16(headquartersSearchRange); dy++) {
                 int16 ny = y + dy;
-                if (ny < 0 || ny < battleground.minTileY() || ny > battleground.maxTileY()) {
+                if (ny < battleground.minTileY() || ny > battleground.maxTileY()) {
                     continue;
                 }
 
@@ -81,13 +81,13 @@ contract Construction is OwnableUpgradeable {
     function _hasNearbyEnemies(int16 x, int16 y) private view returns (bool) {
         for (int16 dx = -int16(enemyBuildingSearchRange); dx <= int16(enemyBuildingSearchRange); dx++) {
             int16 nx = x + dx;
-            if (nx < 0 || nx < battleground.minTileX() || nx > battleground.maxTileX()) {
+            if (nx < battleground.minTileX() || nx > battleground.maxTileX()) {
                 continue;
             }
 
             for (int16 dy = -int16(enemyBuildingSearchRange); dy <= int16(enemyBuildingSearchRange); dy++) {
                 int16 ny = y + dy;
-                if (ny < 0 || ny < battleground.minTileY() || ny > battleground.maxTileY()) {
+                if (ny < battleground.minTileY() || ny > battleground.maxTileY()) {
                     continue;
                 }
 
