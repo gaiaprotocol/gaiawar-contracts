@@ -5,8 +5,10 @@ async function main() {
 
   console.log("Deploying Battleground...");
   const contract = await upgrades.deployProxy(Battleground, [
-    100, // width
-    100, // height
+    -50, // minTileX
+    -50, // minTileY
+    49, // maxTileX
+    49, // maxTileY
   ], {
     initializer: "initialize",
   });

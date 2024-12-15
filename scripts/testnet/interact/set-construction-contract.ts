@@ -1,8 +1,8 @@
 import { ethers } from "hardhat";
 import { Battleground } from "../../../typechain-types/index.js";
 
-const BATTLEGROUND_ADDRESS = "0x2764105cbc52639985733CD18f770F09F6626280";
-const CONSTRUCTION_ADDRESS = "0xA2033689D584EB0F5ca69490b27eF9B274f2F724";
+const BATTLEGROUND_ADDRESS = "0x0FeA20dA5F88E92F3d59b2208E5A5904c53184fD";
+const CONSTRUCTION_ADDRESS = "0xCb3428bA809B47d0cA7eC766d7d476986CF4fC10";
 
 async function main() {
   const Battleground = await ethers.getContractFactory("Battleground");

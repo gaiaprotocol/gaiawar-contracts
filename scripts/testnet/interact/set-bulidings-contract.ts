@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 import { Battleground } from "../../../typechain-types/index.js";
 
-const BATTLEGROUND_ADDRESS = "0x2764105cbc52639985733CD18f770F09F6626280";
+const BATTLEGROUND_ADDRESS = "0x0FeA20dA5F88E92F3d59b2208E5A5904c53184fD";
 const BUILDINGS_ADDRESS = "0xC911108F80B792A0E1f69FEd013b720CA1e49Dcd";
 
 async function main() {

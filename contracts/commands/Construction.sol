@@ -31,7 +31,7 @@ contract Construction is OwnableUpgradeable {
         enemyBuildingSearchRange = _enemySearchRange;
     }
 
-    function constructBuilding(uint16 x, uint16 y, uint16 buildingId) external {
+    function constructBuilding(int16 x, int16 y, uint16 buildingId) external {
         if (battleground.hasHeadquarters(msg.sender)) {
             require(_hasNearbyHeadquarters(x, y), "No nearby headquarters");
         } else {
@@ -49,16 +49,16 @@ contract Construction is OwnableUpgradeable {
         battleground.placeBuilding(x, y, msg.sender, buildingId);
     }
 
-    function _hasNearbyHeadquarters(uint16 x, uint16 y) private view returns (bool) {
+    function _hasNearbyHeadquarters(int16 x, int16 y) private view returns (bool) {
         for (int16 dx = -int16(headquartersSearchRange); dx <= int16(headquartersSearchRange); dx++) {
-            int16 nx = int16(x) + dx;
-            if (nx < 0 || uint16(nx) >= battleground.width()) {
+            int16 nx = x + dx;
+            if (nx < 0 || nx < battleground.minTileX() || nx > battleground.maxTileX()) {
                 continue;
             }
 
             for (int16 dy = -int16(headquartersSearchRange); dy <= int16(headquartersSearchRange); dy++) {
-                int16 ny = int16(y) + dy;
-                if (ny < 0 || uint16(ny) >= battleground.height()) {
+                int16 ny = y + dy;
+                if (ny < 0 || ny < battleground.minTileY() || ny > battleground.maxTileY()) {
                     continue;
                 }
 
@@ -66,7 +66,7 @@ contract Construction is OwnableUpgradeable {
                 uint16 absDy = dy < 0 ? uint16(-dy) : uint16(dy);
                 uint16 distance = absDx + absDy;
 
-                Battleground.Tile memory tile = battleground.getTile(uint16(nx), uint16(ny));
+                Battleground.Tile memory tile = battleground.getTile(nx, ny);
                 if (tile.occupant == msg.sender && buildingsContract.isHeadquarters(tile.buildingId)) {
                     uint16 constructionRange = buildingsContract.getConstructionRange(tile.buildingId);
                     if (distance <= constructionRange) {
@@ -78,20 +78,20 @@ contract Construction is OwnableUpgradeable {
         return false;
     }
 
-    function _hasNearbyEnemies(uint16 x, uint16 y) private view returns (bool) {
+    function _hasNearbyEnemies(int16 x, int16 y) private view returns (bool) {
         for (int16 dx = -int16(enemyBuildingSearchRange); dx <= int16(enemyBuildingSearchRange); dx++) {
-            int16 nx = int16(x) + dx;
-            if (nx < 0 || uint16(nx) >= battleground.width()) {
+            int16 nx = x + dx;
+            if (nx < 0 || nx < battleground.minTileX() || nx > battleground.maxTileX()) {
                 continue;
             }
 
             for (int16 dy = -int16(enemyBuildingSearchRange); dy <= int16(enemyBuildingSearchRange); dy++) {
-                int16 ny = int16(y) + dy;
-                if (ny < 0 || uint16(ny) >= battleground.height()) {
+                int16 ny = y + dy;
+                if (ny < 0 || ny < battleground.minTileY() || ny > battleground.maxTileY()) {
                     continue;
                 }
 
-                Battleground.Tile memory tile = battleground.getTile(uint16(nx), uint16(ny));
+                Battleground.Tile memory tile = battleground.getTile(nx, ny);
                 if (tile.occupant != address(0) && tile.occupant != msg.sender) {
                     return true;
                 }

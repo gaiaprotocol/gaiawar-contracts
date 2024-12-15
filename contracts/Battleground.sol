@@ -9,8 +9,8 @@ contract Battleground is OwnableUpgradeable {
     address public constructionContract;
 
     struct Coordinates {
-        uint16 x;
-        uint16 y;
+        int16 x;
+        int16 y;
     }
 
     struct Tile {
@@ -18,54 +18,45 @@ contract Battleground is OwnableUpgradeable {
         uint16 buildingId;
     }
 
-    uint16 public width;
-    uint16 public height;
+    int16 public minTileX;
+    int16 public minTileY;
+    int16 public maxTileX;
+    int16 public maxTileY;
 
-    mapping(uint16 => mapping(uint16 => Tile)) public tiles;
+    mapping(int16 => mapping(int16 => Tile)) public tiles;
     mapping(address => Coordinates[]) public userHeadquarters;
 
     event BuildingsContractSet(address buildingsContract);
     event ConstructionContractSet(address constructionContract);
-    event BuildingPlaced(uint16 x, uint16 y, address indexed occupant, uint16 buildingId);
+    event BuildingPlaced(int16 x, int16 y, address indexed occupant, uint16 buildingId);
 
-    function getTile(uint16 x, uint16 y) external view returns (Tile memory) {
+    function getTile(int16 x, int16 y) external view returns (Tile memory) {
         return tiles[x][y];
     }
 
-    function getTileArea(
-        uint16 startX,
-        uint16 startY,
-        uint16 endX,
-        uint16 endY
-    ) external view returns (Tile[][] memory) {
-        require(startX <= endX && startX < width, "Invalid X start coordinate");
-        require(startY <= endY && startY < height, "Invalid Y start coordinate");
-        require(endX < width, "X end coordinate out of bounds");
-        require(endY < height, "Y end coordinate out of bounds");
+    function getTiles(Coordinates[] memory coordinates) external view returns (Tile[] memory) {
+        uint256 count = coordinates.length;
 
-        uint16 areaWidth = endX - startX + 1;
-        uint16 areaHeight = endY - startY + 1;
-
-        Tile[][] memory area = new Tile[][](areaHeight);
-        for (uint16 y = 0; y < areaHeight; y++) {
-            area[y] = new Tile[](areaWidth);
-            for (uint16 x = 0; x < areaWidth; x++) {
-                area[y][x] = tiles[startX + x][startY + y];
-            }
+        Tile[] memory result = new Tile[](count);
+        for (uint256 i = 0; i < count; i++) {
+            Coordinates memory coordinate = coordinates[i];
+            result[i] = tiles[coordinate.x][coordinate.y];
         }
 
-        return area;
+        return result;
     }
 
     function hasHeadquarters(address user) external view returns (bool) {
         return userHeadquarters[user].length > 0;
     }
 
-    function initialize(uint16 _width, uint16 _height) public initializer {
+    function initialize(int16 _minTileX, int16 _minTileY, int16 _maxTileX, int16 _maxTileY) public initializer {
         __Ownable_init(msg.sender);
 
-        width = _width;
-        height = _height;
+        minTileX = _minTileX;
+        minTileY = _minTileY;
+        maxTileX = _maxTileX;
+        maxTileY = _maxTileY;
     }
 
     function setBuildingsContract(address _buildingsContract) external onlyOwner {
@@ -85,9 +76,9 @@ contract Battleground is OwnableUpgradeable {
         _;
     }
 
-    function placeBuilding(uint16 x, uint16 y, address occupant, uint16 buildingId) external onlyConstructionContract {
-        require(x < width, "X coordinate out of bounds");
-        require(y < height, "Y coordinate out of bounds");
+    function placeBuilding(int16 x, int16 y, address occupant, uint16 buildingId) external onlyConstructionContract {
+        require(x >= minTileX && x <= maxTileX, "X coordinate out of bounds");
+        require(y >= minTileY && y <= maxTileY, "Y coordinate out of bounds");
         require(tiles[x][y].occupant == address(0), "Tile already occupied");
 
         tiles[x][y] = Tile(occupant, buildingId);
@@ -99,9 +90,9 @@ contract Battleground is OwnableUpgradeable {
         emit BuildingPlaced(x, y, occupant, buildingId);
     }
 
-    function removeBuilding(uint16 x, uint16 y) external onlyConstructionContract {
-        require(x < width, "X coordinate out of bounds");
-        require(y < height, "Y coordinate out of bounds");
+    function removeBuilding(int16 x, int16 y) external onlyConstructionContract {
+        require(x >= minTileX && x <= maxTileX, "X coordinate out of bounds");
+        require(y >= minTileY && y <= maxTileY, "Y coordinate out of bounds");
 
         Tile memory tile = tiles[x][y];
         require(tile.occupant != address(0), "No building on this tile");
