@@ -35,7 +35,7 @@ const buildings: {
       { tokenAddress: materialAddresses.ducat, amount: parseEther("100") },
     ],
     isHeadquarters: true,
-    constructionRange: 3,
+    constructionRange: 5,
   },
   // Castle Level 3
   {
@@ -45,7 +45,7 @@ const buildings: {
       { tokenAddress: materialAddresses.ducat, amount: parseEther("100") },
     ],
     isHeadquarters: true,
-    constructionRange: 3,
+    constructionRange: 7,
   },
   // Training Camp
   {
