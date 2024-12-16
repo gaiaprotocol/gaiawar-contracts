@@ -2,7 +2,7 @@
   "manifestVersion": "3.2",
   "proxies": [
     {
-      "address": "0x0FeA20dA5F88E92F3d59b2208E5A5904c53184fD",
+      "address": "0x24623995D0AD6354943011256893720115e37E5a",
       "txHash": "0x26c5526a13adc5bd259fef39e81abb623ce54fe6193089a46a375e006d61d6b6",
       "kind": "transparent"
     },
@@ -17,13 +17,18 @@
       "kind": "transparent"
     },
     {
-      "address": "0x0FeA20dA5F88E92F3d59b2208E5A5904c53184fD",
+      "address": "0x24623995D0AD6354943011256893720115e37E5a",
       "txHash": "0x8590aee451ffc09ea535307f0a997ca6f271498fe0a7b8c3e3c37e8d5b8a4b89",
       "kind": "transparent"
     },
     {
       "address": "0xCb3428bA809B47d0cA7eC766d7d476986CF4fC10",
       "txHash": "0x7651bae09f2d6665996b7ad11a87d3728fd665c2400106ae8140cbea614c6334",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x24623995D0AD6354943011256893720115e37E5a",
+      "txHash": "0xb7e7096826aad31759e6973cbe9e865e2ccdaf1d254312f77dcd685bd09a8474",
       "kind": "transparent"
     }
   ],
@@ -911,7 +916,7 @@
             "label": "buildingsContract",
             "offset": 0,
             "slot": "0",
-            "type": "t_contract(IBuildings)1529",
+            "type": "t_contract(IBuildings)1513",
             "contract": "Battleground",
             "src": "contracts/Battleground.sol:8"
           },
@@ -1019,7 +1024,7 @@
             "label": "struct Battleground.Coordinates[]",
             "numberOfBytes": "32"
           },
-          "t_contract(IBuildings)1529": {
+          "t_contract(IBuildings)1513": {
             "label": "contract IBuildings",
             "numberOfBytes": "20"
           },
@@ -1326,6 +1331,898 @@
             "numberOfBytes": "20"
           },
           "t_contract(IBuildings)1513": {
+            "label": "contract IBuildings",
+            "numberOfBytes": "20"
+          },
+          "t_uint16": {
+            "label": "uint16",
+            "numberOfBytes": "2"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "748b48b109bea29bb774193d83e458d5c80b5f74584fb2d12b7423fb4c4fae55": {
+      "address": "0x4BbFbC408299F6aeA73187A4a8Bc4A82aEdE1d8d",
+      "txHash": "0xbc791ab69ce377101d73829e12947e929388db7d353d499b3918c7765240bcde",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "nextBuildingId",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint16",
+            "contract": "Buildings",
+            "src": "contracts/entities/Buildings.sol:16"
+          },
+          {
+            "label": "buildings",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_uint16,t_struct(Building)1699_storage)",
+            "contract": "Buildings",
+            "src": "contracts/entities/Buildings.sol:17"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)93_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)14_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_array(t_struct(ConstructionCost)1875_storage)dyn_storage": {
+            "label": "struct IBuildings.ConstructionCost[]",
+            "numberOfBytes": "32"
+          },
+          "t_contract(IERC20)572": {
+            "label": "contract IERC20",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_uint16,t_struct(Building)1699_storage)": {
+            "label": "mapping(uint16 => struct Buildings.Building)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Building)1699_storage": {
+            "label": "struct Buildings.Building",
+            "members": [
+              {
+                "label": "previousBuildingId",
+                "type": "t_uint16",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "constructionCosts",
+                "type": "t_array(t_struct(ConstructionCost)1875_storage)dyn_storage",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "isHeadquarters",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "constructionRange",
+                "type": "t_uint16",
+                "offset": 1,
+                "slot": "2"
+              },
+              {
+                "label": "canBeConstructed",
+                "type": "t_bool",
+                "offset": 3,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(ConstructionCost)1875_storage": {
+            "label": "struct IBuildings.ConstructionCost",
+            "members": [
+              {
+                "label": "tokenAddress",
+                "type": "t_contract(IERC20)572",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint16": {
+            "label": "uint16",
+            "numberOfBytes": "2"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "682b2a7fddc34bf77058c98afe754293de3433aa660889edfa0f7f39ee392836": {
+      "address": "0xE32bAA172B8e9E7c06706F52353D3f6BeFfDA74D",
+      "txHash": "0xdf4363ab7898c32fd150bcf75c636cbbd88fef8363848ccb329e8468d966849c",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "battleground",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(Battleground)1100",
+            "contract": "Construction",
+            "src": "contracts/commands/Construction.sol:9"
+          },
+          {
+            "label": "buildingsContract",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IBuildings)1913",
+            "contract": "Construction",
+            "src": "contracts/commands/Construction.sol:10"
+          },
+          {
+            "label": "headquartersSearchRange",
+            "offset": 20,
+            "slot": "1",
+            "type": "t_uint16",
+            "contract": "Construction",
+            "src": "contracts/commands/Construction.sol:12"
+          },
+          {
+            "label": "enemyBuildingSearchRange",
+            "offset": 22,
+            "slot": "1",
+            "type": "t_uint16",
+            "contract": "Construction",
+            "src": "contracts/commands/Construction.sol:13"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)93_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)14_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(Battleground)1100": {
+            "label": "contract Battleground",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IBuildings)1913": {
+            "label": "contract IBuildings",
+            "numberOfBytes": "20"
+          },
+          "t_uint16": {
+            "label": "uint16",
+            "numberOfBytes": "2"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "20c4be7f7a8cde018760fb49fe8d11ffaf72a326763df76c840b4c88aeabc462": {
+      "address": "0x46AC3E17C7877A64077d2Fd975c0f8f86e2CCE63",
+      "txHash": "0xee4f1ac1467dda46f9dcd79c36711b1c922987042beb30296ae49fcbdeeaa438",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "buildingsContract",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(IBuildings)1913",
+            "contract": "Battleground",
+            "src": "contracts/Battleground.sol:8"
+          },
+          {
+            "label": "constructionContract",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "Battleground",
+            "src": "contracts/Battleground.sol:9"
+          },
+          {
+            "label": "minTileX",
+            "offset": 20,
+            "slot": "1",
+            "type": "t_int16",
+            "contract": "Battleground",
+            "src": "contracts/Battleground.sol:21"
+          },
+          {
+            "label": "minTileY",
+            "offset": 22,
+            "slot": "1",
+            "type": "t_int16",
+            "contract": "Battleground",
+            "src": "contracts/Battleground.sol:22"
+          },
+          {
+            "label": "maxTileX",
+            "offset": 24,
+            "slot": "1",
+            "type": "t_int16",
+            "contract": "Battleground",
+            "src": "contracts/Battleground.sol:23"
+          },
+          {
+            "label": "maxTileY",
+            "offset": 26,
+            "slot": "1",
+            "type": "t_int16",
+            "contract": "Battleground",
+            "src": "contracts/Battleground.sol:24"
+          },
+          {
+            "label": "tiles",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_int16,t_mapping(t_int16,t_struct(Tile)593_storage))",
+            "contract": "Battleground",
+            "src": "contracts/Battleground.sol:26"
+          },
+          {
+            "label": "userHeadquarters",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_mapping(t_address,t_array(t_struct(Coordinates)588_storage)dyn_storage)",
+            "contract": "Battleground",
+            "src": "contracts/Battleground.sol:27"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)93_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)14_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_array(t_struct(Coordinates)588_storage)dyn_storage": {
+            "label": "struct Battleground.Coordinates[]",
+            "numberOfBytes": "32"
+          },
+          "t_contract(IBuildings)1913": {
+            "label": "contract IBuildings",
+            "numberOfBytes": "20"
+          },
+          "t_int16": {
+            "label": "int16",
+            "numberOfBytes": "2"
+          },
+          "t_mapping(t_address,t_array(t_struct(Coordinates)588_storage)dyn_storage)": {
+            "label": "mapping(address => struct Battleground.Coordinates[])",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_int16,t_mapping(t_int16,t_struct(Tile)593_storage))": {
+            "label": "mapping(int16 => mapping(int16 => struct Battleground.Tile))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_int16,t_struct(Tile)593_storage)": {
+            "label": "mapping(int16 => struct Battleground.Tile)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Coordinates)588_storage": {
+            "label": "struct Battleground.Coordinates",
+            "members": [
+              {
+                "label": "x",
+                "type": "t_int16",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "y",
+                "type": "t_int16",
+                "offset": 2,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(Tile)593_storage": {
+            "label": "struct Battleground.Tile",
+            "members": [
+              {
+                "label": "owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "buildingId",
+                "type": "t_uint16",
+                "offset": 20,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint16": {
+            "label": "uint16",
+            "numberOfBytes": "2"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "0d2ddfdb7a2c1781c48458326ae68bb8c6299f1d332ea02b58245d9b7891b77b": {
+      "address": "0xe82Db37EDEfb390E380827003FEC043Bb9DCE89E",
+      "txHash": "0x0604f9ea3e2eba1625ea59ea6350e85d69b290ea6694a85d172408762dbb231c",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "battleground",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(Battleground)1100",
+            "contract": "Construction",
+            "src": "contracts/commands/Construction.sol:9"
+          },
+          {
+            "label": "buildingsContract",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IBuildings)1723",
+            "contract": "Construction",
+            "src": "contracts/commands/Construction.sol:10"
+          },
+          {
+            "label": "headquartersSearchRange",
+            "offset": 20,
+            "slot": "1",
+            "type": "t_uint16",
+            "contract": "Construction",
+            "src": "contracts/commands/Construction.sol:12"
+          },
+          {
+            "label": "enemyBuildingSearchRange",
+            "offset": 22,
+            "slot": "1",
+            "type": "t_uint16",
+            "contract": "Construction",
+            "src": "contracts/commands/Construction.sol:13"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)93_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)14_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(Battleground)1100": {
+            "label": "contract Battleground",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IBuildings)1723": {
+            "label": "contract IBuildings",
+            "numberOfBytes": "20"
+          },
+          "t_uint16": {
+            "label": "uint16",
+            "numberOfBytes": "2"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "e3b80f0f4a130a4b1aef797b38e24d18d1ea98a199e54c3952ff58edcfd10e4a": {
+      "address": "0x83245D86c8304c387A36523Ff067E3Bc97b549BA",
+      "txHash": "0xf6226fa8364add236798e94699f91ee1bc03eb8268c07bc9ed3a365cd992d617",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "battleground",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(Battleground)1100",
+            "contract": "Construction",
+            "src": "contracts/commands/Construction.sol:9"
+          },
+          {
+            "label": "buildingsContract",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IBuildings)1723",
+            "contract": "Construction",
+            "src": "contracts/commands/Construction.sol:10"
+          },
+          {
+            "label": "headquartersSearchRange",
+            "offset": 20,
+            "slot": "1",
+            "type": "t_uint16",
+            "contract": "Construction",
+            "src": "contracts/commands/Construction.sol:12"
+          },
+          {
+            "label": "enemyBuildingSearchRange",
+            "offset": 22,
+            "slot": "1",
+            "type": "t_uint16",
+            "contract": "Construction",
+            "src": "contracts/commands/Construction.sol:13"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)93_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)14_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(Battleground)1100": {
+            "label": "contract Battleground",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IBuildings)1723": {
+            "label": "contract IBuildings",
+            "numberOfBytes": "20"
+          },
+          "t_uint16": {
+            "label": "uint16",
+            "numberOfBytes": "2"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "3a684dd8129a5f82422ae6957f726071dac1d5893ee034997a57ebfd0d66b3c5": {
+      "address": "0xe9Be5D47e48904b8D1a30B28916c72814FAae865",
+      "txHash": "0xd6be820bfc3810f8a0a5db78a9eb882d974e29453a9f38babf76879fb1f71468",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "battleground",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(Battleground)1100",
+            "contract": "Construction",
+            "src": "contracts/commands/Construction.sol:9"
+          },
+          {
+            "label": "buildingsContract",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IBuildings)1737",
+            "contract": "Construction",
+            "src": "contracts/commands/Construction.sol:10"
+          },
+          {
+            "label": "headquartersSearchRange",
+            "offset": 20,
+            "slot": "1",
+            "type": "t_uint16",
+            "contract": "Construction",
+            "src": "contracts/commands/Construction.sol:12"
+          },
+          {
+            "label": "enemyBuildingSearchRange",
+            "offset": 22,
+            "slot": "1",
+            "type": "t_uint16",
+            "contract": "Construction",
+            "src": "contracts/commands/Construction.sol:13"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)93_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)14_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(Battleground)1100": {
+            "label": "contract Battleground",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IBuildings)1737": {
             "label": "contract IBuildings",
             "numberOfBytes": "20"
           },

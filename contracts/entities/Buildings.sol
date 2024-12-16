@@ -16,16 +16,20 @@ contract Buildings is OwnableUpgradeable, IBuildings {
     uint16 public nextBuildingId;
     mapping(uint16 => Building) public buildings;
 
+    function getParentBuildingId(uint16 buildingId) external view returns (uint16) {
+        return buildings[buildingId].previousBuildingId;
+    }
+
+    function getConstructionCosts(uint16 buildingId) external view returns (ConstructionCost[] memory) {
+        return buildings[buildingId].constructionCosts;
+    }
+
     function isHeadquarters(uint16 buildingId) external view returns (bool) {
         return buildings[buildingId].isHeadquarters;
     }
 
     function getConstructionRange(uint16 buildingId) external view returns (uint16) {
         return buildings[buildingId].constructionRange;
-    }
-
-    function getConstructionCosts(uint16 buildingId) external view returns (ConstructionCost[] memory) {
-        return buildings[buildingId].constructionCosts;
     }
 
     function canBeConstructed(uint16 buildingId) external view returns (bool) {

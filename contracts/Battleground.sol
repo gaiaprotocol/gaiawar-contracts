@@ -14,7 +14,7 @@ contract Battleground is OwnableUpgradeable {
     }
 
     struct Tile {
-        address occupant;
+        address owner;
         uint16 buildingId;
     }
 
@@ -28,7 +28,7 @@ contract Battleground is OwnableUpgradeable {
 
     event BuildingsContractSet(address buildingsContract);
     event ConstructionContractSet(address constructionContract);
-    event BuildingPlaced(int16 x, int16 y, address indexed occupant, uint16 buildingId);
+    event BuildingPlaced(int16 x, int16 y, address indexed owner, uint16 buildingId);
 
     function getTile(int16 x, int16 y) external view returns (Tile memory) {
         return tiles[x][y];
@@ -76,36 +76,59 @@ contract Battleground is OwnableUpgradeable {
         _;
     }
 
-    function placeBuilding(int16 x, int16 y, address occupant, uint16 buildingId) external onlyConstructionContract {
-        require(x >= minTileX && x <= maxTileX, "X coordinate out of bounds");
-        require(y >= minTileY && y <= maxTileY, "Y coordinate out of bounds");
-        require(tiles[x][y].occupant == address(0), "Tile already occupied");
+    function _withinBounds(int16 x, int16 y) private view returns (bool) {
+        return (x >= minTileX && x <= maxTileX && y >= minTileY && y <= maxTileY);
+    }
 
-        tiles[x][y] = Tile(occupant, buildingId);
+    function _addHQCoordinate(address user, int16 x, int16 y) private {
+        userHeadquarters[user].push(Coordinates(x, y));
+    }
 
-        if (buildingsContract.isHeadquarters(buildingId)) {
-            userHeadquarters[occupant].push(Coordinates(x, y));
+    function _removeHQCoordinate(address user, int16 x, int16 y) private {
+        Coordinates[] storage userHQs = userHeadquarters[user];
+        uint256 length = userHQs.length;
+
+        for (uint256 i = 0; i < length; i++) {
+            if (userHQs[i].x == x && userHQs[i].y == y) {
+                userHQs[i] = userHQs[length - 1];
+                userHQs.pop();
+                break;
+            }
+        }
+    }
+
+    function placeBuilding(int16 x, int16 y, address newOwner, uint16 buildingId) external onlyConstructionContract {
+        require(newOwner != address(0), "New owner cannot be zero address");
+        require(_withinBounds(x, y), "Coordinates out of bounds");
+
+        Tile memory existingTile = tiles[x][y];
+
+        require(
+            existingTile.owner == address(0) || existingTile.owner == newOwner,
+            "Tile already occupied by another user"
+        );
+
+        if (existingTile.owner != address(0) && buildingsContract.isHeadquarters(existingTile.buildingId)) {
+            _removeHQCoordinate(existingTile.owner, x, y);
         }
 
-        emit BuildingPlaced(x, y, occupant, buildingId);
+        tiles[x][y] = Tile(newOwner, buildingId);
+
+        if (buildingsContract.isHeadquarters(buildingId)) {
+            _addHQCoordinate(newOwner, x, y);
+        }
+
+        emit BuildingPlaced(x, y, newOwner, buildingId);
     }
 
     function removeBuilding(int16 x, int16 y) external onlyConstructionContract {
-        require(x >= minTileX && x <= maxTileX, "X coordinate out of bounds");
-        require(y >= minTileY && y <= maxTileY, "Y coordinate out of bounds");
+        require(_withinBounds(x, y), "Coordinates out of bounds");
 
-        Tile memory tile = tiles[x][y];
-        require(tile.occupant != address(0), "No building on this tile");
+        Tile memory existingTile = tiles[x][y];
+        require(existingTile.owner != address(0), "No building on this tile");
 
-        if (buildingsContract.isHeadquarters(tile.buildingId)) {
-            Coordinates[] storage userHQs = userHeadquarters[tile.occupant];
-            for (uint256 i = 0; i < userHQs.length; i++) {
-                if (userHQs[i].x == x && userHQs[i].y == y) {
-                    userHQs[i] = userHQs[userHQs.length - 1];
-                    userHQs.pop();
-                    break;
-                }
-            }
+        if (buildingsContract.isHeadquarters(existingTile.buildingId)) {
+            _removeHQCoordinate(existingTile.owner, x, y);
         }
 
         delete tiles[x][y];

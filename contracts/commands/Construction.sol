@@ -26,27 +26,19 @@ contract Construction is OwnableUpgradeable {
         enemyBuildingSearchRange = _enemySearchRange;
     }
 
+    function setBattleground(address _battleground) external onlyOwner {
+        battleground = Battleground(_battleground);
+    }
+
     function setSearchRanges(uint16 _hqSearchRange, uint16 _enemySearchRange) external onlyOwner {
         headquartersSearchRange = _hqSearchRange;
         enemyBuildingSearchRange = _enemySearchRange;
     }
 
-    function constructBuilding(int16 x, int16 y, uint16 buildingId) external {
-        if (battleground.hasHeadquarters(msg.sender)) {
-            require(_hasNearbyHeadquarters(x, y), "No nearby headquarters");
-        } else {
-            require(!_hasNearbyEnemies(x, y), "Nearby enemy buildings");
-        }
-
-        IBuildings.ConstructionCost[] memory costs = buildingsContract.getConstructionCosts(buildingId);
-        for (uint256 i = 0; i < costs.length; i++) {
-            require(
-                costs[i].tokenAddress.transferFrom(msg.sender, address(battleground), costs[i].amount),
-                "Cost transfer failed"
-            );
-        }
-
-        battleground.placeBuilding(x, y, msg.sender, buildingId);
+    function _manhattanDistance(int16 dx, int16 dy) private pure returns (uint16) {
+        uint16 absDx = dx < 0 ? uint16(-dx) : uint16(dx);
+        uint16 absDy = dy < 0 ? uint16(-dy) : uint16(dy);
+        return absDx + absDy;
     }
 
     function _hasNearbyHeadquarters(int16 x, int16 y) private view returns (bool) {
@@ -62,12 +54,10 @@ contract Construction is OwnableUpgradeable {
                     continue;
                 }
 
-                uint16 absDx = dx < 0 ? uint16(-dx) : uint16(dx);
-                uint16 absDy = dy < 0 ? uint16(-dy) : uint16(dy);
-                uint16 distance = absDx + absDy;
+                uint16 distance = _manhattanDistance(dx, dy);
 
                 Battleground.Tile memory tile = battleground.getTile(nx, ny);
-                if (tile.occupant == msg.sender && buildingsContract.isHeadquarters(tile.buildingId)) {
+                if (tile.owner == msg.sender && buildingsContract.isHeadquarters(tile.buildingId)) {
                     uint16 constructionRange = buildingsContract.getConstructionRange(tile.buildingId);
                     if (distance <= constructionRange) {
                         return true;
@@ -92,11 +82,56 @@ contract Construction is OwnableUpgradeable {
                 }
 
                 Battleground.Tile memory tile = battleground.getTile(nx, ny);
-                if (tile.occupant != address(0) && tile.occupant != msg.sender) {
+                if (tile.owner != address(0) && tile.owner != msg.sender) {
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    function _checkAndTransferConstructionCosts(uint16 buildingId, address payer) internal {
+        IBuildings.ConstructionCost[] memory costs = buildingsContract.getConstructionCosts(buildingId);
+        for (uint256 i = 0; i < costs.length; i++) {
+            require(
+                costs[i].tokenAddress.transferFrom(payer, address(battleground), costs[i].amount),
+                "Construction cost transfer failed"
+            );
+        }
+    }
+
+    function constructBuilding(int16 x, int16 y, uint16 buildingId) external {
+        Battleground.Tile memory tile = battleground.getTile(x, y);
+        require(tile.owner == address(0), "Tile already occupied");
+
+        require(
+            buildingsContract.canBeConstructed(buildingId) && buildingsContract.getParentBuildingId(buildingId) == 0,
+            "Invalid building or not constructible"
+        );
+
+        if (battleground.hasHeadquarters(msg.sender)) {
+            require(_hasNearbyHeadquarters(x, y), "No friendly HQ within range");
+        } else {
+            require(!_hasNearbyEnemies(x, y), "Enemy building too close");
+        }
+
+        _checkAndTransferConstructionCosts(buildingId, msg.sender);
+
+        battleground.placeBuilding(x, y, msg.sender, buildingId);
+    }
+
+    function upgradeBuilding(int16 x, int16 y, uint16 buildingId) external {
+        Battleground.Tile memory tile = battleground.getTile(x, y);
+        require(tile.owner == msg.sender, "Not the tile owner");
+
+        require(
+            buildingsContract.canBeConstructed(buildingId) &&
+                buildingsContract.getParentBuildingId(buildingId) == tile.buildingId,
+            "Building upgrade not allowed"
+        );
+
+        _checkAndTransferConstructionCosts(buildingId, msg.sender);
+
+        battleground.placeBuilding(x, y, msg.sender, buildingId);
     }
 }

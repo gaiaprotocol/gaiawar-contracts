@@ -9,11 +9,13 @@ interface IBuildings {
         uint256 amount;
     }
 
+    function getParentBuildingId(uint16 buildingId) external view returns (uint16);
+
+    function getConstructionCosts(uint16 buildingId) external view returns (ConstructionCost[] memory);
+
     function isHeadquarters(uint16 buildingId) external view returns (bool);
 
     function getConstructionRange(uint16 buildingId) external view returns (uint16);
-
-    function getConstructionCosts(uint16 buildingId) external view returns (ConstructionCost[] memory);
 
     function canBeConstructed(uint16 buildingId) external view returns (bool);
 }
