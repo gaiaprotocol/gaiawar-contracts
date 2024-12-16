@@ -4,7 +4,9 @@ import path from "path";
 const CONTRACT_PATHS = [
   "Battleground",
   "entities/Buildings",
+  "entities/Units",
   "commands/Construction",
+  "commands/Training",
 ];
 
 for (const contractPath of CONTRACT_PATHS) {

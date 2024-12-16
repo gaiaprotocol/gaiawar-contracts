@@ -18,7 +18,7 @@ cd ..
   [0xCb3428bA809B47d0cA7eC766d7d476986CF4fC10](https://sepolia.basescan.org/address/0xCb3428bA809B47d0cA7eC766d7d476986CF4fC10)
 
 - Units:
-  [0x9b459d46f253B1B6b29BC8efd69cD0c2C990b47F](https://sepolia.basescan.org/address/0x9b459d46f253B1B6b29BC8efd69cD0c2C990b47F)
+  [0x2EEa1c806e7B56Fa1fb4E56Aa49F7Ada2D6bE294](https://sepolia.basescan.org/address/0x2EEa1c806e7B56Fa1fb4E56Aa49F7Ada2D6bE294)
 
 - Training:
-  [0x8cA3ffBfb78cF5D2f64d1781BebcE38a76EC09B3](https://sepolia.basescan.org/address/0x8cA3ffBfb78cF5D2f64d1781BebcE38a76EC09B3)
+  [0x7933417099b92BDC5EFDB096E54517D26244538C](https://sepolia.basescan.org/address/0x7933417099b92BDC5EFDB096E54517D26244538C)

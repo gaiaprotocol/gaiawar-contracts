@@ -6,10 +6,11 @@ import "./IUnits.sol";
 
 contract Units is OwnableUpgradeable, IUnits {
     struct Unit {
-        uint16 trainingBuildingId;
+        uint16[] trainingBuildingIds;
         uint16 healthPoints;
         uint16 attackDamage;
         uint8 attackRange;
+        uint8 movementRange;
         TrainingCost[] trainingCost;
         bool canBeTrained;
     }
@@ -21,8 +22,8 @@ contract Units is OwnableUpgradeable, IUnits {
         return units[unitId].canBeTrained;
     }
 
-    function getTraningBuildingId(uint16 unitId) external view override returns (uint16) {
-        return units[unitId].trainingBuildingId;
+    function getTraningBuildingIds(uint16 unitId) external view override returns (uint16[] memory) {
+        return units[unitId].trainingBuildingIds;
     }
 
     function getTrainingCosts(uint16 unitId) external view override returns (TrainingCost[] memory) {
@@ -36,14 +37,19 @@ contract Units is OwnableUpgradeable, IUnits {
     }
 
     function addUnit(
-        uint16 trainingBuildingId,
+        uint16[] calldata trainingBuildingIds,
         uint16 healthPoints,
         uint16 attackDamage,
         uint8 attackRange,
+        uint8 movementRange,
         TrainingCost[] calldata trainingCost,
         bool canBeTrained
     ) external onlyOwner {
-        require(trainingBuildingId > 0, "Training building ID must be valid");
+        require(trainingBuildingIds.length > 0, "Training buildings must be provided");
+        for (uint256 i = 0; i < trainingBuildingIds.length; i++) {
+            require(trainingBuildingIds[i] > 0, "Training building IDs must be valid");
+        }
+
         require(healthPoints > 0, "Health points must be greater than zero");
         require(trainingCost.length > 0, "Training costs must be provided");
 
@@ -51,10 +57,11 @@ contract Units is OwnableUpgradeable, IUnits {
         nextUnitId += 1;
 
         units[unitId] = Unit({
-            trainingBuildingId: trainingBuildingId,
+            trainingBuildingIds: trainingBuildingIds,
             healthPoints: healthPoints,
             attackDamage: attackDamage,
             attackRange: attackRange,
+            movementRange: movementRange,
             trainingCost: trainingCost,
             canBeTrained: canBeTrained
         });

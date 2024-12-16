@@ -26,10 +26,17 @@ contract Training is OwnableUpgradeable {
         Battleground.Tile memory tile = battleground.getTile(x, y);
         require(tile.owner == msg.sender, "Not the tile owner");
 
-        require(
-            unitsContract.canBeTrained(unitId) && unitsContract.getTraningBuildingId(unitId) == tile.buildingId,
-            "Building upgrade not allowed"
-        );
+        uint16[] memory trainingBuildingIds = unitsContract.getTraningBuildingIds(unitId);
+
+        bool found = false;
+        for (uint256 i = 0; i < trainingBuildingIds.length; i++) {
+            if (tile.buildingId == trainingBuildingIds[i]) {
+                found = true;
+                break;
+            }
+        }
+
+        require(unitsContract.canBeTrained(unitId) && found, "Building upgrade not allowed");
 
         IUnits.TrainingCost[] memory costs = unitsContract.getTrainingCosts(unitId);
         for (uint256 i = 0; i < costs.length; i++) {
