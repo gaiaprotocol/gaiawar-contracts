@@ -36,7 +36,7 @@ contract Training is OwnableUpgradeable {
             }
         }
 
-        require(unitsContract.canBeTrained(unitId) && found, "Building upgrade not allowed");
+        require(unitsContract.canBeTrained(unitId) && found, "Unit can't be trained");
 
         IUnits.TrainingCost[] memory costs = unitsContract.getTrainingCosts(unitId);
         for (uint256 i = 0; i < costs.length; i++) {

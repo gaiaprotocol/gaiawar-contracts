@@ -2547,7 +2547,7 @@
             "label": "buildingsContract",
             "offset": 0,
             "slot": "0",
-            "type": "t_contract(IBuildings)1991",
+            "type": "t_contract(IBuildings)1435",
             "contract": "Battleground",
             "src": "contracts/Battleground.sol:8"
           },
@@ -2667,7 +2667,7 @@
             "label": "struct Battleground.UnitQuantity[]",
             "numberOfBytes": "32"
           },
-          "t_contract(IBuildings)1991": {
+          "t_contract(IBuildings)1435": {
             "label": "contract IBuildings",
             "numberOfBytes": "20"
           },
@@ -3884,6 +3884,113 @@
     "18c2073dcb820cd90921e17d39af14576553f016f28a096531fe2ee8dfc8a8a5": {
       "address": "0xE8e8F5e52C6059214Bf2ABA23de2F9d3c84bB9c5",
       "txHash": "0xdb92e4bd0a42cdd6450e0e27d78db57fecdf0be0150e168df3004fa491f505c2",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "battleground",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(Battleground)1191",
+            "contract": "Training",
+            "src": "contracts/commands/Training.sol:9"
+          },
+          {
+            "label": "unitsContract",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IUnits)1469",
+            "contract": "Training",
+            "src": "contracts/commands/Training.sol:10"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)93_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)14_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(Battleground)1191": {
+            "label": "contract Battleground",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IUnits)1469": {
+            "label": "contract IUnits",
+            "numberOfBytes": "20"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "060a3b77f21fefbb6fb015d975b21e928107ca80b936f399f945a0371d6f5a07": {
+      "address": "0xAC3e87Db7Fc3154b7702B2bA4F2D081592E1bD42",
+      "txHash": "0x040080fe93a2f84660f0938f8cb6516111c10bae3fbaac072b6f73d629e0fa0b",
       "layout": {
         "solcVersion": "0.8.28",
         "storage": [
