@@ -3550,6 +3550,133 @@
           ]
         }
       }
+    },
+    "a40a93452ac217fe49e22965e107d5450a1033a4d7d8dc197ab6332a8da528c4": {
+      "address": "0xce5E9706BA0F6A83848260D30Ffa98008f8FEAf4",
+      "txHash": "0x61bd827f3e8fed80294cf32602f3dbcc73c7065c0ec12d3c8deb7bfe4c44799a",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "battleground",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(Battleground)1191",
+            "contract": "Construction",
+            "src": "contracts/commands/Construction.sol:9"
+          },
+          {
+            "label": "buildingsContract",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IBuildings)1991",
+            "contract": "Construction",
+            "src": "contracts/commands/Construction.sol:10"
+          },
+          {
+            "label": "headquartersSearchRange",
+            "offset": 20,
+            "slot": "1",
+            "type": "t_uint16",
+            "contract": "Construction",
+            "src": "contracts/commands/Construction.sol:12"
+          },
+          {
+            "label": "enemyBuildingSearchRange",
+            "offset": 22,
+            "slot": "1",
+            "type": "t_uint16",
+            "contract": "Construction",
+            "src": "contracts/commands/Construction.sol:13"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)93_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)14_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(Battleground)1191": {
+            "label": "contract Battleground",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IBuildings)1991": {
+            "label": "contract IBuildings",
+            "numberOfBytes": "20"
+          },
+          "t_uint16": {
+            "label": "uint16",
+            "numberOfBytes": "2"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
     }
   }
 }
