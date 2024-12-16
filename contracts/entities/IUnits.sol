@@ -11,7 +11,7 @@ interface IUnits {
 
     function canBeTrained(uint16 unitId) external view returns (bool);
 
-    function getTraningBuildingIds(uint16 unitId) external view returns (uint16[] memory);
+    function getTrainingBuildingIds(uint16 unitId) external view returns (uint16[] memory);
 
     function getTrainingCosts(uint16 unitId) external view returns (TrainingCost[] memory);
 }

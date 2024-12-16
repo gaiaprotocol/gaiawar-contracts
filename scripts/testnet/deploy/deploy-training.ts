@@ -1,7 +1,7 @@
 import { ethers, upgrades } from "hardhat";
 
 const BATTLEGROUND_ADDRESS = "0x2C87b00E0436fB2f36c6a053bf4cB28D1fADF091";
-const UNITS_ADDRESS = "0x2EEa1c806e7B56Fa1fb4E56Aa49F7Ada2D6bE294";
+const UNITS_ADDRESS = "0xa0eD07fe9aD94CAC832C10b78794D46859C6582D";
 
 async function main() {
   const Training = await ethers.getContractFactory("Training");

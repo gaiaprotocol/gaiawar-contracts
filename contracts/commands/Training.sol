@@ -26,7 +26,7 @@ contract Training is OwnableUpgradeable {
         Battleground.Tile memory tile = battleground.getTile(x, y);
         require(tile.owner == msg.sender, "Not the tile owner");
 
-        uint16[] memory trainingBuildingIds = unitsContract.getTraningBuildingIds(unitId);
+        uint16[] memory trainingBuildingIds = unitsContract.getTrainingBuildingIds(unitId);
 
         bool found = false;
         for (uint256 i = 0; i < trainingBuildingIds.length; i++) {

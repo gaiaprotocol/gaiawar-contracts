@@ -2,7 +2,7 @@ import { parseEther } from "ethers";
 import { ethers } from "hardhat";
 import { Units } from "../../../typechain-types/index.js";
 
-const UNITS_ADDRESS = "0x2EEa1c806e7B56Fa1fb4E56Aa49F7Ada2D6bE294";
+const UNITS_ADDRESS = "0xa0eD07fe9aD94CAC832C10b78794D46859C6582D";
 
 const materialAddresses = {
   wood: "0xb1e50e052a2c5601BD92fddcc058ADDCFD44c6E7",
@@ -17,7 +17,7 @@ const units: {
   attackDamage: number;
   attackRange: number;
   movementRange: number;
-  traningCosts: { tokenAddress: string; amount: bigint }[];
+  trainingCosts: { tokenAddress: string; amount: bigint }[];
 }[] = [
   // Knight
   {
@@ -26,7 +26,7 @@ const units: {
     attackDamage: 60,
     attackRange: 0,
     movementRange: 4,
-    traningCosts: [
+    trainingCosts: [
       { tokenAddress: materialAddresses.wood, amount: parseEther("100") },
       { tokenAddress: materialAddresses.stone, amount: parseEther("100") },
       { tokenAddress: materialAddresses.iron, amount: parseEther("100") },
@@ -40,7 +40,7 @@ const units: {
     attackDamage: 50,
     attackRange: 0,
     movementRange: 4,
-    traningCosts: [
+    trainingCosts: [
       { tokenAddress: materialAddresses.iron, amount: parseEther("200") },
       { tokenAddress: materialAddresses.ducat, amount: parseEther("100") },
     ],
@@ -52,7 +52,7 @@ const units: {
     attackDamage: 20,
     attackRange: 4,
     movementRange: 3,
-    traningCosts: [
+    trainingCosts: [
       { tokenAddress: materialAddresses.wood, amount: parseEther("100") },
       { tokenAddress: materialAddresses.iron, amount: parseEther("50") },
       { tokenAddress: materialAddresses.ducat, amount: parseEther("100") },
@@ -65,7 +65,7 @@ const units: {
     attackDamage: 50,
     attackRange: 0,
     movementRange: 6,
-    traningCosts: [
+    trainingCosts: [
       { tokenAddress: materialAddresses.wood, amount: parseEther("100") },
       { tokenAddress: materialAddresses.iron, amount: parseEther("200") },
       { tokenAddress: materialAddresses.ducat, amount: parseEther("300") },
@@ -94,7 +94,7 @@ async function main() {
       unit.attackDamage,
       unit.attackRange,
       unit.movementRange,
-      unit.traningCosts,
+      unit.trainingCosts,
       true,
     );
     await tx.wait();

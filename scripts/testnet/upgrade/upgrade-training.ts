@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { ethers, network, upgrades } from "hardhat";
 
-const TRAINING_ADDRESS = "0x7933417099b92BDC5EFDB096E54517D26244538C";
+const TRAINING_ADDRESS = "0x87feE369B7Fd5766950447f6a8187Fb6bB4101e5";
 
 async function main() {
   const Training = await ethers.getContractFactory("Training");

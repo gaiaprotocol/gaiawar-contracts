@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { ethers, network, upgrades } from "hardhat";
 
-const UNITS_ADDRESS = "0x2EEa1c806e7B56Fa1fb4E56Aa49F7Ada2D6bE294";
+const UNITS_ADDRESS = "0xa0eD07fe9aD94CAC832C10b78794D46859C6582D";
 
 async function main() {
   const Units = await ethers.getContractFactory("Units");
