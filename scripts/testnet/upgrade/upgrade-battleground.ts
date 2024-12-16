@@ -1,7 +1,7 @@
 import { ethers, network, upgrades } from "hardhat";
 import "dotenv/config";
 
-const BATTLEGROUND_ADDRESS = "0x24623995D0AD6354943011256893720115e37E5a";
+const BATTLEGROUND_ADDRESS = "0x2C87b00E0436fB2f36c6a053bf4cB28D1fADF091";
 
 async function main() {
   const Battleground = await ethers.getContractFactory("Battleground");

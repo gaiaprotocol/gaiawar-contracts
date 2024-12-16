@@ -7,15 +7,22 @@ import "./entities/IBuildings.sol";
 contract Battleground is OwnableUpgradeable {
     IBuildings public buildingsContract;
     address public constructionContract;
+    address public trainingContract;
 
     struct Coordinates {
         int16 x;
         int16 y;
     }
 
+    struct UnitQuantity {
+        uint16 unitId;
+        uint16 quantity;
+    }
+
     struct Tile {
         address owner;
         uint16 buildingId;
+        UnitQuantity[] units;
     }
 
     int16 public minTileX;
@@ -29,6 +36,7 @@ contract Battleground is OwnableUpgradeable {
     event BuildingsContractSet(address buildingsContract);
     event ConstructionContractSet(address constructionContract);
     event BuildingPlaced(int16 x, int16 y, address indexed owner, uint16 buildingId);
+    event UnitsAdded(int16 x, int16 y, address indexed owner, uint16 unitId, uint16 quantity);
 
     function getTile(int16 x, int16 y) external view returns (Tile memory) {
         return tiles[x][y];
@@ -71,6 +79,10 @@ contract Battleground is OwnableUpgradeable {
         emit ConstructionContractSet(_constructionContract);
     }
 
+    function setTrainingContract(address _trainingContract) external onlyOwner {
+        trainingContract = _trainingContract;
+    }
+
     modifier onlyConstructionContract() {
         require(msg.sender == constructionContract, "Only construction contract can call this function");
         _;
@@ -108,31 +120,44 @@ contract Battleground is OwnableUpgradeable {
             "Tile already occupied by another user"
         );
 
+        Tile storage tile = tiles[x][y];
+        tile.owner = newOwner;
+        tile.buildingId = buildingId;
+
         if (existingTile.owner != address(0) && buildingsContract.isHeadquarters(existingTile.buildingId)) {
-            _removeHQCoordinate(existingTile.owner, x, y);
-        }
-
-        tiles[x][y] = Tile(newOwner, buildingId);
-
-        if (buildingsContract.isHeadquarters(buildingId)) {
+            if (!buildingsContract.isHeadquarters(buildingId)) {
+                _removeHQCoordinate(existingTile.owner, x, y);
+            }
+        } else if (buildingsContract.isHeadquarters(buildingId)) {
             _addHQCoordinate(newOwner, x, y);
         }
 
         emit BuildingPlaced(x, y, newOwner, buildingId);
     }
 
-    function removeBuilding(int16 x, int16 y) external onlyConstructionContract {
+    modifier onlyTrainingContract() {
+        require(msg.sender == trainingContract, "Only training contract can call this function");
+        _;
+    }
+
+    function addUnits(int16 x, int16 y, uint16 unitId, uint16 quantity) external onlyTrainingContract {
         require(_withinBounds(x, y), "Coordinates out of bounds");
 
-        Tile memory existingTile = tiles[x][y];
-        require(existingTile.owner != address(0), "No building on this tile");
+        Tile storage tile = tiles[x][y];
 
-        if (buildingsContract.isHeadquarters(existingTile.buildingId)) {
-            _removeHQCoordinate(existingTile.owner, x, y);
+        bool found = false;
+        for (uint256 i = 0; i < tile.units.length; i++) {
+            if (tile.units[i].unitId == unitId) {
+                tile.units[i].quantity += quantity;
+                found = true;
+                break;
+            }
         }
 
-        delete tiles[x][y];
+        if (!found) {
+            tile.units.push(UnitQuantity(unitId, quantity));
+        }
 
-        emit BuildingPlaced(x, y, address(0), 0);
+        emit UnitsAdded(x, y, tile.owner, unitId, quantity);
     }
 }

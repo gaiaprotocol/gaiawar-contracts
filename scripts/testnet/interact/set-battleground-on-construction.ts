@@ -2,7 +2,7 @@ import { ethers } from "hardhat";
 import { Construction } from "../../../typechain-types/index.js";
 
 const CONSTRUCTION_ADDRESS = "0xCb3428bA809B47d0cA7eC766d7d476986CF4fC10";
-const BATTLEGROUND_ADDRESS = "0x24623995D0AD6354943011256893720115e37E5a";
+const BATTLEGROUND_ADDRESS = "0x2C87b00E0436fB2f36c6a053bf4cB28D1fADF091";
 
 async function main() {
   const Construction = await ethers.getContractFactory("Construction");
