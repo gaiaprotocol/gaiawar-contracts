@@ -14,6 +14,21 @@ abstract contract AttackCommand is UnitCommand {
         buildingManager = IBuildingManager(_buildingManager);
     }
 
+    function getDamageBoostPercentage(
+        uint16 buildingId,
+        UnitQuantityOperations.UnitQuantity[] memory units
+    ) internal view returns (uint256 damageBoostPercentage) {
+        IBuildingManager.Building memory building = buildingManager.getBuilding(buildingId);
+        damageBoostPercentage = building.damageBoostPercentage;
+
+        for (uint256 i = 0; i < units.length; i++) {
+            IUnitManager.Unit memory unit = unitManager.getUnit(units[i].unitId);
+            if (unit.damageBoostPercentage > 0) {
+                damageBoostPercentage += unit.damageBoostPercentage * units[i].quantity;
+            }
+        }
+    }
+
     function applyDamageToUnits(
         UnitQuantityOperations.UnitQuantity[] memory units,
         uint256 damage

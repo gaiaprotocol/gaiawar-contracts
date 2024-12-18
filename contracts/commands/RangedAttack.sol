@@ -73,7 +73,10 @@ contract RangedAttack is AttackCommand {
             UnitQuantityOperations.UnitQuantity[] memory remainingUnits,
             ,
             TokenAmountOperations.TokenAmount[] memory defenderLoot
-        ) = applyDamageToUnits(toTile.units, attackerDamage);
+        ) = applyDamageToUnits(
+                toTile.units,
+                (attackerDamage * 10000) / (10000 + getDamageBoostPercentage(fromTile.buildingId, attackerUnits))
+            );
 
         if (remainingUnits.length == 0) {
             toTile.occupant = address(0);

@@ -73,6 +73,7 @@ contract MoveAndAttack is AttackCommand {
                     IUnitManager.Unit memory unit = unitManager.getUnit(attackerUnits[i].unitId);
                     attackerDamage += uint256(unit.attackDamage) * uint256(attackerUnits[i].quantity);
                 }
+                attackerDamage = (attackerDamage * 10000) / (10000 + getDamageBoostPercentage(0, attackerUnits));
             }
 
             uint256 defenderDamage = toFinish ? type(uint256).max : 0;
@@ -81,6 +82,9 @@ contract MoveAndAttack is AttackCommand {
                     IUnitManager.Unit memory unit = unitManager.getUnit(toTile.units[i].unitId);
                     defenderDamage += uint256(unit.attackDamage) * uint256(toTile.units[i].quantity);
                 }
+                defenderDamage =
+                    (defenderDamage * 10000) /
+                    (10000 + getDamageBoostPercentage(toTile.buildingId, defenderUnits));
             }
 
             (
