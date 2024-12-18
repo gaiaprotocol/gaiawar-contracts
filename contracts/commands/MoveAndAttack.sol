@@ -6,6 +6,8 @@ import "../libraries/CoordinatesOperations.sol";
 
 contract MoveAndAttack is AttackCommand {
     using CoordinatesOperations for IBattleground.Coordinates;
+    using UnitQuantityOperations for UnitQuantityOperations.UnitQuantity[];
+    using TokenAmountOperations for TokenAmountOperations.TokenAmount[];
 
     function initialize(
         address _battleground,
@@ -54,6 +56,95 @@ contract MoveAndAttack is AttackCommand {
             require(distance <= unit.movementRange, "Unit cannot move that far");
         }
 
-        //TODO:
+        fromTile.units = fromTile.units.subtract(attackerUnits);
+        if (fromTile.units.length == 0) {
+            fromTile.occupant = address(0);
+        }
+        battleground.updateTile(from, fromTile);
+
+        UnitQuantityOperations.UnitQuantity[] memory defenderUnits = toTile.units;
+        TokenAmountOperations.TokenAmount[] memory totalLoot = toTile.loot;
+
+        bool toFinish = false;
+        while (true) {
+            uint256 attackerDamage = toFinish ? type(uint256).max : 0;
+            if (!toFinish) {
+                for (uint256 i = 0; i < attackerUnits.length; i++) {
+                    IUnitManager.Unit memory unit = unitManager.getUnit(attackerUnits[i].unitId);
+                    attackerDamage += uint256(unit.attackDamage) * uint256(attackerUnits[i].quantity);
+                }
+            }
+
+            uint256 defenderDamage = toFinish ? type(uint256).max : 0;
+            if (!toFinish) {
+                for (uint256 i = 0; i < toTile.units.length; i++) {
+                    IUnitManager.Unit memory unit = unitManager.getUnit(toTile.units[i].unitId);
+                    defenderDamage += uint256(unit.attackDamage) * uint256(toTile.units[i].quantity);
+                }
+            }
+
+            (
+                UnitQuantityOperations.UnitQuantity[] memory remainingDefenderUnits,
+                uint256 remainingAttackerDamage,
+                TokenAmountOperations.TokenAmount[] memory attackerLoot
+            ) = applyDamageToUnits(defenderUnits, attackerDamage);
+
+            (
+                UnitQuantityOperations.UnitQuantity[] memory remainingAttackerUnits,
+                uint256 remainingDefenderDamage,
+                TokenAmountOperations.TokenAmount[] memory defenderLoot
+            ) = applyDamageToUnits(attackerUnits, defenderDamage);
+
+            totalLoot = totalLoot.merge(attackerLoot).merge(defenderLoot);
+
+            // Attacker wins
+            if (remainingAttackerUnits.length > 0 && remainingDefenderUnits.length == 0) {
+                toTile.occupant = msg.sender;
+                toTile.units = remainingAttackerUnits;
+
+                if (toTile.buildingId == 0) {
+                    toTile.loot = totalLoot;
+                } else {
+                    toTile.buildingId = 0;
+                    TokenAmountOperations.TokenAmount[] memory constructionCost = buildingManager
+                        .getTotalBuildingConstructionCost(toTile.buildingId);
+                    toTile.loot = totalLoot.merge(constructionCost);
+                }
+
+                battleground.updateTile(to, toTile);
+            }
+            // Defender wins
+            else if (remainingAttackerUnits.length == 0 && remainingDefenderUnits.length > 0) {
+                toTile.units = remainingDefenderUnits;
+                toTile.loot = totalLoot;
+
+                battleground.updateTile(to, toTile);
+            }
+            // Draw
+            else if (remainingAttackerUnits.length == 0 && remainingDefenderUnits.length == 0) {
+                toTile.occupant = address(0);
+                toTile.units = new UnitQuantityOperations.UnitQuantity[](0);
+
+                if (toTile.buildingId == 0) {
+                    toTile.loot = totalLoot;
+                } else {
+                    toTile.buildingId = 0;
+                    TokenAmountOperations.TokenAmount[] memory constructionCost = buildingManager
+                        .getTotalBuildingConstructionCost(toTile.buildingId);
+                    toTile.loot = totalLoot.merge(constructionCost);
+                }
+
+                battleground.updateTile(to, toTile);
+            }
+            // Never reached
+            else if (attackerDamage == remainingDefenderDamage && defenderDamage == remainingAttackerDamage) {
+                toFinish = true;
+            }
+            // Continue
+            else {
+                attackerUnits = remainingAttackerUnits;
+                defenderUnits = remainingDefenderUnits;
+            }
+        }
     }
 }

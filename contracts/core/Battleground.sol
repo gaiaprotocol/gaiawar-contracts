@@ -93,13 +93,14 @@ contract Battleground is OperatorManagement, IBattleground {
         IBuildingManager.Building memory building = buildingManager.getBuilding(tile.buildingId);
 
         if (existingTile.occupant != address(0) && existingBuilding.isHeadquarters) {
-            if (!building.isHeadquarters) {
+            if (existingTile.occupant != tile.occupant || !building.isHeadquarters) {
                 _removeHQCoordinate(existingTile.occupant, coordinates);
             }
-        } else {
-            if (building.isHeadquarters) {
+            if (existingTile.occupant != tile.occupant && building.isHeadquarters) {
                 _addHQCoordinate(tile.occupant, coordinates);
             }
+        } else if (building.isHeadquarters) {
+            _addHQCoordinate(tile.occupant, coordinates);
         }
 
         emit TileUpdated(coordinates, tile);

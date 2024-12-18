@@ -72,24 +72,26 @@ contract RangedAttack is AttackCommand {
         (
             UnitQuantityOperations.UnitQuantity[] memory remainingUnits,
             ,
-            TokenAmountOperations.TokenAmount[] memory loot
+            TokenAmountOperations.TokenAmount[] memory defenderLoot
         ) = applyDamageToUnits(toTile.units, attackerDamage);
 
         if (remainingUnits.length == 0) {
-            TokenAmountOperations.TokenAmount[] memory constructionCost = buildingManager
-                .getTotalBuildingConstructionCost(toTile.buildingId);
-
             toTile.occupant = address(0);
-            toTile.buildingId = 0;
             toTile.units = new UnitQuantityOperations.UnitQuantity[](0);
-            toTile.loot = toTile.loot.merge(constructionCost.merge(loot.merge(totalAttackCost)));
 
-            battleground.updateTile(to, toTile);
+            if (toTile.buildingId == 0) {
+                toTile.loot = toTile.loot.merge(defenderLoot).merge(totalAttackCost);
+            } else {
+                toTile.buildingId = 0;
+                TokenAmountOperations.TokenAmount[] memory constructionCost = buildingManager
+                    .getTotalBuildingConstructionCost(toTile.buildingId);
+                toTile.loot = toTile.loot.merge(defenderLoot).merge(totalAttackCost).merge(constructionCost);
+            }
         } else {
             toTile.units = remainingUnits;
-            toTile.loot = toTile.loot.merge(loot.merge(totalAttackCost));
-
-            battleground.updateTile(to, toTile);
+            toTile.loot = toTile.loot.merge(defenderLoot).merge(totalAttackCost);
         }
+
+        battleground.updateTile(to, toTile);
     }
 }

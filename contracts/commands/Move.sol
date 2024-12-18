@@ -35,7 +35,7 @@ contract Move is UnitCommand {
             bool found = false;
             for (uint256 j = 0; j < fromTile.units.length; j++) {
                 if (fromTile.units[j].unitId == units[i].unitId) {
-                    require(fromTile.units[j].quantity >= units[i].quantity, "Not enough units to attack with");
+                    require(fromTile.units[j].quantity >= units[i].quantity, "Not enough units to move");
                     found = true;
                     break;
                 }
