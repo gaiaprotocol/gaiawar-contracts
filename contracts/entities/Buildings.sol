@@ -7,9 +7,10 @@ import "./IBuildings.sol";
 contract Buildings is OwnableUpgradeable, IBuildings {
     struct Building {
         uint16 previousBuildingId;
-        TokenOperations.TokenAmount[] constructionCost;
         bool isHeadquarters;
         uint16 constructionRange;
+        uint16 damageBuffPercentage; // 1-10000 (0.01% - 100%)
+        TokenOperations.TokenAmount[] constructionCost;
         bool canBeConstructed;
     }
 
@@ -20,16 +21,16 @@ contract Buildings is OwnableUpgradeable, IBuildings {
         return buildings[buildingId].previousBuildingId;
     }
 
-    function getConstructionCost(uint16 buildingId) external view returns (TokenOperations.TokenAmount[] memory) {
-        return buildings[buildingId].constructionCost;
-    }
-
     function isHeadquarters(uint16 buildingId) external view returns (bool) {
         return buildings[buildingId].isHeadquarters;
     }
 
     function getConstructionRange(uint16 buildingId) external view returns (uint16) {
         return buildings[buildingId].constructionRange;
+    }
+
+    function getConstructionCost(uint16 buildingId) external view returns (TokenOperations.TokenAmount[] memory) {
+        return buildings[buildingId].constructionCost;
     }
 
     function canBeConstructed(uint16 buildingId) external view returns (bool) {
@@ -44,9 +45,10 @@ contract Buildings is OwnableUpgradeable, IBuildings {
 
     function addBuilding(
         uint16 previousBuildingId,
-        TokenOperations.TokenAmount[] calldata constructionCost,
         bool isHeadquarters,
         uint16 constructionRange,
+        uint16 damageBuffPercentage,
+        TokenOperations.TokenAmount[] calldata constructionCost,
         bool canBeConstructed
     ) external onlyOwner {
         require(previousBuildingId < nextBuildingId, "Previous building does not exist");
@@ -57,9 +59,10 @@ contract Buildings is OwnableUpgradeable, IBuildings {
 
         buildings[buildingId] = Building({
             previousBuildingId: previousBuildingId,
-            constructionCost: constructionCost,
             isHeadquarters: isHeadquarters,
             constructionRange: constructionRange,
+            damageBuffPercentage: damageBuffPercentage,
+            constructionCost: constructionCost,
             canBeConstructed: canBeConstructed
         });
     }

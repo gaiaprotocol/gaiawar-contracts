@@ -11,6 +11,7 @@ contract Units is OwnableUpgradeable, IUnits {
         uint16 attackDamage;
         uint8 attackRange;
         uint8 movementRange;
+        uint16 damageBuffPercentage; // 1-10000 (0.01% - 100%)
         TokenOperations.TokenAmount[] trainingCost;
         TokenOperations.TokenAmount[] rangedAttackCost;
         bool canBeTrained;
@@ -19,12 +20,12 @@ contract Units is OwnableUpgradeable, IUnits {
     uint16 public nextUnitId;
     mapping(uint16 => Unit) public units;
 
-    function canBeTrained(uint16 unitId) external view override returns (bool) {
-        return units[unitId].canBeTrained;
-    }
-
     function getTrainingBuildingIds(uint16 unitId) external view override returns (uint16[] memory) {
         return units[unitId].trainingBuildingIds;
+    }
+
+    function getHealthPoints(uint16 unitId) external view override returns (uint16) {
+        return units[unitId].healthPoints;
     }
 
     function getTrainingCost(uint16 unitId) external view override returns (TokenOperations.TokenAmount[] memory) {
@@ -33,6 +34,10 @@ contract Units is OwnableUpgradeable, IUnits {
 
     function getRangedAttackCost(uint16 unitId) external view returns (TokenOperations.TokenAmount[] memory) {
         return units[unitId].rangedAttackCost;
+    }
+
+    function canBeTrained(uint16 unitId) external view override returns (bool) {
+        return units[unitId].canBeTrained;
     }
 
     function initialize() public initializer {
@@ -47,6 +52,7 @@ contract Units is OwnableUpgradeable, IUnits {
         uint16 attackDamage,
         uint8 attackRange,
         uint8 movementRange,
+        uint16 damageBuffPercentage,
         TokenOperations.TokenAmount[] calldata trainingCost,
         TokenOperations.TokenAmount[] calldata rangedAttackCost,
         bool canBeTrained
@@ -69,6 +75,7 @@ contract Units is OwnableUpgradeable, IUnits {
             attackDamage: attackDamage,
             attackRange: attackRange,
             movementRange: movementRange,
+            damageBuffPercentage: damageBuffPercentage,
             trainingCost: trainingCost,
             rangedAttackCost: rangedAttackCost,
             canBeTrained: canBeTrained
