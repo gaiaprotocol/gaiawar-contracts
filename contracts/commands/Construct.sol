@@ -121,6 +121,7 @@ contract Construct is BuildingCommand {
         TokenAmountOperations.TokenAmount[] memory cost = building.constructionCost;
         require(cost.transferAll(msg.sender, address(lootVault)), "Construction cost transfer failed");
 
+        tile.occupant = msg.sender;
         tile.buildingId = buildingId;
         battleground.updateTile(coordinates, tile);
     }

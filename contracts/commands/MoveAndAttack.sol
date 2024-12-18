@@ -39,6 +39,21 @@ contract MoveAndAttack is AttackCommand {
 
         uint16 distance = from.manhattanDistance(to);
 
+        for (uint256 i = 0; i < attackerUnits.length; i++) {
+            bool found = false;
+            for (uint256 j = 0; j < fromTile.units.length; j++) {
+                if (fromTile.units[j].unitId == attackerUnits[i].unitId) {
+                    require(fromTile.units[j].quantity >= attackerUnits[i].quantity, "Not enough units to attack with");
+                    found = true;
+                    break;
+                }
+            }
+            require(found, "Unit not found in source tile");
+
+            IUnitManager.Unit memory unit = unitManager.getUnit(attackerUnits[i].unitId);
+            require(distance <= unit.movementRange, "Unit cannot move that far");
+        }
+
         //TODO:
     }
 }

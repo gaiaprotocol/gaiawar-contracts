@@ -52,7 +52,7 @@ contract RangedAttack is AttackCommand {
                     break;
                 }
             }
-            require(found, "Unit not found in attacking tile");
+            require(found, "Unit not found in source tile");
 
             IUnitManager.Unit memory unit = unitManager.getUnit(attackerUnits[i].unitId);
             require(unit.attackRange >= distance, "Unit cannot attack that far");
