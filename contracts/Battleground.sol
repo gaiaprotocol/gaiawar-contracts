@@ -6,6 +6,8 @@ import "./TokenOperations.sol";
 import "./entities/IBuildings.sol";
 
 contract Battleground is OwnableUpgradeable {
+    using TokenOperations for TokenOperations.TokenAmount[];
+
     IBuildings public buildingsContract;
     address public constructionContract;
     address public trainingContract;
@@ -228,5 +230,33 @@ contract Battleground is OwnableUpgradeable {
         }
 
         tile.units = newUnits;
+    }
+
+    function updateTile(
+        int16 x,
+        int16 y,
+        address newOwner,
+        UnitQuantity[] memory units,
+        TokenOperations.TokenAmount[] memory uncollectedLoot
+    ) external {
+        require(_withinBounds(x, y), "Coordinates out of bounds");
+
+        Tile storage tile = tiles[x][y];
+        address originalOwner = tile.owner;
+        uint16 originalBuildingId = tile.buildingId;
+
+        tile.owner = newOwner;
+        tile.units = units;
+        tile.uncollectedLoot = uncollectedLoot;
+
+        if (originalOwner != newOwner) {
+            TokenOperations.TokenAmount[] memory loot = buildingsContract.getConstructionCost(originalBuildingId);
+            if (newOwner != address(0)) {
+                loot.transferTokens(address(this), newOwner);
+            } else {
+                loot.transferTokens(address(this), originalOwner);
+            }
+            tile.buildingId = 0;
+        }
     }
 }

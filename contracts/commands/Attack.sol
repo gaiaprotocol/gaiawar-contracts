@@ -36,7 +36,6 @@ contract Attack is OwnableUpgradeable {
         view
         returns (
             Battleground.UnitQuantity[] memory remainingUnits,
-            uint256 totalRemainingUnits,
             uint256 remainingDamage,
             TokenOperations.TokenAmount[] memory loot
         )
@@ -53,7 +52,6 @@ contract Attack is OwnableUpgradeable {
             uint16 killedUnits = uint16(remainingDamage / hp);
 
             if (killedUnits == 0) {
-                totalRemainingUnits += units[i].quantity;
                 continue;
             }
 
@@ -63,7 +61,6 @@ contract Attack is OwnableUpgradeable {
             units[i].quantity -= killedUnits;
             if (units[i].quantity > 0) {
                 remainingUnitsLength++;
-                totalRemainingUnits += units[i].quantity;
             }
             remainingDamage -= uint256(killedUnits) * uint256(hp);
 
@@ -200,9 +197,15 @@ contract Attack is OwnableUpgradeable {
 
         (
             Battleground.UnitQuantity[] memory remainingUnits,
-            uint256 totalRemainingUnits,
-            uint256 remainingDamage,
+            ,
             TokenOperations.TokenAmount[] memory loot
         ) = _applyDamageToUnits(toTile.units, totalDamage);
+
+        if (remainingUnits.length == 0) {
+            battleground.updateTile(toX, toY, address(0), remainingUnits, loot);
+        } else {
+            battleground.updateTile(toX, toY, toTile.owner, remainingUnits, new TokenOperations.TokenAmount[](0));
+            loot.transferTokens(address(battleground), toTile.owner);
+        }
     }
 }
