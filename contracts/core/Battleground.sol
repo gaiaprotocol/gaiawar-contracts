@@ -2,32 +2,15 @@
 pragma solidity ^0.8.28;
 
 import "./OperatorManagement.sol";
-import "./ILootVault.sol";
+import "./IBattleground.sol";
 
-contract Battleground is OperatorManagement {
-    struct Coordinates {
-        int16 x;
-        int16 y;
-    }
-
+contract Battleground is OperatorManagement, IBattleground {
     uint16 public width;
     uint16 public height;
     uint16 public maxUnitsPerTile;
 
     event DimensionsUpdated(uint16 width, uint16 height);
     event MaxUnitsPerTileUpdated(uint16 maxUnitsPerTile);
-
-    struct UnitQuantity {
-        uint16 unitId;
-        uint16 quantity;
-    }
-
-    struct Tile {
-        address occupant;
-        uint16 buildingId;
-        UnitQuantity[] units;
-        ILootVault.Loot[] loot;
-    }
 
     mapping(int16 => mapping(int16 => Tile)) public tiles;
 
@@ -72,7 +55,7 @@ contract Battleground is OperatorManagement {
     function updateTile(
         Coordinates memory coordinates,
         Tile memory tile
-    ) external onlyOperator validCoordinates(coordinates) {
+    ) external override onlyOperator validCoordinates(coordinates) {
         uint16 totalUnits = 0;
         for (uint256 i = 0; i < tile.units.length; i++) {
             totalUnits += tile.units[i].quantity;

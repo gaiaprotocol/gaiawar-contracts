@@ -34,7 +34,7 @@ contract LootVault is OperatorManagement, ILootVault {
         emit ProtocolFeeRateUpdated(_protocolFeeRate);
     }
 
-    function transferLoot(address recipient, Loot[] memory loot) external onlyOperator {
+    function transferLoot(address recipient, Loot[] memory loot) external override onlyOperator {
         require(recipient != address(0), "Invalid recipient address");
         require(loot.length > 0, "No loot to transfer");
 
