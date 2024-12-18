@@ -36,6 +36,10 @@ contract Units is OwnableUpgradeable, IUnits {
         return units[unitId].attackRange;
     }
 
+    function getMovementRange(uint16 unitId) external view override returns (uint8) {
+        return units[unitId].movementRange;
+    }
+
     function getTrainingCost(uint16 unitId) external view override returns (TokenOperations.TokenAmount[] memory) {
         return units[unitId].trainingCost;
     }

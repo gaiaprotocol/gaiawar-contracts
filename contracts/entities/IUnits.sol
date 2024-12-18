@@ -12,6 +12,8 @@ interface IUnits {
 
     function getAttackRange(uint16 unitId) external view returns (uint8);
 
+    function getMovementRange(uint16 unitId) external view returns (uint8);
+
     function getTrainingCost(uint16 unitId) external view returns (TokenOperations.TokenAmount[] memory);
 
     function getRangedAttackCost(uint16 unitId) external view returns (TokenOperations.TokenAmount[] memory);

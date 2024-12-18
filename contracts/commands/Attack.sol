@@ -114,25 +114,9 @@ contract Attack is OwnableUpgradeable {
         int16 fromY,
         int16 toX,
         int16 toY,
-        uint16[] calldata unitIds,
-        uint16[] calldata quantities
+        Battleground.UnitQuantity[] memory units
     ) external {
-        require(unitIds.length > 0, "No units specified");
-        require(unitIds.length == quantities.length, "UnitIds and quantities length mismatch");
-
-        //TODO:
-    }
-
-    function rangedAttack(
-        int16 fromX,
-        int16 fromY,
-        int16 toX,
-        int16 toY,
-        uint16[] calldata unitIds,
-        uint16[] calldata quantities
-    ) external {
-        require(unitIds.length > 0, "No units specified");
-        require(unitIds.length == quantities.length, "UnitIds and quantities length mismatch");
+        require(units.length > 0, "No units specified");
 
         Battleground.Tile memory fromTile = battleground.getTile(fromX, fromY);
         require(fromTile.owner == msg.sender, "Not the tile owner");
@@ -140,57 +124,209 @@ contract Attack is OwnableUpgradeable {
         Battleground.Tile memory toTile = battleground.getTile(toX, toY);
         require(toTile.owner != address(0) && toTile.owner != msg.sender, "Invalid target");
 
-        uint256 totalDamage = 0;
-        TokenOperations.TokenAmount[] memory totalCost;
+        uint16 distance = _manhattanDistance(fromX, fromY, toX, toY);
 
-        for (uint256 i = 0; i < unitIds.length; i++) {
+        for (uint256 i = 0; i < units.length; i++) {
             bool found = false;
             for (uint256 j = 0; j < fromTile.units.length; j++) {
-                if (fromTile.units[j].unitId == unitIds[i]) {
-                    require(fromTile.units[j].quantity >= quantities[i], "Insufficient units");
+                if (fromTile.units[j].unitId == units[i].unitId) {
+                    require(fromTile.units[j].quantity >= units[i].quantity, "Insufficient units");
                     found = true;
-
-                    uint8 attackRange = unitsContract.getAttackRange(unitIds[i]);
-                    uint16 distance = _manhattanDistance(fromX, fromY, toX, toY);
-                    require(distance <= attackRange, "Target out of range");
-
-                    uint16 attackDamage = unitsContract.getAttackDamage(unitIds[i]);
-                    totalDamage += uint256(attackDamage) * uint256(quantities[i]);
-
-                    TokenOperations.TokenAmount[] memory attackCost = unitsContract.getRangedAttackCost(unitIds[i]);
-                    for (uint256 k = 0; k < attackCost.length; k++) {
-                        attackCost[k].amount *= quantities[i];
-                    }
-
-                    if (totalCost.length == 0) {
-                        totalCost = attackCost;
-                    } else {
-                        for (uint256 k = 0; k < attackCost.length; k++) {
-                            bool tokenFound = false;
-                            for (uint256 l = 0; l < totalCost.length; l++) {
-                                if (totalCost[l].token == attackCost[k].token) {
-                                    totalCost[l].amount += attackCost[k].amount;
-                                    tokenFound = true;
-                                    break;
-                                }
-                            }
-                            if (!tokenFound) {
-                                TokenOperations.TokenAmount[] memory newTotalCost = new TokenOperations.TokenAmount[](
-                                    totalCost.length + 1
-                                );
-                                for (uint256 l = 0; l < totalCost.length; l++) {
-                                    newTotalCost[l] = totalCost[l];
-                                }
-                                newTotalCost[totalCost.length] = attackCost[k];
-                                totalCost = newTotalCost;
-                            }
-                        }
-                    }
-
                     break;
                 }
             }
             require(found, "Unit not found in source tile");
+
+            uint8 movementRange = unitsContract.getMovementRange(units[i].unitId);
+            require(distance <= movementRange, "Movement range exceeded");
+        }
+
+        Battleground.UnitQuantity[] memory attackerUnits = units;
+        Battleground.UnitQuantity[] memory defenderUnits = toTile.units;
+
+        TokenOperations.TokenAmount[] memory totalLoot;
+
+        bool toFinish = false;
+        while (true) {
+            uint256 attackerDamage = toFinish ? type(uint256).max : 0;
+            if (!toFinish) {
+                for (uint256 i = 0; i < attackerUnits.length; i++) {
+                    uint16 damage = unitsContract.getAttackDamage(attackerUnits[i].unitId);
+                    attackerDamage += uint256(damage) * uint256(attackerUnits[i].quantity);
+                }
+            }
+
+            uint256 defenderDamage = toFinish ? type(uint256).max : 0;
+            if (!toFinish) {
+                for (uint256 i = 0; i < defenderUnits.length; i++) {
+                    uint16 damage = unitsContract.getAttackDamage(defenderUnits[i].unitId);
+                    defenderDamage += uint256(damage) * uint256(defenderUnits[i].quantity);
+                }
+            }
+
+            (
+                Battleground.UnitQuantity[] memory remainingDefenderUnits,
+                uint256 remainingAttackerDamage,
+                TokenOperations.TokenAmount[] memory attackerLoot
+            ) = _applyDamageToUnits(defenderUnits, attackerDamage);
+
+            if (totalLoot.length == 0) {
+                totalLoot = attackerLoot;
+            } else {
+                for (uint256 i = 0; i < attackerLoot.length; i++) {
+                    bool tokenFound = false;
+                    for (uint256 j = 0; j < totalLoot.length; j++) {
+                        if (totalLoot[j].token == attackerLoot[i].token) {
+                            totalLoot[j].amount += attackerLoot[i].amount;
+                            tokenFound = true;
+                            break;
+                        }
+                    }
+                    if (!tokenFound) {
+                        TokenOperations.TokenAmount[] memory newTotalLoot = new TokenOperations.TokenAmount[](
+                            totalLoot.length + 1
+                        );
+                        for (uint256 j = 0; j < totalLoot.length; j++) {
+                            newTotalLoot[j] = totalLoot[j];
+                        }
+                        newTotalLoot[totalLoot.length] = attackerLoot[i];
+                        totalLoot = newTotalLoot;
+                    }
+                }
+            }
+
+            (
+                Battleground.UnitQuantity[] memory remainingAttackerUnits,
+                uint256 remainingDefenderDamage,
+                TokenOperations.TokenAmount[] memory defenderLoot
+            ) = _applyDamageToUnits(attackerUnits, defenderDamage);
+
+            if (totalLoot.length == 0) {
+                totalLoot = defenderLoot;
+            } else {
+                for (uint256 i = 0; i < defenderLoot.length; i++) {
+                    bool tokenFound = false;
+                    for (uint256 j = 0; j < totalLoot.length; j++) {
+                        if (totalLoot[j].token == defenderLoot[i].token) {
+                            totalLoot[j].amount += defenderLoot[i].amount;
+                            tokenFound = true;
+                            break;
+                        }
+                    }
+                    if (!tokenFound) {
+                        TokenOperations.TokenAmount[] memory newTotalLoot = new TokenOperations.TokenAmount[](
+                            totalLoot.length + 1
+                        );
+                        for (uint256 j = 0; j < totalLoot.length; j++) {
+                            newTotalLoot[j] = totalLoot[j];
+                        }
+                        newTotalLoot[totalLoot.length] = defenderLoot[i];
+                        totalLoot = newTotalLoot;
+                    }
+                }
+            }
+
+            // Attacker win
+            if (remainingAttackerUnits.length > 0 && remainingDefenderUnits.length == 0) {
+                totalLoot.transferTokens(address(battleground), msg.sender);
+                battleground.updateTile(
+                    toX,
+                    toY,
+                    msg.sender,
+                    remainingAttackerUnits,
+                    new TokenOperations.TokenAmount[](0)
+                );
+                break;
+            }
+
+            // Defender win
+            if (remainingAttackerUnits.length == 0 && remainingDefenderUnits.length > 0) {
+                totalLoot.transferTokens(address(battleground), toTile.owner);
+                battleground.updateTile(toX, toY, toTile.owner, remainingDefenderUnits, toTile.uncollectedLoot);
+                break;
+            }
+
+            // Draw
+            if (remainingAttackerUnits.length == 0 && remainingDefenderUnits.length == 0) {
+                totalLoot.transferTokens(address(battleground), msg.sender);
+                toTile.uncollectedLoot.transferTokens(address(battleground), toTile.owner);
+                battleground.updateTile(toX, toY, address(0), new Battleground.UnitQuantity[](0), totalLoot);
+                break;
+            }
+
+            // Never reached
+            if (attackerDamage == remainingDefenderDamage && defenderDamage == remainingAttackerDamage) {
+                toFinish = true;
+            }
+        }
+    }
+
+    function rangedAttack(
+        int16 fromX,
+        int16 fromY,
+        int16 toX,
+        int16 toY,
+        Battleground.UnitQuantity[] memory units
+    ) external {
+        require(units.length > 0, "No units specified");
+
+        Battleground.Tile memory fromTile = battleground.getTile(fromX, fromY);
+        require(fromTile.owner == msg.sender, "Not the tile owner");
+
+        Battleground.Tile memory toTile = battleground.getTile(toX, toY);
+        require(toTile.owner != address(0) && toTile.owner != msg.sender, "Invalid target");
+
+        uint16 distance = _manhattanDistance(fromX, fromY, toX, toY);
+
+        uint256 totalDamage = 0;
+        TokenOperations.TokenAmount[] memory totalCost;
+
+        for (uint256 i = 0; i < units.length; i++) {
+            bool found = false;
+            for (uint256 j = 0; j < fromTile.units.length; j++) {
+                if (fromTile.units[j].unitId == units[i].unitId) {
+                    require(fromTile.units[j].quantity >= units[i].quantity, "Insufficient units");
+                    found = true;
+                    break;
+                }
+            }
+            require(found, "Unit not found in source tile");
+
+            uint8 attackRange = unitsContract.getAttackRange(units[i].unitId);
+            require(distance <= attackRange, "Target out of range");
+
+            uint16 attackDamage = unitsContract.getAttackDamage(units[i].unitId);
+            totalDamage += uint256(attackDamage) * uint256(units[i].quantity);
+
+            TokenOperations.TokenAmount[] memory attackCost = unitsContract.getRangedAttackCost(units[i].unitId);
+            for (uint256 k = 0; k < attackCost.length; k++) {
+                attackCost[k].amount *= units[i].quantity;
+            }
+
+            if (totalCost.length == 0) {
+                totalCost = attackCost;
+            } else {
+                for (uint256 k = 0; k < attackCost.length; k++) {
+                    bool tokenFound = false;
+                    for (uint256 l = 0; l < totalCost.length; l++) {
+                        if (totalCost[l].token == attackCost[k].token) {
+                            totalCost[l].amount += attackCost[k].amount;
+                            tokenFound = true;
+                            break;
+                        }
+                    }
+                    if (!tokenFound) {
+                        TokenOperations.TokenAmount[] memory newTotalCost = new TokenOperations.TokenAmount[](
+                            totalCost.length + 1
+                        );
+                        for (uint256 l = 0; l < totalCost.length; l++) {
+                            newTotalCost[l] = totalCost[l];
+                        }
+                        newTotalCost[totalCost.length] = attackCost[k];
+                        totalCost = newTotalCost;
+                    }
+                }
+            }
         }
 
         require(totalCost.transferTokens(msg.sender, address(battleground)), "Failed to transfer attack cost");
