@@ -143,8 +143,7 @@ contract Attack is OwnableUpgradeable {
 
         Battleground.UnitQuantity[] memory attackerUnits = units;
         Battleground.UnitQuantity[] memory defenderUnits = toTile.units;
-
-        TokenOperations.TokenAmount[] memory totalLoot;
+        TokenOperations.TokenAmount[] memory totalLoot = toTile.uncollectedLoot;
 
         bool toFinish = false;
         while (true) {
@@ -242,14 +241,18 @@ contract Attack is OwnableUpgradeable {
             // Defender win
             if (remainingAttackerUnits.length == 0 && remainingDefenderUnits.length > 0) {
                 totalLoot.transferTokens(address(battleground), toTile.owner);
-                battleground.updateTile(toX, toY, toTile.owner, remainingDefenderUnits, toTile.uncollectedLoot);
+                battleground.updateTile(
+                    toX,
+                    toY,
+                    toTile.owner,
+                    remainingDefenderUnits,
+                    new TokenOperations.TokenAmount[](0)
+                );
                 break;
             }
 
             // Draw
             if (remainingAttackerUnits.length == 0 && remainingDefenderUnits.length == 0) {
-                totalLoot.transferTokens(address(battleground), msg.sender);
-                toTile.uncollectedLoot.transferTokens(address(battleground), toTile.owner);
                 battleground.updateTile(toX, toY, address(0), new Battleground.UnitQuantity[](0), totalLoot);
                 break;
             }
