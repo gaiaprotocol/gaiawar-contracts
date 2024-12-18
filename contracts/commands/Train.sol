@@ -37,18 +37,20 @@ contract Train is UnitCommand {
         require(foundTrainingBuilding, "Unit can't be trained");
 
         TokenAmountOperations.TokenAmount[] memory cost = unit.trainingCost;
+        for (uint256 i = 0; i < unit.trainingCost.length; i++) {
+            cost[i].amount *= unitQuantity.quantity;
+        }
         cost.transferAll(msg.sender, address(lootVault));
 
-        bool foundUnit = false;
-
+        bool foundSameUnit = false;
         for (uint256 i = 0; i < tile.units.length; i++) {
             if (tile.units[i].unitId == unitQuantity.unitId) {
                 tile.units[i].quantity += unitQuantity.quantity;
-                foundUnit = true;
+                foundSameUnit = true;
             }
         }
 
-        if (!foundUnit) {
+        if (!foundSameUnit) {
             UnitQuantityOperations.UnitQuantity[] memory newUnits = new UnitQuantityOperations.UnitQuantity[](
                 tile.units.length + 1
             );
