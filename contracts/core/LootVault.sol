@@ -22,14 +22,14 @@ contract LootVault is OperatorManagement, ILootVault {
         emit ProtocolFeeRateUpdated(_protocolFeeRate);
     }
 
-    function setProtocolFeeRecipient(address payable _protocolFeeRecipient) external onlyOwner {
+    function updateProtocolFeeRecipient(address payable _protocolFeeRecipient) external onlyOwner {
         require(_protocolFeeRecipient != address(0), "Invalid protocol fee recipient address");
 
         protocolFeeRecipient = _protocolFeeRecipient;
         emit ProtocolFeeRecipientUpdated(_protocolFeeRecipient);
     }
 
-    function setProtocolFeeRate(uint256 _protocolFeeRate) external onlyOwner {
+    function updateProtocolFeeRate(uint256 _protocolFeeRate) external onlyOwner {
         protocolFeeRate = _protocolFeeRate;
         emit ProtocolFeeRateUpdated(_protocolFeeRate);
     }
