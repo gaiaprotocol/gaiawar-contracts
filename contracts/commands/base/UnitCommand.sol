@@ -2,9 +2,9 @@
 pragma solidity ^0.8.28;
 
 import "./Command.sol";
-import "../data/IUnitManager.sol";
+import "../../data/IUnitManager.sol";
 
-contract UnitCommand is Command {
+abstract contract UnitCommand is Command {
     IUnitManager public unitManager;
 
     function updateUnitManager(address _unitManager) external onlyOwner {

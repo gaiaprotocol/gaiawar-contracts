@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "./BuildingCommand.sol";
+import "./base/BuildingCommand.sol";
 
 contract UpgradeBuilding is BuildingCommand {
     function initialize(address _battleground, address _lootVault, address _buildingManager) external initializer {

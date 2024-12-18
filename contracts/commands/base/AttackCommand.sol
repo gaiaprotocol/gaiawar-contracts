@@ -2,10 +2,10 @@
 pragma solidity ^0.8.28;
 
 import "./Command.sol";
-import "../data/IUnitManager.sol";
-import "../data/IBuildingManager.sol";
+import "../../data/IUnitManager.sol";
+import "../../data/IBuildingManager.sol";
 
-contract AttackCommand is Command {
+abstract contract AttackCommand is Command {
     IUnitManager public unitManager;
     IBuildingManager public buildingManager;
 

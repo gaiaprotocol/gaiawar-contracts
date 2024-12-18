@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "./BuildingCommand.sol";
+import "./base/BuildingCommand.sol";
 
 contract Construct is BuildingCommand {
     uint16 public headquartersSearchRange;

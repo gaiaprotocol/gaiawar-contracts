@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "./AttackCommand.sol";
+import "./base/AttackCommand.sol";
 
 contract RangedAttack is AttackCommand {
     function initialize(

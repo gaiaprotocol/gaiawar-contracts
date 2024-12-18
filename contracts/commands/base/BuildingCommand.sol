@@ -2,9 +2,9 @@
 pragma solidity ^0.8.28;
 
 import "./Command.sol";
-import "../data/IBuildingManager.sol";
+import "../../data/IBuildingManager.sol";
 
-contract BuildingCommand is Command {
+abstract contract BuildingCommand is Command {
     IBuildingManager public buildingManager;
 
     function updateBuildingManager(address _buildingManager) external onlyOwner {

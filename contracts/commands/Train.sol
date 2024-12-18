@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "./UnitCommand.sol";
+import "./base/UnitCommand.sol";
 
 contract Train is UnitCommand {
     function initialize(address _battleground, address _lootVault, address _unitManager) external initializer {
