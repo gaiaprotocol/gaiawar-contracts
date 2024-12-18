@@ -67,7 +67,7 @@ contract RangedAttack is AttackCommand {
             totalAttackCost = totalAttackCost.merge(attackCost);
         }
 
-        require(totalAttackCost.transferAll(msg.sender, address(lootVault)), "Ranged attack cost transfer failed");
+        totalAttackCost.transferAll(msg.sender, address(lootVault));
 
         (
             UnitQuantityOperations.UnitQuantity[] memory remainingUnits,

@@ -25,7 +25,7 @@ contract UpgradeBuilding is BuildingCommand {
         );
 
         TokenAmountOperations.TokenAmount[] memory cost = building.constructionCost;
-        require(cost.transferAll(msg.sender, address(lootVault)), "Construction cost transfer failed");
+        cost.transferAll(msg.sender, address(lootVault));
 
         tile.buildingId = buildingId;
         battleground.updateTile(coordinates, tile);

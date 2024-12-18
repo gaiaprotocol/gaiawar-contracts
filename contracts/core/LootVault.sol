@@ -43,11 +43,26 @@ contract LootVault is OperatorManagement, ILootVault {
             uint256 amount = loot[i].amount;
             require(amount > 0, "Invalid loot amount");
 
-            uint256 protocolFee = (amount * protocolFeeRate) / 1 ether;
-            uint256 recipientAmount = amount - protocolFee;
-
-            loot[i].token.transfer(recipient, recipientAmount);
-            loot[i].token.transfer(protocolFeeRecipient, protocolFee);
+            if (loot[i].tokenType == TokenAmountOperations.TokenType.ERC20) {
+                uint256 protocolFee = (amount * protocolFeeRate) / 1 ether;
+                uint256 recipientAmount = amount - protocolFee;
+                require(
+                    IERC20(loot[i].tokenAddress).transferFrom(address(this), recipient, recipientAmount),
+                    "Token transfer failed"
+                );
+                require(
+                    IERC20(loot[i].tokenAddress).transferFrom(address(this), protocolFeeRecipient, protocolFee),
+                    "Token transfer failed"
+                );
+            } else if (loot[i].tokenType == TokenAmountOperations.TokenType.ERC1155) {
+                IERC1155(loot[i].tokenAddress).safeTransferFrom(
+                    address(this),
+                    recipient,
+                    loot[i].tokenId,
+                    loot[i].amount,
+                    ""
+                );
+            }
         }
 
         emit LootTransferred(msg.sender, recipient, loot, protocolFeeRate);

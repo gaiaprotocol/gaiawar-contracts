@@ -37,7 +37,7 @@ contract Train is UnitCommand {
         require(foundTrainingBuilding, "Unit can't be trained");
 
         TokenAmountOperations.TokenAmount[] memory cost = unit.trainingCost;
-        require(cost.transferAll(msg.sender, address(lootVault)), "Training cost transfer failed");
+        cost.transferAll(msg.sender, address(lootVault));
 
         bool foundUnit = false;
 
