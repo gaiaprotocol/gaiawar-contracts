@@ -3,7 +3,6 @@ pragma solidity ^0.8.28;
 
 import "./base/BuildingCommand.sol";
 import "../libraries/CoordinatesOperations.sol";
-import "../libraries/CostOperations.sol";
 
 contract Construct is BuildingCommand {
     using CoordinatesOperations for IBattleground.Coordinates;
