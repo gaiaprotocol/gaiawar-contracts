@@ -2,10 +2,13 @@
 pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "../TokenOperations.sol";
 import "../Battleground.sol";
 import "../entities/IBuildings.sol";
 
 contract Construction is OwnableUpgradeable {
+    using TokenOperations for TokenOperations.TokenAmount[];
+
     Battleground public battleground;
     IBuildings public buildingsContract;
 
@@ -90,16 +93,6 @@ contract Construction is OwnableUpgradeable {
         return false;
     }
 
-    function _checkAndTransferConstructionCosts(uint16 buildingId, address payer) internal {
-        IBuildings.ConstructionCost[] memory costs = buildingsContract.getConstructionCosts(buildingId);
-        for (uint256 i = 0; i < costs.length; i++) {
-            require(
-                costs[i].tokenAddress.transferFrom(payer, address(battleground), costs[i].amount),
-                "Construction cost transfer failed"
-            );
-        }
-    }
-
     function constructBuilding(int16 x, int16 y, uint16 buildingId) external {
         Battleground.Tile memory tile = battleground.getTile(x, y);
         require(tile.owner == address(0), "Tile already occupied");
@@ -115,7 +108,8 @@ contract Construction is OwnableUpgradeable {
             require(!_hasNearbyEnemies(x, y), "Enemy building too close");
         }
 
-        _checkAndTransferConstructionCosts(buildingId, msg.sender);
+        TokenOperations.TokenAmount[] memory cost = buildingsContract.getConstructionCost(buildingId);
+        require(cost.transferTokens(msg.sender, address(battleground)), "Construction cost transfer failed");
 
         battleground.placeBuilding(x, y, msg.sender, buildingId);
     }
@@ -130,7 +124,8 @@ contract Construction is OwnableUpgradeable {
             "Building upgrade not allowed"
         );
 
-        _checkAndTransferConstructionCosts(buildingId, msg.sender);
+        TokenOperations.TokenAmount[] memory cost = buildingsContract.getConstructionCost(buildingId);
+        require(cost.transferTokens(msg.sender, address(battleground)), "Construction cost transfer failed");
 
         battleground.placeBuilding(x, y, msg.sender, buildingId);
     }

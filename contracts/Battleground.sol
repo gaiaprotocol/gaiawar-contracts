@@ -2,6 +2,7 @@
 pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "./TokenOperations.sol";
 import "./entities/IBuildings.sol";
 
 contract Battleground is OwnableUpgradeable {
@@ -23,6 +24,7 @@ contract Battleground is OwnableUpgradeable {
         address owner;
         uint16 buildingId;
         UnitQuantity[] units;
+        TokenOperations.TokenAmount[] uncollectedLoot;
     }
 
     int16 public minTileX;

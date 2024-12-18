@@ -1,17 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../TokenOperations.sol";
 
 interface IUnits {
-    struct TrainingCost {
-        IERC20 tokenAddress;
-        uint256 amount;
-    }
-
     function canBeTrained(uint16 unitId) external view returns (bool);
 
     function getTrainingBuildingIds(uint16 unitId) external view returns (uint16[] memory);
 
-    function getTrainingCosts(uint16 unitId) external view returns (TrainingCost[] memory);
+    function getTrainingCost(uint16 unitId) external view returns (TokenOperations.TokenAmount[] memory);
 }

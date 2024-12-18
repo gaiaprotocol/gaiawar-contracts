@@ -2,10 +2,13 @@
 pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "../TokenOperations.sol";
 import "../Battleground.sol";
 import "../entities/IUnits.sol";
 
 contract Training is OwnableUpgradeable {
+    using TokenOperations for TokenOperations.TokenAmount[];
+
     Battleground public battleground;
     IUnits public unitsContract;
 
@@ -38,13 +41,8 @@ contract Training is OwnableUpgradeable {
 
         require(unitsContract.canBeTrained(unitId) && found, "Unit can't be trained");
 
-        IUnits.TrainingCost[] memory costs = unitsContract.getTrainingCosts(unitId);
-        for (uint256 i = 0; i < costs.length; i++) {
-            require(
-                costs[i].tokenAddress.transferFrom(msg.sender, address(battleground), costs[i].amount),
-                "Construction cost transfer failed"
-            );
-        }
+        TokenOperations.TokenAmount[] memory cost = unitsContract.getTrainingCost(unitId);
+        require(cost.transferTokens(msg.sender, address(battleground)), "Training cost transfer failed");
 
         battleground.addUnits(x, y, unitId, quantity);
     }

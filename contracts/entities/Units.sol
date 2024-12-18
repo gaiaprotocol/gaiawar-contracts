@@ -11,7 +11,7 @@ contract Units is OwnableUpgradeable, IUnits {
         uint16 attackDamage;
         uint8 attackRange;
         uint8 movementRange;
-        TrainingCost[] trainingCosts;
+        TokenOperations.TokenAmount[] trainingCost;
         bool canBeTrained;
     }
 
@@ -26,8 +26,8 @@ contract Units is OwnableUpgradeable, IUnits {
         return units[unitId].trainingBuildingIds;
     }
 
-    function getTrainingCosts(uint16 unitId) external view override returns (TrainingCost[] memory) {
-        return units[unitId].trainingCosts;
+    function getTrainingCost(uint16 unitId) external view override returns (TokenOperations.TokenAmount[] memory) {
+        return units[unitId].trainingCost;
     }
 
     function initialize() public initializer {
@@ -42,7 +42,7 @@ contract Units is OwnableUpgradeable, IUnits {
         uint16 attackDamage,
         uint8 attackRange,
         uint8 movementRange,
-        TrainingCost[] calldata trainingCosts,
+        TokenOperations.TokenAmount[] calldata trainingCost,
         bool canBeTrained
     ) external onlyOwner {
         require(trainingBuildingIds.length > 0, "Training buildings must be provided");
@@ -51,7 +51,7 @@ contract Units is OwnableUpgradeable, IUnits {
         }
 
         require(healthPoints > 0, "Health points must be greater than zero");
-        require(trainingCosts.length > 0, "Training costs must be provided");
+        require(trainingCost.length > 0, "Training cost must be provided");
 
         uint16 unitId = nextUnitId;
         nextUnitId += 1;
@@ -62,7 +62,7 @@ contract Units is OwnableUpgradeable, IUnits {
             attackDamage: attackDamage,
             attackRange: attackRange,
             movementRange: movementRange,
-            trainingCosts: trainingCosts,
+            trainingCost: trainingCost,
             canBeTrained: canBeTrained
         });
     }

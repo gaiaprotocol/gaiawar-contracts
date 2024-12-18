@@ -7,7 +7,7 @@ import "./IBuildings.sol";
 contract Buildings is OwnableUpgradeable, IBuildings {
     struct Building {
         uint16 previousBuildingId;
-        ConstructionCost[] constructionCosts;
+        TokenOperations.TokenAmount[] constructionCost;
         bool isHeadquarters;
         uint16 constructionRange;
         bool canBeConstructed;
@@ -20,8 +20,8 @@ contract Buildings is OwnableUpgradeable, IBuildings {
         return buildings[buildingId].previousBuildingId;
     }
 
-    function getConstructionCosts(uint16 buildingId) external view returns (ConstructionCost[] memory) {
-        return buildings[buildingId].constructionCosts;
+    function getConstructionCost(uint16 buildingId) external view returns (TokenOperations.TokenAmount[] memory) {
+        return buildings[buildingId].constructionCost;
     }
 
     function isHeadquarters(uint16 buildingId) external view returns (bool) {
@@ -44,20 +44,20 @@ contract Buildings is OwnableUpgradeable, IBuildings {
 
     function addBuilding(
         uint16 previousBuildingId,
-        ConstructionCost[] calldata constructionCosts,
+        TokenOperations.TokenAmount[] calldata constructionCost,
         bool isHeadquarters,
         uint16 constructionRange,
         bool canBeConstructed
     ) external onlyOwner {
         require(previousBuildingId < nextBuildingId, "Previous building does not exist");
-        require(constructionCosts.length > 0, "Construction costs must be provided");
+        require(constructionCost.length > 0, "Construction cost must be provided");
 
         uint16 buildingId = nextBuildingId;
         nextBuildingId += 1;
 
         buildings[buildingId] = Building({
             previousBuildingId: previousBuildingId,
-            constructionCosts: constructionCosts,
+            constructionCost: constructionCost,
             isHeadquarters: isHeadquarters,
             constructionRange: constructionRange,
             canBeConstructed: canBeConstructed
