@@ -10,6 +10,10 @@ contract Battleground is OwnableUpgradeable {
     address public constructionContract;
     address public trainingContract;
 
+    uint256 public maxUnitsPerTile;
+    uint256 public protocolFeeRate;
+    address payable public treasury;
+
     struct Coordinates {
         int16 x;
         int16 y;
@@ -35,8 +39,14 @@ contract Battleground is OwnableUpgradeable {
     mapping(int16 => mapping(int16 => Tile)) public tiles;
     mapping(address => Coordinates[]) public userHeadquarters;
 
-    event BuildingsContractSet(address buildingsContract);
-    event ConstructionContractSet(address constructionContract);
+    event BuildingsContractUpdated(address buildingsContract);
+    event ConstructionContractUpdated(address constructionContract);
+    event TrainingContractUpdated(address trainingContract);
+
+    event MaxUnitsPerTileUpdated(uint256 maxUnitsPerTile);
+    event TreasuryUpdated(address indexed treasury);
+    event ProtocolFeeRateUpdated(uint256 rate);
+
     event BuildingPlaced(int16 x, int16 y, address indexed owner, uint16 buildingId);
     event UnitsAdded(int16 x, int16 y, address indexed owner, uint16 unitId, uint16 quantity);
 
@@ -60,29 +70,61 @@ contract Battleground is OwnableUpgradeable {
         return userHeadquarters[user].length > 0;
     }
 
-    function initialize(int16 _minTileX, int16 _minTileY, int16 _maxTileX, int16 _maxTileY) public initializer {
+    function initialize(
+        int16 _minTileX,
+        int16 _minTileY,
+        int16 _maxTileX,
+        int16 _maxTileY,
+        uint256 _maxUnitsPerTile,
+        address payable _treasury,
+        uint256 _protocolFeeRate
+    ) public initializer {
         __Ownable_init(msg.sender);
 
         minTileX = _minTileX;
         minTileY = _minTileY;
         maxTileX = _maxTileX;
         maxTileY = _maxTileY;
+
+        maxUnitsPerTile = _maxUnitsPerTile;
+        treasury = _treasury;
+        protocolFeeRate = _protocolFeeRate;
+
+        emit MaxUnitsPerTileUpdated(_maxUnitsPerTile);
+        emit TreasuryUpdated(_treasury);
+        emit ProtocolFeeRateUpdated(_protocolFeeRate);
+    }
+
+    function setMaxUnitsPerTile(uint256 _maxUnitsPerTile) external onlyOwner {
+        maxUnitsPerTile = _maxUnitsPerTile;
+        emit MaxUnitsPerTileUpdated(_maxUnitsPerTile);
+    }
+
+    function setTreasury(address payable _treasury) external onlyOwner {
+        require(_treasury != address(0), "Invalid treasury address");
+        treasury = _treasury;
+        emit TreasuryUpdated(_treasury);
+    }
+
+    function setProtocolFeeRate(uint256 _rate) external onlyOwner {
+        require(_rate <= 1 ether, "Fee rate exceeds maximum");
+        protocolFeeRate = _rate;
+        emit ProtocolFeeRateUpdated(_rate);
     }
 
     function setBuildingsContract(address _buildingsContract) external onlyOwner {
         buildingsContract = IBuildings(_buildingsContract);
-
-        emit BuildingsContractSet(_buildingsContract);
+        emit BuildingsContractUpdated(_buildingsContract);
     }
 
     function setConstructionContract(address _constructionContract) external onlyOwner {
         constructionContract = _constructionContract;
-
-        emit ConstructionContractSet(_constructionContract);
+        emit ConstructionContractUpdated(_constructionContract);
     }
 
     function setTrainingContract(address _trainingContract) external onlyOwner {
         trainingContract = _trainingContract;
+        emit TrainingContractUpdated(_trainingContract);
     }
 
     modifier onlyConstructionContract() {
@@ -148,18 +190,43 @@ contract Battleground is OwnableUpgradeable {
         Tile storage tile = tiles[x][y];
 
         bool found = false;
+        uint256 totalUnits = 0;
+
         for (uint256 i = 0; i < tile.units.length; i++) {
             if (tile.units[i].unitId == unitId) {
                 tile.units[i].quantity += quantity;
                 found = true;
-                break;
             }
+            totalUnits += tile.units[i].quantity;
         }
+
+        require(totalUnits <= maxUnitsPerTile, "Total units exceed maximum per tile");
 
         if (!found) {
             tile.units.push(UnitQuantity(unitId, quantity));
         }
 
         emit UnitsAdded(x, y, tile.owner, unitId, quantity);
+    }
+
+    function reorderUnits(int16 x, int16 y, uint16[] calldata newOrder) external {
+        require(_withinBounds(x, y), "Coordinates out of bounds");
+
+        Tile storage tile = tiles[x][y];
+        require(tile.owner == msg.sender, "Not the tile owner");
+        require(newOrder.length == tile.units.length, "Invalid order length");
+
+        UnitQuantity[] memory newUnits = new UnitQuantity[](newOrder.length);
+        bool[] memory used = new bool[](newOrder.length);
+
+        for (uint256 i = 0; i < newOrder.length; i++) {
+            require(!used[newOrder[i]], "Duplicate index");
+            require(newOrder[i] < tile.units.length, "Invalid index");
+
+            newUnits[i] = tile.units[newOrder[i]];
+            used[newOrder[i]] = true;
+        }
+
+        tile.units = newUnits;
     }
 }
