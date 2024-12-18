@@ -2,9 +2,9 @@
 pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "./IUnits.sol";
+import "./IUnitManager.sol";
 
-contract Units is OwnableUpgradeable, IUnits {
+contract UnitManager is OwnableUpgradeable, IUnitManager {
     uint16 public nextUnitId;
     mapping(uint16 => Unit) public units;
 

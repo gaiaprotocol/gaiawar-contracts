@@ -3,7 +3,7 @@ pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-interface IUnits {
+interface IUnitManager {
     struct Cost {
         IERC20 token;
         uint256 amount;
