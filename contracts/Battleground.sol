@@ -11,6 +11,7 @@ contract Battleground is OwnableUpgradeable {
     IBuildings public buildingsContract;
     address public constructionContract;
     address public trainingContract;
+    address public attackContract;
 
     uint256 public maxUnitsPerTile;
     uint256 public protocolFeeRate;
@@ -44,6 +45,7 @@ contract Battleground is OwnableUpgradeable {
     event BuildingsContractUpdated(address buildingsContract);
     event ConstructionContractUpdated(address constructionContract);
     event TrainingContractUpdated(address trainingContract);
+    event AttackContractUpdated(address attackContract);
 
     event MaxUnitsPerTileUpdated(uint256 maxUnitsPerTile);
     event TreasuryUpdated(address indexed treasury);
@@ -127,6 +129,11 @@ contract Battleground is OwnableUpgradeable {
     function setTrainingContract(address _trainingContract) external onlyOwner {
         trainingContract = _trainingContract;
         emit TrainingContractUpdated(_trainingContract);
+    }
+
+    function setAttackContract(address _attackContract) external onlyOwner {
+        attackContract = _attackContract;
+        emit AttackContractUpdated(_attackContract);
     }
 
     modifier onlyConstructionContract() {
@@ -232,13 +239,18 @@ contract Battleground is OwnableUpgradeable {
         tile.units = newUnits;
     }
 
+    modifier onlyAttackContract() {
+        require(msg.sender == attackContract, "Only attack contract can call this function");
+        _;
+    }
+
     function updateTile(
         int16 x,
         int16 y,
         address newOwner,
         UnitQuantity[] memory units,
         TokenOperations.TokenAmount[] memory uncollectedLoot
-    ) external {
+    ) external onlyAttackContract {
         require(_withinBounds(x, y), "Coordinates out of bounds");
 
         Tile storage tile = tiles[x][y];
@@ -254,9 +266,42 @@ contract Battleground is OwnableUpgradeable {
             if (newOwner != address(0)) {
                 loot.transferTokens(address(this), newOwner);
             } else {
-                loot.transferTokens(address(this), originalOwner);
+                addUncollectedLoot(x, y, loot);
             }
             tile.buildingId = 0;
         }
+    }
+
+    function addUncollectedLoot(int16 x, int16 y, TokenOperations.TokenAmount[] memory loot) public onlyAttackContract {
+        require(_withinBounds(x, y), "Coordinates out of bounds");
+
+        TokenOperations.TokenAmount[] memory totalLoot = tiles[x][y].uncollectedLoot;
+
+        if (totalLoot.length == 0) {
+            totalLoot = loot;
+        } else {
+            for (uint256 i = 0; i < loot.length; i++) {
+                bool tokenFound = false;
+                for (uint256 j = 0; j < totalLoot.length; j++) {
+                    if (totalLoot[j].token == loot[i].token) {
+                        totalLoot[j].amount += loot[i].amount;
+                        tokenFound = true;
+                        break;
+                    }
+                }
+                if (!tokenFound) {
+                    TokenOperations.TokenAmount[] memory newTotalLoot = new TokenOperations.TokenAmount[](
+                        totalLoot.length + 1
+                    );
+                    for (uint256 j = 0; j < totalLoot.length; j++) {
+                        newTotalLoot[j] = totalLoot[j];
+                    }
+                    newTotalLoot[totalLoot.length] = loot[i];
+                    totalLoot = newTotalLoot;
+                }
+            }
+        }
+
+        tiles[x][y].uncollectedLoot = totalLoot;
     }
 }
