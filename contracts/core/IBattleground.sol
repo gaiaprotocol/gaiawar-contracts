@@ -21,5 +21,13 @@ interface IBattleground {
         ILootVault.Loot[] loot;
     }
 
+    function width() external view returns (uint16);
+
+    function height() external view returns (uint16);
+
+    function getTile(Coordinates memory coordinates) external view returns (Tile memory);
+
+    function hasHeadquarters(address player) external view returns (bool);
+
     function updateTile(Coordinates memory coordinates, Tile memory tile) external;
 }

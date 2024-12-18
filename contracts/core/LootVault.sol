@@ -8,8 +8,6 @@ contract LootVault is OperatorManagement, ILootVault {
     address payable public protocolFeeRecipient;
     uint256 public protocolFeeRate;
 
-    event ProtocolFeeRecipientUpdated(address indexed recipient);
-    event ProtocolFeeRateUpdated(uint256 rate);
     event LootTransferred(address indexed sender, address indexed recipient, Loot[] root, uint256 protocolFeeRate);
 
     function initialize(address payable _protocolFeeRecipient, uint256 _protocolFeeRate) public initializer {
@@ -17,21 +15,16 @@ contract LootVault is OperatorManagement, ILootVault {
 
         protocolFeeRecipient = _protocolFeeRecipient;
         protocolFeeRate = _protocolFeeRate;
-
-        emit ProtocolFeeRecipientUpdated(_protocolFeeRecipient);
-        emit ProtocolFeeRateUpdated(_protocolFeeRate);
     }
 
     function updateProtocolFeeRecipient(address payable _protocolFeeRecipient) external onlyOwner {
         require(_protocolFeeRecipient != address(0), "Invalid protocol fee recipient address");
 
         protocolFeeRecipient = _protocolFeeRecipient;
-        emit ProtocolFeeRecipientUpdated(_protocolFeeRecipient);
     }
 
     function updateProtocolFeeRate(uint256 _protocolFeeRate) external onlyOwner {
         protocolFeeRate = _protocolFeeRate;
-        emit ProtocolFeeRateUpdated(_protocolFeeRate);
     }
 
     function transferLoot(address recipient, Loot[] memory loot) external override onlyOperator {

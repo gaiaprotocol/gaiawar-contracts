@@ -3,16 +3,16 @@ pragma solidity ^0.8.28;
 
 import "./OperatorManagement.sol";
 import "./IBattleground.sol";
+import "../data/IBuildingManager.sol";
 
 contract Battleground is OperatorManagement, IBattleground {
-    uint16 public width;
-    uint16 public height;
+    uint16 public override width;
+    uint16 public override height;
     uint16 public maxUnitsPerTile;
-
-    event DimensionsUpdated(uint16 width, uint16 height);
-    event MaxUnitsPerTileUpdated(uint16 maxUnitsPerTile);
+    IBuildingManager public buildingManager;
 
     mapping(int16 => mapping(int16 => Tile)) public tiles;
+    mapping(address => Coordinates[]) public playerHeadquarters;
 
     event TileUpdated(Coordinates coordinates, Tile tile);
 
@@ -21,8 +21,6 @@ contract Battleground is OperatorManagement, IBattleground {
 
         width = _width;
         height = _height;
-
-        emit DimensionsUpdated(_width, _height);
     }
 
     function updateDimensions(uint16 _width, uint16 _height) external onlyOwner {
@@ -31,15 +29,24 @@ contract Battleground is OperatorManagement, IBattleground {
 
         width = _width;
         height = _height;
-
-        emit DimensionsUpdated(_width, _height);
     }
 
     function updateMaxUnitsPerTile(uint16 _maxUnitsPerTile) external onlyOwner {
         require(_maxUnitsPerTile > 0, "Max units per tile must be greater than 0");
 
         maxUnitsPerTile = _maxUnitsPerTile;
-        emit MaxUnitsPerTileUpdated(_maxUnitsPerTile);
+    }
+
+    function updateBuildingManager(address _buildingManager) external onlyOwner {
+        buildingManager = IBuildingManager(_buildingManager);
+    }
+
+    function getTile(Coordinates memory coordinates) public view returns (Tile memory) {
+        return tiles[coordinates.x][coordinates.y];
+    }
+
+    function hasHeadquarters(address player) external view returns (bool) {
+        return playerHeadquarters[player].length > 0;
     }
 
     modifier validCoordinates(Coordinates memory coordinates) {
@@ -52,6 +59,23 @@ contract Battleground is OperatorManagement, IBattleground {
         _;
     }
 
+    function _addHQCoordinate(address player, Coordinates memory coordinates) private {
+        playerHeadquarters[player].push(coordinates);
+    }
+
+    function _removeHQCoordinate(address player, Coordinates memory coordinates) private {
+        Coordinates[] storage playerHQs = playerHeadquarters[player];
+        uint256 length = playerHQs.length;
+
+        for (uint256 i = 0; i < length; i++) {
+            if (playerHQs[i].x == coordinates.x && playerHQs[i].y == coordinates.y) {
+                playerHQs[i] = playerHQs[length - 1];
+                playerHQs.pop();
+                break;
+            }
+        }
+    }
+
     function updateTile(
         Coordinates memory coordinates,
         Tile memory tile
@@ -62,7 +86,22 @@ contract Battleground is OperatorManagement, IBattleground {
         }
         require(totalUnits <= maxUnitsPerTile, "Too many units on tile");
 
+        Tile memory existingTile = getTile(coordinates);
+        IBuildingManager.Building memory existingBuilding = buildingManager.getBuilding(existingTile.buildingId);
+
         tiles[coordinates.x][coordinates.y] = tile;
+        IBuildingManager.Building memory building = buildingManager.getBuilding(tile.buildingId);
+
+        if (existingTile.occupant != address(0) && existingBuilding.isHeadquarters) {
+            if (!building.isHeadquarters) {
+                _removeHQCoordinate(existingTile.occupant, coordinates);
+            }
+        } else {
+            if (building.isHeadquarters) {
+                _addHQCoordinate(tile.occupant, coordinates);
+            }
+        }
+
         emit TileUpdated(coordinates, tile);
     }
 }
