@@ -23,12 +23,22 @@ contract Attack is OwnableUpgradeable {
     function applyDamageToUnits(
         Battleground.UnitQuantity[] memory units,
         uint256 damage
-    ) private view returns (Battleground.UnitQuantity[] memory remainingUnits, uint256 totalRemainingUnits) {
+    )
+        private
+        view
+        returns (
+            Battleground.UnitQuantity[] memory remainingUnits,
+            uint256 totalRemainingUnits,
+            uint256 remainingDamage
+        )
+    {
+        remainingDamage = damage;
+
         uint256 remainingUnitsLength = 0;
 
         for (uint256 i = 0; i < units.length; i++) {
             uint16 hp = unitsContract.getHealthPoints(units[i].unitId);
-            uint16 killedUnits = uint16(damage / hp);
+            uint16 killedUnits = uint16(remainingDamage / hp);
             if (killedUnits == 0) {
                 totalRemainingUnits += units[i].quantity;
                 continue;
@@ -41,7 +51,7 @@ contract Attack is OwnableUpgradeable {
                 remainingUnitsLength++;
                 totalRemainingUnits += units[i].quantity;
             }
-            damage -= uint256(killedUnits) * uint256(hp);
+            remainingDamage -= uint256(killedUnits) * uint256(hp);
         }
 
         remainingUnits = new Battleground.UnitQuantity[](remainingUnitsLength);
