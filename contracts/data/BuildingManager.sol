@@ -10,7 +10,7 @@ contract BuildingManager is OwnableUpgradeable, IBuildingManager {
     uint16 public nextBuildingId;
     mapping(uint16 => Building) public buildings;
 
-    function initialize() public initializer {
+    function initialize() external initializer {
         __Ownable_init(msg.sender);
 
         nextBuildingId = 1;

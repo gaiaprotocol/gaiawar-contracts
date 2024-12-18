@@ -10,7 +10,7 @@ contract UnitManager is OwnableUpgradeable, IUnitManager {
     uint16 public nextUnitId;
     mapping(uint16 => Unit) public units;
 
-    function initialize() public initializer {
+    function initialize() external initializer {
         __Ownable_init(msg.sender);
 
         nextUnitId = 1;

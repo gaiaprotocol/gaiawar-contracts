@@ -3,12 +3,15 @@ pragma solidity ^0.8.28;
 
 import "./OperatorManagement.sol";
 import "./IBattleground.sol";
+import "./ILootVault.sol";
 import "../data/IBuildingManager.sol";
 
 contract Battleground is OperatorManagement, IBattleground {
     uint16 public override width;
     uint16 public override height;
     uint16 public maxUnitsPerTile;
+
+    ILootVault public lootVault;
     IBuildingManager public buildingManager;
 
     mapping(int16 => mapping(int16 => Tile)) public tiles;
@@ -16,7 +19,7 @@ contract Battleground is OperatorManagement, IBattleground {
 
     event TileUpdated(Coordinates coordinates, Tile tile);
 
-    function initialize(uint16 _width, uint16 _height) public initializer {
+    function initialize(uint16 _width, uint16 _height) external initializer {
         __Ownable_init(msg.sender);
 
         width = _width;
@@ -37,11 +40,15 @@ contract Battleground is OperatorManagement, IBattleground {
         maxUnitsPerTile = _maxUnitsPerTile;
     }
 
+    function updateLootVault(address _lootVault) external onlyOwner {
+        lootVault = ILootVault(_lootVault);
+    }
+
     function updateBuildingManager(address _buildingManager) external onlyOwner {
         buildingManager = IBuildingManager(_buildingManager);
     }
 
-    function getTile(Coordinates memory coordinates) public view returns (Tile memory) {
+    function getTile(Coordinates memory coordinates) external view returns (Tile memory) {
         return tiles[coordinates.x][coordinates.y];
     }
 
@@ -86,7 +93,7 @@ contract Battleground is OperatorManagement, IBattleground {
         }
         require(totalUnits <= maxUnitsPerTile, "Too many units on tile");
 
-        Tile memory existingTile = getTile(coordinates);
+        Tile memory existingTile = tiles[coordinates.x][coordinates.y];
         IBuildingManager.Building memory existingBuilding = buildingManager.getBuilding(existingTile.buildingId);
 
         tiles[coordinates.x][coordinates.y] = tile;
@@ -104,5 +111,13 @@ contract Battleground is OperatorManagement, IBattleground {
         }
 
         emit TileUpdated(coordinates, tile);
+    }
+
+    function collectLoot(Coordinates memory coordinates) external {
+        Tile storage tile = tiles[coordinates.x][coordinates.y];
+        require(tile.occupant == msg.sender, "You do not own this tile");
+
+        lootVault.transferLoot(msg.sender, tile.loot);
+        tile.loot = new TokenAmountOperations.TokenAmount[](0);
     }
 }

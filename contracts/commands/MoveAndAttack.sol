@@ -103,13 +103,15 @@ contract MoveAndAttack is AttackCommand {
                 toTile.units = remainingAttackerUnits;
 
                 if (toTile.buildingId == 0) {
-                    toTile.loot = totalLoot;
+                    lootVault.transferLoot(msg.sender, totalLoot);
                 } else {
                     toTile.buildingId = 0;
                     TokenAmountOperations.TokenAmount[] memory constructionCost = buildingManager
                         .getTotalBuildingConstructionCost(toTile.buildingId);
-                    toTile.loot = totalLoot.merge(constructionCost);
+                    lootVault.transferLoot(msg.sender, totalLoot.merge(constructionCost));
                 }
+
+                toTile.loot = new TokenAmountOperations.TokenAmount[](0);
 
                 battleground.updateTile(to, toTile);
             }

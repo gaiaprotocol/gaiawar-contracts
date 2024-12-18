@@ -15,7 +15,7 @@ contract LootVault is OperatorManagement, ILootVault {
         uint256 protocolFeeRate
     );
 
-    function initialize(address payable _protocolFeeRecipient, uint256 _protocolFeeRate) public initializer {
+    function initialize(address payable _protocolFeeRecipient, uint256 _protocolFeeRate) external initializer {
         __Ownable_init(msg.sender);
 
         protocolFeeRecipient = _protocolFeeRecipient;
