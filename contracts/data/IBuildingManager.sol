@@ -15,4 +15,8 @@ interface IBuildingManager {
     }
 
     function getBuilding(uint16 buildingId) external view returns (Building memory);
+
+    function getTotalBuildingConstructionCost(
+        uint16 buildingId
+    ) external view returns (TokenAmountOperations.TokenAmount[] memory);
 }

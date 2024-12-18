@@ -24,7 +24,7 @@ contract Train is UnitCommand {
         require(tile.occupant == msg.sender, "Not the tile owner");
 
         IUnitManager.Unit memory unit = unitManager.getUnit(unitQuantity.unitId);
-        require(unit.canBeTrained, "Unit can't be trained");
+        require(unit.canBeTrained && unit.prerequisiteUnitId == 0, "Unit can't be trained");
 
         bool foundTrainingBuilding = false;
         for (uint256 i = 0; i < unit.trainingBuildingIds.length; i++) {

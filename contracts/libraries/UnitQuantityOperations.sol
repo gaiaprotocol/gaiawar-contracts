@@ -9,10 +9,7 @@ library UnitQuantityOperations {
         uint16 quantity;
     }
 
-    function mergeUnitQuantities(
-        UnitQuantity[] memory a,
-        UnitQuantity[] memory b
-    ) internal pure returns (UnitQuantity[] memory) {
+    function merge(UnitQuantity[] memory a, UnitQuantity[] memory b) internal pure returns (UnitQuantity[] memory) {
         UnitQuantity[] memory result = new UnitQuantity[](a.length + b.length);
 
         uint256 index = 0;

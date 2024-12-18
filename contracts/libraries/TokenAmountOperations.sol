@@ -18,10 +18,7 @@ library TokenAmountOperations {
         return true;
     }
 
-    function mergeTokenAmounts(
-        TokenAmount[] memory a,
-        TokenAmount[] memory b
-    ) internal pure returns (TokenAmount[] memory) {
+    function merge(TokenAmount[] memory a, TokenAmount[] memory b) internal pure returns (TokenAmount[] memory) {
         TokenAmount[] memory result = new TokenAmount[](a.length + b.length);
 
         uint256 index = 0;

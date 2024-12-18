@@ -38,5 +38,7 @@ contract MoveAndAttack is AttackCommand {
         );
 
         uint16 distance = from.manhattanDistance(to);
+
+        //TODO:
     }
 }

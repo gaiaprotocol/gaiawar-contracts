@@ -6,6 +6,7 @@ import "../libraries/CoordinatesOperations.sol";
 
 contract RangedAttack is AttackCommand {
     using CoordinatesOperations for IBattleground.Coordinates;
+    using TokenAmountOperations for TokenAmountOperations.TokenAmount[];
 
     function initialize(
         address _battleground,
@@ -40,7 +41,7 @@ contract RangedAttack is AttackCommand {
         uint16 distance = from.manhattanDistance(to);
 
         uint256 attackerDamage = 0;
-        TokenAmountOperations.TokenAmount[] memory tileLoot;
+        TokenAmountOperations.TokenAmount[] memory totalAttackCost;
 
         for (uint256 i = 0; i < attackerUnits.length; i++) {
             bool found = false;
@@ -58,7 +59,37 @@ contract RangedAttack is AttackCommand {
 
             attackerDamage += unit.attackDamage * attackerUnits[i].quantity;
 
-            //TODO:
+            TokenAmountOperations.TokenAmount[] memory attackCost = unit.rangedAttackCost;
+            for (uint256 k = 0; k < attackCost.length; k++) {
+                attackCost[k].amount *= attackerUnits[i].quantity;
+            }
+
+            totalAttackCost = totalAttackCost.merge(attackCost);
+        }
+
+        require(totalAttackCost.transferAll(msg.sender, address(lootVault)), "Ranged attack cost transfer failed");
+
+        (
+            UnitQuantityOperations.UnitQuantity[] memory remainingUnits,
+            ,
+            TokenAmountOperations.TokenAmount[] memory loot
+        ) = applyDamageToUnits(toTile.units, attackerDamage);
+
+        if (remainingUnits.length == 0) {
+            TokenAmountOperations.TokenAmount[] memory constructionCost = buildingManager
+                .getTotalBuildingConstructionCost(toTile.buildingId);
+
+            toTile.occupant = address(0);
+            toTile.buildingId = 0;
+            toTile.units = new UnitQuantityOperations.UnitQuantity[](0);
+            toTile.loot = toTile.loot.merge(constructionCost.merge(loot.merge(totalAttackCost)));
+
+            battleground.updateTile(to, toTile);
+        } else {
+            toTile.units = remainingUnits;
+            toTile.loot = toTile.loot.merge(loot.merge(totalAttackCost));
+
+            battleground.updateTile(to, toTile);
         }
     }
 }

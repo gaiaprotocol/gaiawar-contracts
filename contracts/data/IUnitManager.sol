@@ -6,6 +6,7 @@ import "../libraries/TokenAmountOperations.sol";
 
 interface IUnitManager {
     struct Unit {
+        uint16 prerequisiteUnitId;
         uint16[] trainingBuildingIds;
         uint16 healthPoints;
         uint16 attackDamage;
@@ -18,4 +19,6 @@ interface IUnitManager {
     }
 
     function getUnit(uint16 unitId) external view returns (Unit memory);
+
+    function getTotalUnitTrainingCost(uint16 unitId) external view returns (TokenAmountOperations.TokenAmount[] memory);
 }
