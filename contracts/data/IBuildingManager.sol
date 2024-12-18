@@ -2,7 +2,7 @@
 pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "../libraries/CostOperations.sol";
+import "../libraries/TokenAmountOperations.sol";
 
 interface IBuildingManager {
     struct Building {
@@ -10,7 +10,7 @@ interface IBuildingManager {
         bool isHeadquarters;
         uint16 constructionRange;
         uint256 damageBoostPercentage; // 1-10000 (0.01% - 100%)
-        CostOperations.Cost[] constructionCost;
+        TokenAmountOperations.TokenAmount[] constructionCost;
         bool canBeConstructed;
     }
 

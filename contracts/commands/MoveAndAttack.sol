@@ -24,7 +24,7 @@ contract MoveAndAttack is AttackCommand {
     function moveAndAttack(
         IBattleground.Coordinates memory from,
         IBattleground.Coordinates memory to,
-        IBattleground.UnitQuantity[] memory attackerUnits
+        UnitQuantityOperations.UnitQuantity[] memory attackerUnits
     ) external onlyOwner {
         require(attackerUnits.length > 0, "No units to attack with");
 

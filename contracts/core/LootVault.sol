@@ -8,7 +8,12 @@ contract LootVault is OperatorManagement, ILootVault {
     address payable public protocolFeeRecipient;
     uint256 public protocolFeeRate;
 
-    event LootTransferred(address indexed sender, address indexed recipient, Loot[] root, uint256 protocolFeeRate);
+    event LootTransferred(
+        address indexed sender,
+        address indexed recipient,
+        TokenAmountOperations.TokenAmount[] root,
+        uint256 protocolFeeRate
+    );
 
     function initialize(address payable _protocolFeeRecipient, uint256 _protocolFeeRate) public initializer {
         __Ownable_init(msg.sender);
@@ -27,7 +32,10 @@ contract LootVault is OperatorManagement, ILootVault {
         protocolFeeRate = _protocolFeeRate;
     }
 
-    function transferLoot(address recipient, Loot[] memory loot) external override onlyOperator {
+    function transferLoot(
+        address recipient,
+        TokenAmountOperations.TokenAmount[] memory loot
+    ) external override onlyOperator {
         require(recipient != address(0), "Invalid recipient address");
         require(loot.length > 0, "No loot to transfer");
 

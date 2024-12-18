@@ -4,7 +4,7 @@ pragma solidity ^0.8.28;
 import "./base/UnitCommand.sol";
 
 contract Train is UnitCommand {
-    using CostOperations for CostOperations.Cost[];
+    using TokenAmountOperations for TokenAmountOperations.TokenAmount[];
 
     function initialize(address _battleground, address _lootVault, address _unitManager) external initializer {
         __Ownable_init(msg.sender);
@@ -16,7 +16,7 @@ contract Train is UnitCommand {
 
     function train(
         IBattleground.Coordinates memory coordinates,
-        IBattleground.UnitQuantity memory unitQuantity
+        UnitQuantityOperations.UnitQuantity memory unitQuantity
     ) external {
         require(unitQuantity.quantity > 0, "Quantity must be greater than 0");
 
@@ -36,8 +36,8 @@ contract Train is UnitCommand {
 
         require(foundTrainingBuilding, "Unit can't be trained");
 
-        CostOperations.Cost[] memory cost = unit.trainingCost;
-        require(cost.transferFrom(msg.sender, address(lootVault)), "Training cost transfer failed");
+        TokenAmountOperations.TokenAmount[] memory cost = unit.trainingCost;
+        require(cost.transferAll(msg.sender, address(lootVault)), "Training cost transfer failed");
 
         bool foundUnit = false;
 
@@ -49,7 +49,9 @@ contract Train is UnitCommand {
         }
 
         if (!foundUnit) {
-            IBattleground.UnitQuantity[] memory newUnits = new IBattleground.UnitQuantity[](tile.units.length + 1);
+            UnitQuantityOperations.UnitQuantity[] memory newUnits = new UnitQuantityOperations.UnitQuantity[](
+                tile.units.length + 1
+            );
             for (uint256 i = 0; i < tile.units.length; i++) {
                 newUnits[i] = tile.units[i];
             }

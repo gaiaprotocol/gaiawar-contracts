@@ -6,7 +6,7 @@ import "../libraries/CoordinatesOperations.sol";
 
 contract Construct is BuildingCommand {
     using CoordinatesOperations for IBattleground.Coordinates;
-    using CostOperations for CostOperations.Cost[];
+    using TokenAmountOperations for TokenAmountOperations.TokenAmount[];
 
     uint16 public headquartersSearchRange;
     uint16 public enemyBuildingSearchRange;
@@ -118,8 +118,8 @@ contract Construct is BuildingCommand {
             require(!_hasNearbyEnemies(coordinates), "Enemy building too close");
         }
 
-        CostOperations.Cost[] memory cost = building.constructionCost;
-        require(cost.transferFrom(msg.sender, address(lootVault)), "Construction cost transfer failed");
+        TokenAmountOperations.TokenAmount[] memory cost = building.constructionCost;
+        require(cost.transferAll(msg.sender, address(lootVault)), "Construction cost transfer failed");
 
         tile.buildingId = buildingId;
         battleground.updateTile(coordinates, tile);

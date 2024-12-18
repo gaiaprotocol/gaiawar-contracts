@@ -24,7 +24,7 @@ contract RangedAttack is AttackCommand {
     function rangedAttack(
         IBattleground.Coordinates memory from,
         IBattleground.Coordinates memory to,
-        IBattleground.UnitQuantity[] memory attackerUnits
+        UnitQuantityOperations.UnitQuantity[] memory attackerUnits
     ) external onlyOwner {
         require(attackerUnits.length > 0, "No units to attack with");
 
@@ -40,7 +40,7 @@ contract RangedAttack is AttackCommand {
         uint16 distance = from.manhattanDistance(to);
 
         uint256 attackerDamage = 0;
-        ILootVault.Loot[] memory tileLoot;
+        TokenAmountOperations.TokenAmount[] memory tileLoot;
 
         for (uint256 i = 0; i < attackerUnits.length; i++) {
             bool found = false;

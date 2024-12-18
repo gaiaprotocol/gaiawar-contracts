@@ -3,6 +3,7 @@ pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "../../core/IBattleground.sol";
+import "../../core/ILootVault.sol";
 
 abstract contract Command is OwnableUpgradeable {
     IBattleground public battleground;
