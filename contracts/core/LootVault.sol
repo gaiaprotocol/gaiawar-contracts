@@ -2,14 +2,9 @@
 pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "./ILootVault.sol";
 
-contract LootVault is OwnableUpgradeable {
-    struct Loot {
-        IERC20 token;
-        uint256 amount;
-    }
-
+contract LootVault is OwnableUpgradeable, ILootVault {
     address payable public protocolFeeRecipient;
     uint256 public protocolFeeRate;
     mapping(address => bool) public operators;
