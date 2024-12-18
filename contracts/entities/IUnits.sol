@@ -9,4 +9,6 @@ interface IUnits {
     function getTrainingBuildingIds(uint16 unitId) external view returns (uint16[] memory);
 
     function getTrainingCost(uint16 unitId) external view returns (TokenOperations.TokenAmount[] memory);
+
+    function getRangedAttackCost(uint16 unitId) external view returns (TokenOperations.TokenAmount[] memory);
 }

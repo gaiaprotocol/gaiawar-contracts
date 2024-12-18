@@ -12,6 +12,7 @@ contract Units is OwnableUpgradeable, IUnits {
         uint8 attackRange;
         uint8 movementRange;
         TokenOperations.TokenAmount[] trainingCost;
+        TokenOperations.TokenAmount[] rangedAttackCost;
         bool canBeTrained;
     }
 
@@ -30,6 +31,10 @@ contract Units is OwnableUpgradeable, IUnits {
         return units[unitId].trainingCost;
     }
 
+    function getRangedAttackCost(uint16 unitId) external view returns (TokenOperations.TokenAmount[] memory) {
+        return units[unitId].rangedAttackCost;
+    }
+
     function initialize() public initializer {
         __Ownable_init(msg.sender);
 
@@ -43,6 +48,7 @@ contract Units is OwnableUpgradeable, IUnits {
         uint8 attackRange,
         uint8 movementRange,
         TokenOperations.TokenAmount[] calldata trainingCost,
+        TokenOperations.TokenAmount[] calldata rangedAttackCost,
         bool canBeTrained
     ) external onlyOwner {
         require(trainingBuildingIds.length > 0, "Training buildings must be provided");
@@ -52,6 +58,7 @@ contract Units is OwnableUpgradeable, IUnits {
 
         require(healthPoints > 0, "Health points must be greater than zero");
         require(trainingCost.length > 0, "Training cost must be provided");
+        require(rangedAttackCost.length > 0, "Ranged attack cost must be provided");
 
         uint16 unitId = nextUnitId;
         nextUnitId += 1;
@@ -63,6 +70,7 @@ contract Units is OwnableUpgradeable, IUnits {
             attackRange: attackRange,
             movementRange: movementRange,
             trainingCost: trainingCost,
+            rangedAttackCost: rangedAttackCost,
             canBeTrained: canBeTrained
         });
     }
