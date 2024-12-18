@@ -1,18 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "./OperatorManagement.sol";
 import "./ILootVault.sol";
 
-contract LootVault is OwnableUpgradeable, ILootVault {
+contract LootVault is OperatorManagement, ILootVault {
     address payable public protocolFeeRecipient;
     uint256 public protocolFeeRate;
-    mapping(address => bool) public operators;
 
     event ProtocolFeeRecipientUpdated(address indexed recipient);
     event ProtocolFeeRateUpdated(uint256 rate);
-    event OperatorAdded(address indexed operator);
-    event OperatorRemoved(address indexed operator);
     event LootTransferred(address indexed sender, address indexed recipient, Loot[] root, uint256 protocolFeeRate);
 
     function initialize(address payable _protocolFeeRecipient, uint256 _protocolFeeRate) public initializer {
@@ -35,26 +32,6 @@ contract LootVault is OwnableUpgradeable, ILootVault {
     function setProtocolFeeRate(uint256 _protocolFeeRate) external onlyOwner {
         protocolFeeRate = _protocolFeeRate;
         emit ProtocolFeeRateUpdated(_protocolFeeRate);
-    }
-
-    function addOperator(address operator) external onlyOwner {
-        require(operator != address(0), "Invalid operator address");
-        require(!operators[operator], "Already an operator");
-
-        operators[operator] = true;
-        emit OperatorAdded(operator);
-    }
-
-    function removeOperator(address operator) external onlyOwner {
-        require(operators[operator], "Not an operator");
-
-        operators[operator] = false;
-        emit OperatorRemoved(operator);
-    }
-
-    modifier onlyOperator() {
-        require(operators[msg.sender], "Not an operator");
-        _;
     }
 
     function transferLoot(address recipient, Loot[] memory loot) external onlyOperator {
