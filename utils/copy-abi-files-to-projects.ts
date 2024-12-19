@@ -2,11 +2,16 @@ import fs from "fs";
 import path from "path";
 
 const CONTRACT_PATHS = [
-  "Battleground",
-  "entities/Buildings",
-  "entities/Units",
-  "commands/Construction",
-  "commands/Training",
+  "core/Battleground",
+  "data/BuildingManager",
+  "data/UnitManager",
+  "commands/Construct",
+  "commands/UpgradeBuilding",
+  "commands/Train",
+  "commands/UpgradeUnit",
+  "commands/Move",
+  "commands/MoveAndAttack",
+  "commands/RangedAttack",
 ];
 
 for (const contractPath of CONTRACT_PATHS) {
