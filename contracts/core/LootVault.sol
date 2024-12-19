@@ -5,7 +5,7 @@ import "./OperatorManagement.sol";
 import "./ILootVault.sol";
 
 contract LootVault is OperatorManagement, ILootVault {
-    address payable public protocolFeeRecipient;
+    address public protocolFeeRecipient;
     uint256 public protocolFeeRate;
 
     event LootTransferred(
@@ -15,14 +15,14 @@ contract LootVault is OperatorManagement, ILootVault {
         uint256 protocolFeeRate
     );
 
-    function initialize(address payable _protocolFeeRecipient, uint256 _protocolFeeRate) external initializer {
+    function initialize(address _protocolFeeRecipient, uint256 _protocolFeeRate) external initializer {
         __Ownable_init(msg.sender);
 
         protocolFeeRecipient = _protocolFeeRecipient;
         protocolFeeRate = _protocolFeeRate;
     }
 
-    function updateProtocolFeeRecipient(address payable _protocolFeeRecipient) external onlyOwner {
+    function updateProtocolFeeRecipient(address _protocolFeeRecipient) external onlyOwner {
         require(_protocolFeeRecipient != address(0), "Invalid protocol fee recipient address");
 
         protocolFeeRecipient = _protocolFeeRecipient;

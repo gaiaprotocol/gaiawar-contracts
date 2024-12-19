@@ -85,9 +85,9 @@ contract RangedAttack is AttackCommand {
             if (toTile.buildingId == 0) {
                 toTile.loot = toTile.loot.merge(defenderLoot).merge(totalAttackCost);
             } else {
-                toTile.buildingId = 0;
                 TokenAmountOperations.TokenAmount[] memory constructionCost = buildingManager
                     .getTotalBuildingConstructionCost(toTile.buildingId);
+                toTile.buildingId = 0;
                 toTile.loot = toTile.loot.merge(defenderLoot).merge(totalAttackCost).merge(constructionCost);
             }
         } else {

@@ -109,15 +109,16 @@ contract MoveAndAttack is AttackCommand {
                 if (toTile.buildingId == 0) {
                     lootVault.transferLoot(msg.sender, totalLoot);
                 } else {
-                    toTile.buildingId = 0;
                     TokenAmountOperations.TokenAmount[] memory constructionCost = buildingManager
                         .getTotalBuildingConstructionCost(toTile.buildingId);
+                    toTile.buildingId = 0;
                     lootVault.transferLoot(msg.sender, totalLoot.merge(constructionCost));
                 }
 
                 toTile.loot = new TokenAmountOperations.TokenAmount[](0);
 
                 battleground.updateTile(to, toTile);
+                break;
             }
             // Defender wins
             else if (remainingAttackerUnits.length == 0 && remainingDefenderUnits.length > 0) {
@@ -125,6 +126,7 @@ contract MoveAndAttack is AttackCommand {
                 toTile.loot = totalLoot;
 
                 battleground.updateTile(to, toTile);
+                break;
             }
             // Draw
             else if (remainingAttackerUnits.length == 0 && remainingDefenderUnits.length == 0) {
@@ -134,16 +136,18 @@ contract MoveAndAttack is AttackCommand {
                 if (toTile.buildingId == 0) {
                     toTile.loot = totalLoot;
                 } else {
-                    toTile.buildingId = 0;
                     TokenAmountOperations.TokenAmount[] memory constructionCost = buildingManager
                         .getTotalBuildingConstructionCost(toTile.buildingId);
+                    toTile.buildingId = 0;
                     toTile.loot = totalLoot.merge(constructionCost);
                 }
 
                 battleground.updateTile(to, toTile);
+                break;
             }
             // Never reached
             else if (attackerDamage == remainingDefenderDamage && defenderDamage == remainingAttackerDamage) {
+                require(!toFinish, "Infinite loop detected");
                 toFinish = true;
             }
             // Continue
