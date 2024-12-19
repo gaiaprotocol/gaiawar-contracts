@@ -2,11 +2,11 @@
 pragma solidity ^0.8.28;
 
 import "./base/BuildingCommand.sol";
-import "../libraries/CoordinatesOperations.sol";
+import "../libraries/CoordinatesLib.sol";
 
 contract Construct is BuildingCommand {
-    using CoordinatesOperations for IBattleground.Coordinates;
-    using TokenAmountOperations for TokenAmountOperations.TokenAmount[];
+    using CoordinatesLib for IBattleground.Coordinates;
+    using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
     uint16 public headquartersSearchRange;
     uint16 public enemyBuildingSearchRange;
@@ -118,7 +118,7 @@ contract Construct is BuildingCommand {
             require(!_hasNearbyEnemies(coordinates), "Enemy building too close");
         }
 
-        TokenAmountOperations.TokenAmount[] memory cost = building.constructionCost;
+        TokenAmountLib.TokenAmount[] memory cost = building.constructionCost;
         cost.transferAll(msg.sender, address(lootVault));
 
         tile.occupant = msg.sender;

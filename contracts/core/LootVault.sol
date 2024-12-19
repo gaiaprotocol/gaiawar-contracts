@@ -11,7 +11,7 @@ contract LootVault is OperatorManagement, ILootVault {
     event LootTransferred(
         address indexed sender,
         address indexed recipient,
-        TokenAmountOperations.TokenAmount[] root,
+        TokenAmountLib.TokenAmount[] root,
         uint256 protocolFeeRate
     );
 
@@ -34,7 +34,7 @@ contract LootVault is OperatorManagement, ILootVault {
 
     function transferLoot(
         address recipient,
-        TokenAmountOperations.TokenAmount[] memory loot
+        TokenAmountLib.TokenAmount[] memory loot
     ) external override onlyOperator {
         require(recipient != address(0), "Invalid recipient address");
         require(loot.length > 0, "No loot to transfer");
@@ -43,7 +43,7 @@ contract LootVault is OperatorManagement, ILootVault {
             uint256 amount = loot[i].amount;
             require(amount > 0, "Invalid loot amount");
 
-            if (loot[i].tokenType == TokenAmountOperations.TokenType.ERC20) {
+            if (loot[i].tokenType == TokenAmountLib.TokenType.ERC20) {
                 uint256 protocolFee = (amount * protocolFeeRate) / 1 ether;
                 uint256 recipientAmount = amount - protocolFee;
                 require(
@@ -54,7 +54,7 @@ contract LootVault is OperatorManagement, ILootVault {
                     IERC20(loot[i].tokenAddress).transferFrom(address(this), protocolFeeRecipient, protocolFee),
                     "Token transfer failed"
                 );
-            } else if (loot[i].tokenType == TokenAmountOperations.TokenType.ERC1155) {
+            } else if (loot[i].tokenType == TokenAmountLib.TokenType.ERC1155) {
                 IERC1155(loot[i].tokenAddress).safeTransferFrom(
                     address(this),
                     recipient,

@@ -6,7 +6,7 @@ import "../../data/IUnitManager.sol";
 import "../../data/IBuildingManager.sol";
 
 abstract contract AttackCommand is UnitCommand {
-    using TokenAmountOperations for TokenAmountOperations.TokenAmount[];
+    using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
     IBuildingManager public buildingManager;
 
@@ -16,7 +16,7 @@ abstract contract AttackCommand is UnitCommand {
 
     function getDamageBoostPercentage(
         uint16 buildingId,
-        UnitQuantityOperations.UnitQuantity[] memory units
+        UnitQuantityLib.UnitQuantity[] memory units
     ) internal view returns (uint256 damageBoostPercentage) {
         IBuildingManager.Building memory building = buildingManager.getBuilding(buildingId);
         damageBoostPercentage = building.damageBoostPercentage;
@@ -30,15 +30,15 @@ abstract contract AttackCommand is UnitCommand {
     }
 
     function applyDamageToUnits(
-        UnitQuantityOperations.UnitQuantity[] memory units,
+        UnitQuantityLib.UnitQuantity[] memory units,
         uint256 damage
     )
         internal
         view
         returns (
-            UnitQuantityOperations.UnitQuantity[] memory remainingUnits,
+            UnitQuantityLib.UnitQuantity[] memory remainingUnits,
             uint256 remainingDamage,
-            TokenAmountOperations.TokenAmount[] memory loot
+            TokenAmountLib.TokenAmount[] memory loot
         )
     {
         remainingDamage = damage;
@@ -65,7 +65,7 @@ abstract contract AttackCommand is UnitCommand {
 
             remainingDamage -= uint256(killedUnits) * uint256(unit.healthPoints);
 
-            TokenAmountOperations.TokenAmount[] memory trainingCost = unitManager.getTotalUnitTrainingCost(
+            TokenAmountLib.TokenAmount[] memory trainingCost = unitManager.getTotalUnitTrainingCost(
                 units[i].unitId
             );
             for (uint256 j = 0; j < trainingCost.length; j++) {
@@ -75,7 +75,7 @@ abstract contract AttackCommand is UnitCommand {
             loot = loot.merge(trainingCost);
         }
 
-        remainingUnits = new UnitQuantityOperations.UnitQuantity[](remainingUnitsLength);
+        remainingUnits = new UnitQuantityLib.UnitQuantity[](remainingUnitsLength);
 
         uint256 index = 0;
         for (uint256 i = 0; i < units.length; i++) {

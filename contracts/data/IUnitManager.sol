@@ -2,7 +2,7 @@
 pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "../libraries/TokenAmountOperations.sol";
+import "../libraries/TokenAmountLib.sol";
 
 interface IUnitManager {
     struct Unit {
@@ -13,12 +13,12 @@ interface IUnitManager {
         uint8 attackRange;
         uint8 movementRange;
         uint16 damageBoostPercentage; // 1-10000 (0.01% - 100%)
-        TokenAmountOperations.TokenAmount[] trainingCost;
-        TokenAmountOperations.TokenAmount[] rangedAttackCost;
+        TokenAmountLib.TokenAmount[] trainingCost;
+        TokenAmountLib.TokenAmount[] rangedAttackCost;
         bool canBeTrained;
     }
 
     function getUnit(uint16 unitId) external view returns (Unit memory);
 
-    function getTotalUnitTrainingCost(uint16 unitId) external view returns (TokenAmountOperations.TokenAmount[] memory);
+    function getTotalUnitTrainingCost(uint16 unitId) external view returns (TokenAmountLib.TokenAmount[] memory);
 }

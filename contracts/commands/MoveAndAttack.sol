@@ -2,12 +2,12 @@
 pragma solidity ^0.8.28;
 
 import "./base/AttackCommand.sol";
-import "../libraries/CoordinatesOperations.sol";
+import "../libraries/CoordinatesLib.sol";
 
 contract MoveAndAttack is AttackCommand {
-    using CoordinatesOperations for IBattleground.Coordinates;
-    using UnitQuantityOperations for UnitQuantityOperations.UnitQuantity[];
-    using TokenAmountOperations for TokenAmountOperations.TokenAmount[];
+    using CoordinatesLib for IBattleground.Coordinates;
+    using UnitQuantityLib for UnitQuantityLib.UnitQuantity[];
+    using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
     function initialize(
         address _battleground,
@@ -26,7 +26,7 @@ contract MoveAndAttack is AttackCommand {
     function moveAndAttack(
         IBattleground.Coordinates memory from,
         IBattleground.Coordinates memory to,
-        UnitQuantityOperations.UnitQuantity[] memory attackerUnits
+        UnitQuantityLib.UnitQuantity[] memory attackerUnits
     ) external onlyOwner {
         require(attackerUnits.length > 0, "No units to attack with");
 
@@ -62,8 +62,8 @@ contract MoveAndAttack is AttackCommand {
         }
         battleground.updateTile(from, fromTile);
 
-        UnitQuantityOperations.UnitQuantity[] memory defenderUnits = toTile.units;
-        TokenAmountOperations.TokenAmount[] memory totalLoot = toTile.loot;
+        UnitQuantityLib.UnitQuantity[] memory defenderUnits = toTile.units;
+        TokenAmountLib.TokenAmount[] memory totalLoot = toTile.loot;
 
         bool toFinish = false;
         while (true) {
@@ -88,15 +88,15 @@ contract MoveAndAttack is AttackCommand {
             }
 
             (
-                UnitQuantityOperations.UnitQuantity[] memory remainingDefenderUnits,
+                UnitQuantityLib.UnitQuantity[] memory remainingDefenderUnits,
                 uint256 remainingAttackerDamage,
-                TokenAmountOperations.TokenAmount[] memory attackerLoot
+                TokenAmountLib.TokenAmount[] memory attackerLoot
             ) = applyDamageToUnits(defenderUnits, attackerDamage);
 
             (
-                UnitQuantityOperations.UnitQuantity[] memory remainingAttackerUnits,
+                UnitQuantityLib.UnitQuantity[] memory remainingAttackerUnits,
                 uint256 remainingDefenderDamage,
-                TokenAmountOperations.TokenAmount[] memory defenderLoot
+                TokenAmountLib.TokenAmount[] memory defenderLoot
             ) = applyDamageToUnits(attackerUnits, defenderDamage);
 
             totalLoot = totalLoot.merge(attackerLoot).merge(defenderLoot);
@@ -109,13 +109,13 @@ contract MoveAndAttack is AttackCommand {
                 if (toTile.buildingId == 0) {
                     lootVault.transferLoot(msg.sender, totalLoot);
                 } else {
-                    TokenAmountOperations.TokenAmount[] memory constructionCost = buildingManager
+                    TokenAmountLib.TokenAmount[] memory constructionCost = buildingManager
                         .getTotalBuildingConstructionCost(toTile.buildingId);
                     toTile.buildingId = 0;
                     lootVault.transferLoot(msg.sender, totalLoot.merge(constructionCost));
                 }
 
-                toTile.loot = new TokenAmountOperations.TokenAmount[](0);
+                toTile.loot = new TokenAmountLib.TokenAmount[](0);
 
                 battleground.updateTile(to, toTile);
                 break;
@@ -131,12 +131,12 @@ contract MoveAndAttack is AttackCommand {
             // Draw
             else if (remainingAttackerUnits.length == 0 && remainingDefenderUnits.length == 0) {
                 toTile.occupant = address(0);
-                toTile.units = new UnitQuantityOperations.UnitQuantity[](0);
+                toTile.units = new UnitQuantityLib.UnitQuantity[](0);
 
                 if (toTile.buildingId == 0) {
                     toTile.loot = totalLoot;
                 } else {
-                    TokenAmountOperations.TokenAmount[] memory constructionCost = buildingManager
+                    TokenAmountLib.TokenAmount[] memory constructionCost = buildingManager
                         .getTotalBuildingConstructionCost(toTile.buildingId);
                     toTile.buildingId = 0;
                     toTile.loot = totalLoot.merge(constructionCost);

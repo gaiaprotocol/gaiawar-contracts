@@ -2,11 +2,11 @@
 pragma solidity ^0.8.28;
 
 import "./base/UnitCommand.sol";
-import "../libraries/CoordinatesOperations.sol";
+import "../libraries/CoordinatesLib.sol";
 
 contract Move is UnitCommand {
-    using CoordinatesOperations for IBattleground.Coordinates;
-    using UnitQuantityOperations for UnitQuantityOperations.UnitQuantity[];
+    using CoordinatesLib for IBattleground.Coordinates;
+    using UnitQuantityLib for UnitQuantityLib.UnitQuantity[];
 
     function initialize(address _battleground, address _lootVault, address _unitManager) external initializer {
         __Ownable_init(msg.sender);
@@ -19,7 +19,7 @@ contract Move is UnitCommand {
     function move(
         IBattleground.Coordinates memory from,
         IBattleground.Coordinates memory to,
-        UnitQuantityOperations.UnitQuantity[] memory units
+        UnitQuantityLib.UnitQuantity[] memory units
     ) external onlyOwner {
         require(units.length > 0, "No units to move");
 

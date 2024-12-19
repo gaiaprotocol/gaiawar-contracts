@@ -118,6 +118,6 @@ contract Battleground is OperatorManagement, IBattleground {
         require(tile.occupant == msg.sender, "You do not own this tile");
 
         lootVault.transferLoot(msg.sender, tile.loot);
-        tile.loot = new TokenAmountOperations.TokenAmount[](0);
+        tile.loot = new TokenAmountLib.TokenAmount[](0);
     }
 }

@@ -2,11 +2,11 @@
 pragma solidity ^0.8.28;
 
 import "./base/AttackCommand.sol";
-import "../libraries/CoordinatesOperations.sol";
+import "../libraries/CoordinatesLib.sol";
 
 contract RangedAttack is AttackCommand {
-    using CoordinatesOperations for IBattleground.Coordinates;
-    using TokenAmountOperations for TokenAmountOperations.TokenAmount[];
+    using CoordinatesLib for IBattleground.Coordinates;
+    using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
     function initialize(
         address _battleground,
@@ -25,7 +25,7 @@ contract RangedAttack is AttackCommand {
     function rangedAttack(
         IBattleground.Coordinates memory from,
         IBattleground.Coordinates memory to,
-        UnitQuantityOperations.UnitQuantity[] memory attackerUnits
+        UnitQuantityLib.UnitQuantity[] memory attackerUnits
     ) external onlyOwner {
         require(attackerUnits.length > 0, "No units to attack with");
 
@@ -41,7 +41,7 @@ contract RangedAttack is AttackCommand {
         uint16 distance = from.manhattanDistance(to);
 
         uint256 attackerDamage = 0;
-        TokenAmountOperations.TokenAmount[] memory totalAttackCost;
+        TokenAmountLib.TokenAmount[] memory totalAttackCost;
 
         for (uint256 i = 0; i < attackerUnits.length; i++) {
             bool found = false;
@@ -59,7 +59,7 @@ contract RangedAttack is AttackCommand {
 
             attackerDamage += unit.attackDamage * attackerUnits[i].quantity;
 
-            TokenAmountOperations.TokenAmount[] memory attackCost = unit.rangedAttackCost;
+            TokenAmountLib.TokenAmount[] memory attackCost = unit.rangedAttackCost;
             for (uint256 k = 0; k < attackCost.length; k++) {
                 attackCost[k].amount *= attackerUnits[i].quantity;
             }
@@ -70,9 +70,9 @@ contract RangedAttack is AttackCommand {
         totalAttackCost.transferAll(msg.sender, address(lootVault));
 
         (
-            UnitQuantityOperations.UnitQuantity[] memory remainingUnits,
+            UnitQuantityLib.UnitQuantity[] memory remainingUnits,
             ,
-            TokenAmountOperations.TokenAmount[] memory defenderLoot
+            TokenAmountLib.TokenAmount[] memory defenderLoot
         ) = applyDamageToUnits(
                 toTile.units,
                 (attackerDamage * 10000) / (10000 + getDamageBoostPercentage(fromTile.buildingId, attackerUnits))
@@ -80,12 +80,12 @@ contract RangedAttack is AttackCommand {
 
         if (remainingUnits.length == 0) {
             toTile.occupant = address(0);
-            toTile.units = new UnitQuantityOperations.UnitQuantity[](0);
+            toTile.units = new UnitQuantityLib.UnitQuantity[](0);
 
             if (toTile.buildingId == 0) {
                 toTile.loot = toTile.loot.merge(defenderLoot).merge(totalAttackCost);
             } else {
-                TokenAmountOperations.TokenAmount[] memory constructionCost = buildingManager
+                TokenAmountLib.TokenAmount[] memory constructionCost = buildingManager
                     .getTotalBuildingConstructionCost(toTile.buildingId);
                 toTile.buildingId = 0;
                 toTile.loot = toTile.loot.merge(defenderLoot).merge(totalAttackCost).merge(constructionCost);

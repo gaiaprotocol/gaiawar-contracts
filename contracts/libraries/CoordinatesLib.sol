@@ -3,7 +3,7 @@ pragma solidity ^0.8.28;
 
 import "../core/IBattleground.sol";
 
-library CoordinatesOperations {
+library CoordinatesLib {
     function manhattanDistance(
         IBattleground.Coordinates memory a,
         IBattleground.Coordinates memory b

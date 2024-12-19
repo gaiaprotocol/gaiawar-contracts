@@ -4,7 +4,7 @@ pragma solidity ^0.8.28;
 import "./base/BuildingCommand.sol";
 
 contract UpgradeBuilding is BuildingCommand {
-    using TokenAmountOperations for TokenAmountOperations.TokenAmount[];
+    using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
     function initialize(address _battleground, address _lootVault, address _buildingManager) external initializer {
         __Ownable_init(msg.sender);
@@ -24,7 +24,7 @@ contract UpgradeBuilding is BuildingCommand {
             "Building upgrade not allowed"
         );
 
-        TokenAmountOperations.TokenAmount[] memory cost = building.constructionCost;
+        TokenAmountLib.TokenAmount[] memory cost = building.constructionCost;
         cost.transferAll(msg.sender, address(lootVault));
 
         tile.buildingId = buildingId;

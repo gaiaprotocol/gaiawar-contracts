@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "../libraries/TokenAmountOperations.sol";
-import "../libraries/UnitQuantityOperations.sol";
+import "../libraries/TokenAmountLib.sol";
+import "../libraries/UnitQuantityLib.sol";
 
 interface IBattleground {
     struct Coordinates {
@@ -13,8 +13,8 @@ interface IBattleground {
     struct Tile {
         address occupant;
         uint16 buildingId;
-        UnitQuantityOperations.UnitQuantity[] units;
-        TokenAmountOperations.TokenAmount[] loot;
+        UnitQuantityLib.UnitQuantity[] units;
+        TokenAmountLib.TokenAmount[] loot;
     }
 
     function width() external view returns (uint16);

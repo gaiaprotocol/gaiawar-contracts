@@ -5,7 +5,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "./IBuildingManager.sol";
 
 contract BuildingManager is OwnableUpgradeable, IBuildingManager {
-    using TokenAmountOperations for TokenAmountOperations.TokenAmount[];
+    using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
     uint16 public nextBuildingId;
     mapping(uint16 => Building) public buildings;
@@ -38,7 +38,7 @@ contract BuildingManager is OwnableUpgradeable, IBuildingManager {
 
     function getTotalBuildingConstructionCost(
         uint16 buildingId
-    ) public view override returns (TokenAmountOperations.TokenAmount[] memory) {
+    ) public view override returns (TokenAmountLib.TokenAmount[] memory) {
         IBuildingManager.Building memory building = buildings[buildingId];
         if (buildings[buildingId].prerequisiteBuildingId == 0) {
             return building.constructionCost;

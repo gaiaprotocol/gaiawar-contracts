@@ -5,7 +5,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "./IUnitManager.sol";
 
 contract UnitManager is OwnableUpgradeable, IUnitManager {
-    using TokenAmountOperations for TokenAmountOperations.TokenAmount[];
+    using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
     uint16 public nextUnitId;
     mapping(uint16 => Unit) public units;
@@ -43,7 +43,7 @@ contract UnitManager is OwnableUpgradeable, IUnitManager {
 
     function getTotalUnitTrainingCost(
         uint16 unitId
-    ) public view override returns (TokenAmountOperations.TokenAmount[] memory) {
+    ) public view override returns (TokenAmountLib.TokenAmount[] memory) {
         IUnitManager.Unit memory unit = units[unitId];
         if (units[unitId].prerequisiteUnitId == 0) {
             return unit.trainingCost;

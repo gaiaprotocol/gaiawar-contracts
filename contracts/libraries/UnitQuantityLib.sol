@@ -3,7 +3,7 @@ pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-library UnitQuantityOperations {
+library UnitQuantityLib {
     struct UnitQuantity {
         uint16 unitId;
         uint16 quantity;
