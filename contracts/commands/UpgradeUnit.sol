@@ -7,13 +7,13 @@ import "./base/UnitCommand.sol";
 contract UpgradeUnit is UnitCommand, ReentrancyGuardUpgradeable {
     using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
-    function initialize(address _battleground, address _lootVault, address _unitManager) external initializer {
+    function initialize(address _lootVault, address _unitManager, address _battleground) external initializer {
         __Ownable_init(msg.sender);
         __ReentrancyGuard_init();
 
-        battleground = IBattleground(_battleground);
         lootVault = ILootVault(_lootVault);
         unitManager = IUnitManager(_unitManager);
+        battleground = IBattleground(_battleground);
     }
 
     function upgradeUnit(

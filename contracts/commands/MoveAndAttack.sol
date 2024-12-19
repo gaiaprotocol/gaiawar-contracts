@@ -10,17 +10,17 @@ contract MoveAndAttack is AttackCommand {
     using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
     function initialize(
-        address _battleground,
         address _lootVault,
+        address _buildingManager,
         address _unitManager,
-        address _buildingManager
+        address _battleground
     ) external initializer {
         __Ownable_init(msg.sender);
 
-        battleground = IBattleground(_battleground);
         lootVault = ILootVault(_lootVault);
-        unitManager = IUnitManager(_unitManager);
         buildingManager = IBuildingManager(_buildingManager);
+        unitManager = IUnitManager(_unitManager);
+        battleground = IBattleground(_battleground);
     }
 
     function moveAndAttack(

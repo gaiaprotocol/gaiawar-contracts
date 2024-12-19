@@ -8,12 +8,12 @@ contract Move is UnitCommand {
     using CoordinatesLib for IBattleground.Coordinates;
     using UnitQuantityLib for UnitQuantityLib.UnitQuantity[];
 
-    function initialize(address _battleground, address _lootVault, address _unitManager) external initializer {
+    function initialize(address _lootVault, address _unitManager, address _battleground) external initializer {
         __Ownable_init(msg.sender);
 
-        battleground = IBattleground(_battleground);
         lootVault = ILootVault(_lootVault);
         unitManager = IUnitManager(_unitManager);
+        battleground = IBattleground(_battleground);
     }
 
     function move(

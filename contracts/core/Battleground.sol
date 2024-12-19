@@ -19,11 +19,21 @@ contract Battleground is OperatorManagement, IBattleground {
 
     event TileUpdated(Coordinates coordinates, Tile tile);
 
-    function initialize(uint16 _width, uint16 _height) external initializer {
+    function initialize(
+        uint16 _width,
+        uint16 _height,
+        uint16 _maxUnitsPerTile,
+        address _lootVault,
+        address _buildingManager
+    ) external initializer {
         __Ownable_init(msg.sender);
 
         width = _width;
         height = _height;
+        maxUnitsPerTile = _maxUnitsPerTile;
+
+        lootVault = ILootVault(_lootVault);
+        buildingManager = IBuildingManager(_buildingManager);
     }
 
     function updateDimensions(uint16 _width, uint16 _height) external onlyOwner {

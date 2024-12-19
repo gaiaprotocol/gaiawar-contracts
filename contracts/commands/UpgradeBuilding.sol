@@ -7,13 +7,13 @@ import "./base/BuildingCommand.sol";
 contract UpgradeBuilding is BuildingCommand, ReentrancyGuardUpgradeable {
     using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
-    function initialize(address _battleground, address _lootVault, address _buildingManager) external initializer {
+    function initialize(address _lootVault, address _buildingManager, address _battleground) external initializer {
         __Ownable_init(msg.sender);
         __ReentrancyGuard_init();
 
-        battleground = IBattleground(_battleground);
         lootVault = ILootVault(_lootVault);
         buildingManager = IBuildingManager(_buildingManager);
+        battleground = IBattleground(_battleground);
     }
 
     function upgradeBuilding(IBattleground.Coordinates memory coordinates, uint16 buildingId) external nonReentrant {

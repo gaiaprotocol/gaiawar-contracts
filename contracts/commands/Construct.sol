@@ -13,18 +13,18 @@ contract Construct is BuildingCommand, ReentrancyGuardUpgradeable {
     uint16 public enemyBuildingSearchRange;
 
     function initialize(
-        address _battleground,
         address _lootVault,
         address _buildingManager,
+        address _battleground,
         uint16 _headquartersSearchRange,
         uint16 _enemyBuildingSearchRange
     ) external initializer {
         __Ownable_init(msg.sender);
         __ReentrancyGuard_init();
 
-        battleground = IBattleground(_battleground);
         lootVault = ILootVault(_lootVault);
         buildingManager = IBuildingManager(_buildingManager);
+        battleground = IBattleground(_battleground);
         headquartersSearchRange = _headquartersSearchRange;
         enemyBuildingSearchRange = _enemyBuildingSearchRange;
     }
