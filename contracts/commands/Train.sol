@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "./base/UnitCommand.sol";
 
-contract Train is UnitCommand {
+contract Train is UnitCommand, ReentrancyGuardUpgradeable {
     using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
     function initialize(address _battleground, address _lootVault, address _unitManager) external initializer {
         __Ownable_init(msg.sender);
+        __ReentrancyGuard_init();
 
         battleground = IBattleground(_battleground);
         lootVault = ILootVault(_lootVault);
@@ -17,7 +19,7 @@ contract Train is UnitCommand {
     function train(
         IBattleground.Coordinates memory coordinates,
         UnitQuantityLib.UnitQuantity memory unitQuantity
-    ) external {
+    ) external nonReentrant {
         require(unitQuantity.quantity > 0, "Quantity must be greater than 0");
 
         IBattleground.Tile memory tile = battleground.getTile(coordinates);
@@ -51,9 +53,7 @@ contract Train is UnitCommand {
         }
 
         if (!foundSameUnit) {
-            UnitQuantityLib.UnitQuantity[] memory newUnits = new UnitQuantityLib.UnitQuantity[](
-                tile.units.length + 1
-            );
+            UnitQuantityLib.UnitQuantity[] memory newUnits = new UnitQuantityLib.UnitQuantity[](tile.units.length + 1);
             for (uint256 i = 0; i < tile.units.length; i++) {
                 newUnits[i] = tile.units[i];
             }

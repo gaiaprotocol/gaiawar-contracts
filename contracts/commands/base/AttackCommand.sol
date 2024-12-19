@@ -65,9 +65,7 @@ abstract contract AttackCommand is UnitCommand {
 
             remainingDamage -= uint256(killedUnits) * uint256(unit.healthPoints);
 
-            TokenAmountLib.TokenAmount[] memory trainingCost = unitManager.getTotalUnitTrainingCost(
-                units[i].unitId
-            );
+            TokenAmountLib.TokenAmount[] memory trainingCost = unitManager.getTotalUnitTrainingCost(units[i].unitId);
             for (uint256 j = 0; j < trainingCost.length; j++) {
                 trainingCost[j].amount *= killedUnits;
             }

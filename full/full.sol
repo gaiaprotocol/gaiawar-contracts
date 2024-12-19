@@ -115,7 +115,7 @@ contract Battleground is OperatorManagement, IBattleground {
         require(tile.occupant == msg.sender, "You do not own this tile");
 
         lootVault.transferLoot(msg.sender, tile.loot);
-        tile.loot = new TokenAmountOperations.TokenAmount[](0);
+        tile.loot = new TokenAmountLib.TokenAmount[](0);
     }
 }
 
@@ -130,8 +130,8 @@ interface IBattleground {
     struct Tile {
         address occupant;
         uint16 buildingId;
-        UnitQuantityOperations.UnitQuantity[] units;
-        TokenAmountOperations.TokenAmount[] loot;
+        UnitQuantityLib.UnitQuantity[] units;
+        TokenAmountLib.TokenAmount[] loot;
     }
 
     function width() external view returns (uint16);
@@ -149,7 +149,7 @@ interface IBattleground {
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface ILootVault {
-    function transferLoot(address recipient, TokenAmountOperations.TokenAmount[] memory loot) external;
+    function transferLoot(address recipient, TokenAmountLib.TokenAmount[] memory loot) external;
 }
 
 
@@ -161,7 +161,7 @@ contract LootVault is OperatorManagement, ILootVault {
     event LootTransferred(
         address indexed sender,
         address indexed recipient,
-        TokenAmountOperations.TokenAmount[] root,
+        TokenAmountLib.TokenAmount[] root,
         uint256 protocolFeeRate
     );
 
@@ -184,7 +184,7 @@ contract LootVault is OperatorManagement, ILootVault {
 
     function transferLoot(
         address recipient,
-        TokenAmountOperations.TokenAmount[] memory loot
+        TokenAmountLib.TokenAmount[] memory loot
     ) external override onlyOperator {
         require(recipient != address(0), "Invalid recipient address");
         require(loot.length > 0, "No loot to transfer");
@@ -193,7 +193,7 @@ contract LootVault is OperatorManagement, ILootVault {
             uint256 amount = loot[i].amount;
             require(amount > 0, "Invalid loot amount");
 
-            if (loot[i].tokenType == TokenAmountOperations.TokenType.ERC20) {
+            if (loot[i].tokenType == TokenAmountLib.TokenType.ERC20) {
                 uint256 protocolFee = (amount * protocolFeeRate) / 1 ether;
                 uint256 recipientAmount = amount - protocolFee;
                 require(
@@ -204,7 +204,7 @@ contract LootVault is OperatorManagement, ILootVault {
                     IERC20(loot[i].tokenAddress).transferFrom(address(this), protocolFeeRecipient, protocolFee),
                     "Token transfer failed"
                 );
-            } else if (loot[i].tokenType == TokenAmountOperations.TokenType.ERC1155) {
+            } else if (loot[i].tokenType == TokenAmountLib.TokenType.ERC1155) {
                 IERC1155(loot[i].tokenAddress).safeTransferFrom(
                     address(this),
                     recipient,
@@ -250,152 +250,8 @@ abstract contract OperatorManagement is OwnableUpgradeable {
 }
 
 
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract BuildingManager is OwnableUpgradeable, IBuildingManager {
-    using TokenAmountOperations for TokenAmountOperations.TokenAmount[];
-
-    uint16 public nextBuildingId;
-    mapping(uint16 => Building) public buildings;
-
-    function initialize() external initializer {
-        __Ownable_init(msg.sender);
-
-        nextBuildingId = 1;
-    }
-
-    function addBuilding(Building calldata building) external onlyOwner {
-        require(building.prerequisiteBuildingId < nextBuildingId, "Previous building does not exist");
-        require(building.constructionCost.length > 0, "Construction cost must be provided");
-
-        uint16 buildingId = nextBuildingId;
-        nextBuildingId += 1;
-
-        buildings[buildingId] = building;
-    }
-
-    function setConstructability(uint16 buildingId, bool canBeConstructed) external onlyOwner {
-        require(buildingId < nextBuildingId, "Building does not exist");
-
-        buildings[buildingId].canBeConstructed = canBeConstructed;
-    }
-
-    function getBuilding(uint16 buildingId) external view override returns (Building memory) {
-        return buildings[buildingId];
-    }
-
-    function getTotalBuildingConstructionCost(
-        uint16 buildingId
-    ) public view override returns (TokenAmountOperations.TokenAmount[] memory) {
-        IBuildingManager.Building memory building = buildings[buildingId];
-        if (buildings[buildingId].prerequisiteBuildingId == 0) {
-            return building.constructionCost;
-        } else {
-            return
-                building.constructionCost.merge(
-                    getTotalBuildingConstructionCost(buildings[buildingId].prerequisiteBuildingId)
-                );
-        }
-    }
-}
-
-
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
-interface IBuildingManager {
-    struct Building {
-        uint16 prerequisiteBuildingId;
-        bool isHeadquarters;
-        uint16 constructionRange;
-        uint256 damageBoostPercentage; // 1-10000 (0.01% - 100%)
-        TokenAmountOperations.TokenAmount[] constructionCost;
-        bool canBeConstructed;
-    }
-
-    function getBuilding(uint16 buildingId) external view returns (Building memory);
-
-    function getTotalBuildingConstructionCost(
-        uint16 buildingId
-    ) external view returns (TokenAmountOperations.TokenAmount[] memory);
-}
-
-
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
-interface IUnitManager {
-    struct Unit {
-        uint16 prerequisiteUnitId;
-        uint16[] trainingBuildingIds;
-        uint16 healthPoints;
-        uint16 attackDamage;
-        uint8 attackRange;
-        uint8 movementRange;
-        uint16 damageBoostPercentage; // 1-10000 (0.01% - 100%)
-        TokenAmountOperations.TokenAmount[] trainingCost;
-        TokenAmountOperations.TokenAmount[] rangedAttackCost;
-        bool canBeTrained;
-    }
-
-    function getUnit(uint16 unitId) external view returns (Unit memory);
-
-    function getTotalUnitTrainingCost(uint16 unitId) external view returns (TokenAmountOperations.TokenAmount[] memory);
-}
-
-
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-
-contract UnitManager is OwnableUpgradeable, IUnitManager {
-    using TokenAmountOperations for TokenAmountOperations.TokenAmount[];
-
-    uint16 public nextUnitId;
-    mapping(uint16 => Unit) public units;
-
-    function initialize() external initializer {
-        __Ownable_init(msg.sender);
-
-        nextUnitId = 1;
-    }
-
-    function addUnit(Unit calldata unit) external onlyOwner {
-        require(unit.trainingBuildingIds.length > 0, "Training building IDs must be provided");
-        for (uint256 i = 0; i < unit.trainingBuildingIds.length; i++) {
-            require(unit.trainingBuildingIds[i] > 0, "Training building IDs must be valid");
-        }
-
-        require(unit.healthPoints > 0, "Health points must be greater than 0");
-        require(unit.trainingCost.length > 0, "Training cost must be provided");
-
-        uint16 unitId = nextUnitId;
-        nextUnitId += 1;
-
-        units[unitId] = unit;
-    }
-
-    function setTrainability(uint16 unitId, bool canBeTrained) external onlyOwner {
-        require(unitId < nextUnitId, "Unit does not exist");
-
-        units[unitId].canBeTrained = canBeTrained;
-    }
-
-    function getUnit(uint16 unitId) external view override returns (Unit memory) {
-        return units[unitId];
-    }
-
-    function getTotalUnitTrainingCost(
-        uint16 unitId
-    ) public view override returns (TokenAmountOperations.TokenAmount[] memory) {
-        IUnitManager.Unit memory unit = units[unitId];
-        if (units[unitId].prerequisiteUnitId == 0) {
-            return unit.trainingCost;
-        } else {
-            return unit.trainingCost.merge(getTotalUnitTrainingCost(units[unitId].prerequisiteUnitId));
-        }
-    }
-}
-
-
-
-library CoordinatesOperations {
+library CoordinatesLib {
     function manhattanDistance(
         IBattleground.Coordinates memory a,
         IBattleground.Coordinates memory b
@@ -408,7 +264,7 @@ library CoordinatesOperations {
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
-library TokenAmountOperations {
+library TokenAmountLib {
     enum TokenType {
         ERC20,
         ERC1155
@@ -476,7 +332,7 @@ library TokenAmountOperations {
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-library UnitQuantityOperations {
+library UnitQuantityLib {
     struct UnitQuantity {
         uint16 unitId;
         uint16 quantity;
@@ -547,10 +403,159 @@ library UnitQuantityOperations {
 }
 
 
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
+contract BuildingManager is OwnableUpgradeable, IBuildingManager {
+    using TokenAmountLib for TokenAmountLib.TokenAmount[];
+
+    uint16 public nextBuildingId;
+    mapping(uint16 => Building) public buildings;
+
+    function initialize() external initializer {
+        __Ownable_init(msg.sender);
+
+        nextBuildingId = 1;
+    }
+
+    function addBuilding(Building calldata building) external onlyOwner {
+        require(building.prerequisiteBuildingId < nextBuildingId, "Previous building does not exist");
+        require(building.constructionCost.length > 0, "Construction cost must be provided");
+
+        uint16 buildingId = nextBuildingId;
+        nextBuildingId += 1;
+
+        buildings[buildingId] = building;
+    }
+
+    function setConstructability(uint16 buildingId, bool canBeConstructed) external onlyOwner {
+        require(buildingId < nextBuildingId, "Building does not exist");
+
+        buildings[buildingId].canBeConstructed = canBeConstructed;
+    }
+
+    function getBuilding(uint16 buildingId) external view override returns (Building memory) {
+        return buildings[buildingId];
+    }
+
+    function getTotalBuildingConstructionCost(
+        uint16 buildingId
+    ) public view override returns (TokenAmountLib.TokenAmount[] memory) {
+        TokenAmountLib.TokenAmount[] memory totalCost;
+        uint16 currentBuildingId = buildingId;
+
+        while (currentBuildingId != 0) {
+            IBuildingManager.Building memory building = buildings[currentBuildingId];
+            totalCost = totalCost.merge(building.constructionCost);
+            currentBuildingId = building.prerequisiteBuildingId;
+        }
+
+        return totalCost;
+    }
+}
+
+
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+interface IBuildingManager {
+    struct Building {
+        uint16 prerequisiteBuildingId;
+        bool isHeadquarters;
+        uint16 constructionRange;
+        uint256 damageBoostPercentage; // 1-10000 (0.01% - 100%)
+        TokenAmountLib.TokenAmount[] constructionCost;
+        bool canBeConstructed;
+    }
+
+    function getBuilding(uint16 buildingId) external view returns (Building memory);
+
+    function getTotalBuildingConstructionCost(
+        uint16 buildingId
+    ) external view returns (TokenAmountLib.TokenAmount[] memory);
+}
+
+
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+interface IUnitManager {
+    struct Unit {
+        uint16 prerequisiteUnitId;
+        uint16[] trainingBuildingIds;
+        uint16 healthPoints;
+        uint16 attackDamage;
+        uint8 attackRange;
+        uint8 movementRange;
+        uint16 damageBoostPercentage; // 1-10000 (0.01% - 100%)
+        TokenAmountLib.TokenAmount[] trainingCost;
+        TokenAmountLib.TokenAmount[] rangedAttackCost;
+        bool canBeTrained;
+    }
+
+    function getUnit(uint16 unitId) external view returns (Unit memory);
+
+    function getTotalUnitTrainingCost(uint16 unitId) external view returns (TokenAmountLib.TokenAmount[] memory);
+}
+
+
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
+contract UnitManager is OwnableUpgradeable, IUnitManager {
+    using TokenAmountLib for TokenAmountLib.TokenAmount[];
+
+    uint16 public nextUnitId;
+    mapping(uint16 => Unit) public units;
+
+    function initialize() external initializer {
+        __Ownable_init(msg.sender);
+
+        nextUnitId = 1;
+    }
+
+    function addUnit(Unit calldata unit) external onlyOwner {
+        require(unit.trainingBuildingIds.length > 0, "Training building IDs must be provided");
+        for (uint256 i = 0; i < unit.trainingBuildingIds.length; i++) {
+            require(unit.trainingBuildingIds[i] > 0, "Training building IDs must be valid");
+        }
+
+        require(unit.healthPoints > 0, "Health points must be greater than 0");
+        require(unit.trainingCost.length > 0, "Training cost must be provided");
+
+        uint16 unitId = nextUnitId;
+        nextUnitId += 1;
+
+        units[unitId] = unit;
+    }
+
+    function setTrainability(uint16 unitId, bool canBeTrained) external onlyOwner {
+        require(unitId < nextUnitId, "Unit does not exist");
+
+        units[unitId].canBeTrained = canBeTrained;
+    }
+
+    function getUnit(uint16 unitId) external view override returns (Unit memory) {
+        return units[unitId];
+    }
+
+    function getTotalUnitTrainingCost(
+        uint16 unitId
+    ) public view override returns (TokenAmountLib.TokenAmount[] memory) {
+        TokenAmountLib.TokenAmount[] memory totalCost;
+        uint16 currentUnitId = unitId;
+
+        while (currentUnitId != 0) {
+            IUnitManager.Unit memory unit = units[currentUnitId];
+            totalCost = totalCost.merge(unit.trainingCost);
+            currentUnitId = unit.prerequisiteUnitId;
+        }
+
+        return totalCost;
+    }
+}
+
+
 
 contract Construct is BuildingCommand {
-    using CoordinatesOperations for IBattleground.Coordinates;
-    using TokenAmountOperations for TokenAmountOperations.TokenAmount[];
+    using CoordinatesLib for IBattleground.Coordinates;
+    using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
     uint16 public headquartersSearchRange;
     uint16 public enemyBuildingSearchRange;
@@ -662,7 +667,7 @@ contract Construct is BuildingCommand {
             require(!_hasNearbyEnemies(coordinates), "Enemy building too close");
         }
 
-        TokenAmountOperations.TokenAmount[] memory cost = building.constructionCost;
+        TokenAmountLib.TokenAmount[] memory cost = building.constructionCost;
         cost.transferAll(msg.sender, address(lootVault));
 
         tile.occupant = msg.sender;
@@ -674,8 +679,8 @@ contract Construct is BuildingCommand {
 
 
 contract Move is UnitCommand {
-    using CoordinatesOperations for IBattleground.Coordinates;
-    using UnitQuantityOperations for UnitQuantityOperations.UnitQuantity[];
+    using CoordinatesLib for IBattleground.Coordinates;
+    using UnitQuantityLib for UnitQuantityLib.UnitQuantity[];
 
     function initialize(address _battleground, address _lootVault, address _unitManager) external initializer {
         __Ownable_init(msg.sender);
@@ -688,7 +693,7 @@ contract Move is UnitCommand {
     function move(
         IBattleground.Coordinates memory from,
         IBattleground.Coordinates memory to,
-        UnitQuantityOperations.UnitQuantity[] memory units
+        UnitQuantityLib.UnitQuantity[] memory units
     ) external onlyOwner {
         require(units.length > 0, "No units to move");
 
@@ -730,9 +735,9 @@ contract Move is UnitCommand {
 
 
 contract MoveAndAttack is AttackCommand {
-    using CoordinatesOperations for IBattleground.Coordinates;
-    using UnitQuantityOperations for UnitQuantityOperations.UnitQuantity[];
-    using TokenAmountOperations for TokenAmountOperations.TokenAmount[];
+    using CoordinatesLib for IBattleground.Coordinates;
+    using UnitQuantityLib for UnitQuantityLib.UnitQuantity[];
+    using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
     function initialize(
         address _battleground,
@@ -751,7 +756,7 @@ contract MoveAndAttack is AttackCommand {
     function moveAndAttack(
         IBattleground.Coordinates memory from,
         IBattleground.Coordinates memory to,
-        UnitQuantityOperations.UnitQuantity[] memory attackerUnits
+        UnitQuantityLib.UnitQuantity[] memory attackerUnits
     ) external onlyOwner {
         require(attackerUnits.length > 0, "No units to attack with");
 
@@ -787,8 +792,8 @@ contract MoveAndAttack is AttackCommand {
         }
         battleground.updateTile(from, fromTile);
 
-        UnitQuantityOperations.UnitQuantity[] memory defenderUnits = toTile.units;
-        TokenAmountOperations.TokenAmount[] memory totalLoot = toTile.loot;
+        UnitQuantityLib.UnitQuantity[] memory defenderUnits = toTile.units;
+        TokenAmountLib.TokenAmount[] memory totalLoot = toTile.loot;
 
         bool toFinish = false;
         while (true) {
@@ -813,15 +818,15 @@ contract MoveAndAttack is AttackCommand {
             }
 
             (
-                UnitQuantityOperations.UnitQuantity[] memory remainingDefenderUnits,
+                UnitQuantityLib.UnitQuantity[] memory remainingDefenderUnits,
                 uint256 remainingAttackerDamage,
-                TokenAmountOperations.TokenAmount[] memory attackerLoot
+                TokenAmountLib.TokenAmount[] memory attackerLoot
             ) = applyDamageToUnits(defenderUnits, attackerDamage);
 
             (
-                UnitQuantityOperations.UnitQuantity[] memory remainingAttackerUnits,
+                UnitQuantityLib.UnitQuantity[] memory remainingAttackerUnits,
                 uint256 remainingDefenderDamage,
-                TokenAmountOperations.TokenAmount[] memory defenderLoot
+                TokenAmountLib.TokenAmount[] memory defenderLoot
             ) = applyDamageToUnits(attackerUnits, defenderDamage);
 
             totalLoot = totalLoot.merge(attackerLoot).merge(defenderLoot);
@@ -834,13 +839,13 @@ contract MoveAndAttack is AttackCommand {
                 if (toTile.buildingId == 0) {
                     lootVault.transferLoot(msg.sender, totalLoot);
                 } else {
-                    TokenAmountOperations.TokenAmount[] memory constructionCost = buildingManager
+                    TokenAmountLib.TokenAmount[] memory constructionCost = buildingManager
                         .getTotalBuildingConstructionCost(toTile.buildingId);
                     toTile.buildingId = 0;
                     lootVault.transferLoot(msg.sender, totalLoot.merge(constructionCost));
                 }
 
-                toTile.loot = new TokenAmountOperations.TokenAmount[](0);
+                toTile.loot = new TokenAmountLib.TokenAmount[](0);
 
                 battleground.updateTile(to, toTile);
                 break;
@@ -856,12 +861,12 @@ contract MoveAndAttack is AttackCommand {
             // Draw
             else if (remainingAttackerUnits.length == 0 && remainingDefenderUnits.length == 0) {
                 toTile.occupant = address(0);
-                toTile.units = new UnitQuantityOperations.UnitQuantity[](0);
+                toTile.units = new UnitQuantityLib.UnitQuantity[](0);
 
                 if (toTile.buildingId == 0) {
                     toTile.loot = totalLoot;
                 } else {
-                    TokenAmountOperations.TokenAmount[] memory constructionCost = buildingManager
+                    TokenAmountLib.TokenAmount[] memory constructionCost = buildingManager
                         .getTotalBuildingConstructionCost(toTile.buildingId);
                     toTile.buildingId = 0;
                     toTile.loot = totalLoot.merge(constructionCost);
@@ -887,8 +892,8 @@ contract MoveAndAttack is AttackCommand {
 
 
 contract RangedAttack is AttackCommand {
-    using CoordinatesOperations for IBattleground.Coordinates;
-    using TokenAmountOperations for TokenAmountOperations.TokenAmount[];
+    using CoordinatesLib for IBattleground.Coordinates;
+    using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
     function initialize(
         address _battleground,
@@ -907,7 +912,7 @@ contract RangedAttack is AttackCommand {
     function rangedAttack(
         IBattleground.Coordinates memory from,
         IBattleground.Coordinates memory to,
-        UnitQuantityOperations.UnitQuantity[] memory attackerUnits
+        UnitQuantityLib.UnitQuantity[] memory attackerUnits
     ) external onlyOwner {
         require(attackerUnits.length > 0, "No units to attack with");
 
@@ -923,7 +928,7 @@ contract RangedAttack is AttackCommand {
         uint16 distance = from.manhattanDistance(to);
 
         uint256 attackerDamage = 0;
-        TokenAmountOperations.TokenAmount[] memory totalAttackCost;
+        TokenAmountLib.TokenAmount[] memory totalAttackCost;
 
         for (uint256 i = 0; i < attackerUnits.length; i++) {
             bool found = false;
@@ -941,7 +946,7 @@ contract RangedAttack is AttackCommand {
 
             attackerDamage += unit.attackDamage * attackerUnits[i].quantity;
 
-            TokenAmountOperations.TokenAmount[] memory attackCost = unit.rangedAttackCost;
+            TokenAmountLib.TokenAmount[] memory attackCost = unit.rangedAttackCost;
             for (uint256 k = 0; k < attackCost.length; k++) {
                 attackCost[k].amount *= attackerUnits[i].quantity;
             }
@@ -952,9 +957,9 @@ contract RangedAttack is AttackCommand {
         totalAttackCost.transferAll(msg.sender, address(lootVault));
 
         (
-            UnitQuantityOperations.UnitQuantity[] memory remainingUnits,
+            UnitQuantityLib.UnitQuantity[] memory remainingUnits,
             ,
-            TokenAmountOperations.TokenAmount[] memory defenderLoot
+            TokenAmountLib.TokenAmount[] memory defenderLoot
         ) = applyDamageToUnits(
                 toTile.units,
                 (attackerDamage * 10000) / (10000 + getDamageBoostPercentage(fromTile.buildingId, attackerUnits))
@@ -962,12 +967,12 @@ contract RangedAttack is AttackCommand {
 
         if (remainingUnits.length == 0) {
             toTile.occupant = address(0);
-            toTile.units = new UnitQuantityOperations.UnitQuantity[](0);
+            toTile.units = new UnitQuantityLib.UnitQuantity[](0);
 
             if (toTile.buildingId == 0) {
                 toTile.loot = toTile.loot.merge(defenderLoot).merge(totalAttackCost);
             } else {
-                TokenAmountOperations.TokenAmount[] memory constructionCost = buildingManager
+                TokenAmountLib.TokenAmount[] memory constructionCost = buildingManager
                     .getTotalBuildingConstructionCost(toTile.buildingId);
                 toTile.buildingId = 0;
                 toTile.loot = toTile.loot.merge(defenderLoot).merge(totalAttackCost).merge(constructionCost);
@@ -984,7 +989,7 @@ contract RangedAttack is AttackCommand {
 
 
 contract Train is UnitCommand {
-    using TokenAmountOperations for TokenAmountOperations.TokenAmount[];
+    using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
     function initialize(address _battleground, address _lootVault, address _unitManager) external initializer {
         __Ownable_init(msg.sender);
@@ -996,7 +1001,7 @@ contract Train is UnitCommand {
 
     function train(
         IBattleground.Coordinates memory coordinates,
-        UnitQuantityOperations.UnitQuantity memory unitQuantity
+        UnitQuantityLib.UnitQuantity memory unitQuantity
     ) external {
         require(unitQuantity.quantity > 0, "Quantity must be greater than 0");
 
@@ -1016,7 +1021,7 @@ contract Train is UnitCommand {
 
         require(foundTrainingBuilding, "Unit can't be trained");
 
-        TokenAmountOperations.TokenAmount[] memory cost = unit.trainingCost;
+        TokenAmountLib.TokenAmount[] memory cost = unit.trainingCost;
         for (uint256 i = 0; i < unit.trainingCost.length; i++) {
             cost[i].amount *= unitQuantity.quantity;
         }
@@ -1031,7 +1036,7 @@ contract Train is UnitCommand {
         }
 
         if (!foundSameUnit) {
-            UnitQuantityOperations.UnitQuantity[] memory newUnits = new UnitQuantityOperations.UnitQuantity[](
+            UnitQuantityLib.UnitQuantity[] memory newUnits = new UnitQuantityLib.UnitQuantity[](
                 tile.units.length + 1
             );
             for (uint256 i = 0; i < tile.units.length; i++) {
@@ -1048,7 +1053,7 @@ contract Train is UnitCommand {
 
 
 contract UpgradeBuilding is BuildingCommand {
-    using TokenAmountOperations for TokenAmountOperations.TokenAmount[];
+    using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
     function initialize(address _battleground, address _lootVault, address _buildingManager) external initializer {
         __Ownable_init(msg.sender);
@@ -1068,7 +1073,7 @@ contract UpgradeBuilding is BuildingCommand {
             "Building upgrade not allowed"
         );
 
-        TokenAmountOperations.TokenAmount[] memory cost = building.constructionCost;
+        TokenAmountLib.TokenAmount[] memory cost = building.constructionCost;
         cost.transferAll(msg.sender, address(lootVault));
 
         tile.buildingId = buildingId;
@@ -1079,7 +1084,7 @@ contract UpgradeBuilding is BuildingCommand {
 
 
 contract UpgradeUnit is UnitCommand {
-    using TokenAmountOperations for TokenAmountOperations.TokenAmount[];
+    using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
     function initialize(address _battleground, address _lootVault, address _unitManager) external initializer {
         __Ownable_init(msg.sender);
@@ -1091,7 +1096,7 @@ contract UpgradeUnit is UnitCommand {
 
     function upgradeUnit(
         IBattleground.Coordinates memory coordinates,
-        UnitQuantityOperations.UnitQuantity memory unitQuantity
+        UnitQuantityLib.UnitQuantity memory unitQuantity
     ) external {
         require(unitQuantity.quantity > 0, "Quantity must be greater than 0");
 
@@ -1112,7 +1117,7 @@ contract UpgradeUnit is UnitCommand {
         }
         require(foundPrerequisiteUnit, "Prerequisite unit not found");
 
-        TokenAmountOperations.TokenAmount[] memory cost = unit.trainingCost;
+        TokenAmountLib.TokenAmount[] memory cost = unit.trainingCost;
         for (uint256 i = 0; i < unit.trainingCost.length; i++) {
             cost[i].amount *= unitQuantity.quantity;
         }
@@ -1127,7 +1132,7 @@ contract UpgradeUnit is UnitCommand {
         }
 
         if (!foundSameUnit) {
-            UnitQuantityOperations.UnitQuantity[] memory newUnits = new UnitQuantityOperations.UnitQuantity[](
+            UnitQuantityLib.UnitQuantity[] memory newUnits = new UnitQuantityLib.UnitQuantity[](
                 tile.units.length + 1
             );
             for (uint256 i = 0; i < tile.units.length; i++) {
@@ -1144,7 +1149,7 @@ contract UpgradeUnit is UnitCommand {
 
 
 abstract contract AttackCommand is UnitCommand {
-    using TokenAmountOperations for TokenAmountOperations.TokenAmount[];
+    using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
     IBuildingManager public buildingManager;
 
@@ -1154,7 +1159,7 @@ abstract contract AttackCommand is UnitCommand {
 
     function getDamageBoostPercentage(
         uint16 buildingId,
-        UnitQuantityOperations.UnitQuantity[] memory units
+        UnitQuantityLib.UnitQuantity[] memory units
     ) internal view returns (uint256 damageBoostPercentage) {
         IBuildingManager.Building memory building = buildingManager.getBuilding(buildingId);
         damageBoostPercentage = building.damageBoostPercentage;
@@ -1168,15 +1173,15 @@ abstract contract AttackCommand is UnitCommand {
     }
 
     function applyDamageToUnits(
-        UnitQuantityOperations.UnitQuantity[] memory units,
+        UnitQuantityLib.UnitQuantity[] memory units,
         uint256 damage
     )
         internal
         view
         returns (
-            UnitQuantityOperations.UnitQuantity[] memory remainingUnits,
+            UnitQuantityLib.UnitQuantity[] memory remainingUnits,
             uint256 remainingDamage,
-            TokenAmountOperations.TokenAmount[] memory loot
+            TokenAmountLib.TokenAmount[] memory loot
         )
     {
         remainingDamage = damage;
@@ -1203,7 +1208,7 @@ abstract contract AttackCommand is UnitCommand {
 
             remainingDamage -= uint256(killedUnits) * uint256(unit.healthPoints);
 
-            TokenAmountOperations.TokenAmount[] memory trainingCost = unitManager.getTotalUnitTrainingCost(
+            TokenAmountLib.TokenAmount[] memory trainingCost = unitManager.getTotalUnitTrainingCost(
                 units[i].unitId
             );
             for (uint256 j = 0; j < trainingCost.length; j++) {
@@ -1213,7 +1218,7 @@ abstract contract AttackCommand is UnitCommand {
             loot = loot.merge(trainingCost);
         }
 
-        remainingUnits = new UnitQuantityOperations.UnitQuantity[](remainingUnitsLength);
+        remainingUnits = new UnitQuantityLib.UnitQuantity[](remainingUnitsLength);
 
         uint256 index = 0;
         for (uint256 i = 0; i < units.length; i++) {

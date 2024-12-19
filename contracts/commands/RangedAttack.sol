@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "./base/AttackCommand.sol";
 import "../libraries/CoordinatesLib.sol";
 
-contract RangedAttack is AttackCommand {
+contract RangedAttack is AttackCommand, ReentrancyGuardUpgradeable {
     using CoordinatesLib for IBattleground.Coordinates;
     using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
@@ -15,6 +16,7 @@ contract RangedAttack is AttackCommand {
         address _buildingManager
     ) external initializer {
         __Ownable_init(msg.sender);
+        __ReentrancyGuard_init();
 
         battleground = IBattleground(_battleground);
         lootVault = ILootVault(_lootVault);
@@ -26,7 +28,7 @@ contract RangedAttack is AttackCommand {
         IBattleground.Coordinates memory from,
         IBattleground.Coordinates memory to,
         UnitQuantityLib.UnitQuantity[] memory attackerUnits
-    ) external onlyOwner {
+    ) external onlyOwner nonReentrant {
         require(attackerUnits.length > 0, "No units to attack with");
 
         IBattleground.Tile memory fromTile = battleground.getTile(from);
@@ -85,8 +87,9 @@ contract RangedAttack is AttackCommand {
             if (toTile.buildingId == 0) {
                 toTile.loot = toTile.loot.merge(defenderLoot).merge(totalAttackCost);
             } else {
-                TokenAmountLib.TokenAmount[] memory constructionCost = buildingManager
-                    .getTotalBuildingConstructionCost(toTile.buildingId);
+                TokenAmountLib.TokenAmount[] memory constructionCost = buildingManager.getTotalBuildingConstructionCost(
+                    toTile.buildingId
+                );
                 toTile.buildingId = 0;
                 toTile.loot = toTile.loot.merge(defenderLoot).merge(totalAttackCost).merge(constructionCost);
             }

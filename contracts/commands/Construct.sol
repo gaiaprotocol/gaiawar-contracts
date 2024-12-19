@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "./base/BuildingCommand.sol";
 import "../libraries/CoordinatesLib.sol";
 
-contract Construct is BuildingCommand {
+contract Construct is BuildingCommand, ReentrancyGuardUpgradeable {
     using CoordinatesLib for IBattleground.Coordinates;
     using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
@@ -19,6 +20,7 @@ contract Construct is BuildingCommand {
         uint16 _enemyBuildingSearchRange
     ) external initializer {
         __Ownable_init(msg.sender);
+        __ReentrancyGuard_init();
 
         battleground = IBattleground(_battleground);
         lootVault = ILootVault(_lootVault);
@@ -102,7 +104,7 @@ contract Construct is BuildingCommand {
         return false;
     }
 
-    function construct(IBattleground.Coordinates memory coordinates, uint16 buildingId) external {
+    function construct(IBattleground.Coordinates memory coordinates, uint16 buildingId) external nonReentrant {
         IBattleground.Tile memory tile = battleground.getTile(coordinates);
         require(tile.occupant == address(0), "Tile already occupied");
 

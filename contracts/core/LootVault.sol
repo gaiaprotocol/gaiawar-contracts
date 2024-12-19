@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "./OperatorManagement.sol";
 import "./ILootVault.sol";
 
-contract LootVault is OperatorManagement, ILootVault {
+contract LootVault is OperatorManagement, ReentrancyGuardUpgradeable, ILootVault {
     address public protocolFeeRecipient;
     uint256 public protocolFeeRate;
 
@@ -17,6 +18,7 @@ contract LootVault is OperatorManagement, ILootVault {
 
     function initialize(address _protocolFeeRecipient, uint256 _protocolFeeRate) external initializer {
         __Ownable_init(msg.sender);
+        __ReentrancyGuard_init();
 
         protocolFeeRecipient = _protocolFeeRecipient;
         protocolFeeRate = _protocolFeeRate;
@@ -35,7 +37,7 @@ contract LootVault is OperatorManagement, ILootVault {
     function transferLoot(
         address recipient,
         TokenAmountLib.TokenAmount[] memory loot
-    ) external override onlyOperator {
+    ) external override onlyOperator nonReentrant {
         require(recipient != address(0), "Invalid recipient address");
         require(loot.length > 0, "No loot to transfer");
 
