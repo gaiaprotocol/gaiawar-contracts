@@ -44,11 +44,15 @@ contract UnitManager is OwnableUpgradeable, IUnitManager {
     function getTotalUnitTrainingCost(
         uint16 unitId
     ) public view override returns (TokenAmountLib.TokenAmount[] memory) {
-        IUnitManager.Unit memory unit = units[unitId];
-        if (units[unitId].prerequisiteUnitId == 0) {
-            return unit.trainingCost;
-        } else {
-            return unit.trainingCost.merge(getTotalUnitTrainingCost(units[unitId].prerequisiteUnitId));
+        TokenAmountLib.TokenAmount[] memory totalCost;
+        uint16 currentUnitId = unitId;
+
+        while (currentUnitId != 0) {
+            IUnitManager.Unit memory unit = units[currentUnitId];
+            totalCost = totalCost.merge(unit.trainingCost);
+            currentUnitId = unit.prerequisiteUnitId;
         }
+
+        return totalCost;
     }
 }

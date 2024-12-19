@@ -39,14 +39,15 @@ contract BuildingManager is OwnableUpgradeable, IBuildingManager {
     function getTotalBuildingConstructionCost(
         uint16 buildingId
     ) public view override returns (TokenAmountLib.TokenAmount[] memory) {
-        IBuildingManager.Building memory building = buildings[buildingId];
-        if (buildings[buildingId].prerequisiteBuildingId == 0) {
-            return building.constructionCost;
-        } else {
-            return
-                building.constructionCost.merge(
-                    getTotalBuildingConstructionCost(buildings[buildingId].prerequisiteBuildingId)
-                );
+        TokenAmountLib.TokenAmount[] memory totalCost;
+        uint16 currentBuildingId = buildingId;
+
+        while (currentBuildingId != 0) {
+            IBuildingManager.Building memory building = buildings[currentBuildingId];
+            totalCost = totalCost.merge(building.constructionCost);
+            currentBuildingId = building.prerequisiteBuildingId;
         }
+
+        return totalCost;
     }
 }
