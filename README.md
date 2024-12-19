@@ -40,3 +40,13 @@ cd ..
 
 - RangedAttack:
   [0x5Aed8F6447fc4A0cd84fDDe8f736d77526EE2F52](https://sepolia.basescan.org/address/0x5Aed8F6447fc4A0cd84fDDe8f736d77526EE2F52)
+
+- Materials
+  - Wood:
+    [0xFCDA5C6F9ECDA91E991Fe24C11A266C0a9EB158b](https://sepolia.basescan.org/address/0xFCDA5C6F9ECDA91E991Fe24C11A266C0a9EB158b)
+  - Stone:
+    [0x122481f4987038DFCE8a9F4A9bD1Ce2B53b7c051](https://sepolia.basescan.org/address/0x122481f4987038DFCE8a9F4A9bD1Ce2B53b7c051)
+  - Iron:
+    [0x482868a5E794beB808BdfAE0a658e8B3156046aC](https://sepolia.basescan.org/address/0x482868a5E794beB808BdfAE0a658e8B3156046aC)
+  - Ducat:
+    [0xD163DACBa1F7eCd04897AD795Fb7752c0C466f93](https://sepolia.basescan.org/address/0xD163DACBa1F7eCd04897AD795Fb7752c0C466f93)
