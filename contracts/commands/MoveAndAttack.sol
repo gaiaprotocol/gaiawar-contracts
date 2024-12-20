@@ -91,13 +91,17 @@ contract MoveAndAttack is AttackCommand {
                 UnitQuantityLib.UnitQuantity[] memory remainingDefenderUnits,
                 uint256 remainingAttackerDamage,
                 TokenAmountLib.TokenAmount[] memory attackerLoot
-            ) = applyDamageToUnits(defenderUnits, attackerDamage);
+            ) = applyDamageToUnits(defenderUnits, attackerDamage, getHealthBoostPercentage(0, attackerUnits));
 
             (
                 UnitQuantityLib.UnitQuantity[] memory remainingAttackerUnits,
                 uint256 remainingDefenderDamage,
                 TokenAmountLib.TokenAmount[] memory defenderLoot
-            ) = applyDamageToUnits(attackerUnits, defenderDamage);
+            ) = applyDamageToUnits(
+                    attackerUnits,
+                    defenderDamage,
+                    getHealthBoostPercentage(toTile.buildingId, defenderUnits)
+                );
 
             totalLoot = totalLoot.merge(attackerLoot).merge(defenderLoot);
 

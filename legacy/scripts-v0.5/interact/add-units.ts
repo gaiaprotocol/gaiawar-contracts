@@ -5,13 +5,14 @@ import { Units } from "../../../typechain-types/index.js";
 const UNITS_ADDRESS = "0xa0eD07fe9aD94CAC832C10b78794D46859C6582D";
 
 const materialAddresses = {
-  wood: "0xb1e50e052a2c5601BD92fddcc058ADDCFD44c6E7",
-  stone: "0x63c45014DE5F0CbA76bbbA93A64D3d2DFd4f71cF",
-  iron: "0x1605AE85E05B3E59Ae4728357DE39bAc81ed0277",
-  ducat: "0x8D90c83bD9DBf0DB9D715378Bf4B7f3F5Ec749e5",
+  wood: "0xFCDA5C6F9ECDA91E991Fe24C11A266C0a9EB158b",
+  stone: "0x122481f4987038DFCE8a9F4A9bD1Ce2B53b7c051",
+  iron: "0x482868a5E794beB808BdfAE0a658e8B3156046aC",
+  ducat: "0xD163DACBa1F7eCd04897AD795Fb7752c0C466f93",
 };
 
 const units: {
+  prerequisiteUnitId: number;
   trainingBuildingIds: number[];
   healthPoints: number;
   attackDamage: number;

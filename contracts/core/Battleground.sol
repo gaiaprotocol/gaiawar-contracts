@@ -62,6 +62,18 @@ contract Battleground is OperatorManagement, IBattleground {
         return tiles[coordinates.x][coordinates.y];
     }
 
+    function getTiles(Coordinates[] memory coordinates) external view returns (Tile[] memory) {
+        uint256 count = coordinates.length;
+
+        Tile[] memory result = new Tile[](count);
+        for (uint256 i = 0; i < count; i++) {
+            Coordinates memory coordinate = coordinates[i];
+            result[i] = tiles[coordinate.x][coordinate.y];
+        }
+
+        return result;
+    }
+
     function hasHeadquarters(address player) external view returns (bool) {
         return playerHeadquarters[player].length > 0;
     }

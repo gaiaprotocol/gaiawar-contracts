@@ -14,6 +14,21 @@ abstract contract AttackCommand is UnitCommand {
         buildingManager = IBuildingManager(_buildingManager);
     }
 
+    function getHealthBoostPercentage(
+        uint16 buildingId,
+        UnitQuantityLib.UnitQuantity[] memory units
+    ) internal view returns (uint256 healthBoostPercentage) {
+        IBuildingManager.Building memory building = buildingManager.getBuilding(buildingId);
+        healthBoostPercentage = building.healthBoostPercentage;
+
+        for (uint256 i = 0; i < units.length; i++) {
+            IUnitManager.Unit memory unit = unitManager.getUnit(units[i].unitId);
+            if (unit.healthBoostPercentage > 0) {
+                healthBoostPercentage += unit.healthBoostPercentage * units[i].quantity;
+            }
+        }
+    }
+
     function getDamageBoostPercentage(
         uint16 buildingId,
         UnitQuantityLib.UnitQuantity[] memory units
@@ -31,7 +46,8 @@ abstract contract AttackCommand is UnitCommand {
 
     function applyDamageToUnits(
         UnitQuantityLib.UnitQuantity[] memory units,
-        uint256 damage
+        uint256 damage,
+        uint256 healthBoostPercentage
     )
         internal
         view
@@ -47,7 +63,9 @@ abstract contract AttackCommand is UnitCommand {
 
         for (uint256 i = 0; i < units.length; i++) {
             IUnitManager.Unit memory unit = unitManager.getUnit(units[i].unitId);
-            uint16 killedUnits = uint16(remainingDamage / unit.healthPoints);
+            uint256 unitHealthPoints = (uint256(unit.healthPoints) * (10000 + healthBoostPercentage)) / 10000;
+
+            uint16 killedUnits = uint16(remainingDamage / unitHealthPoints);
 
             if (killedUnits == 0) {
                 continue;
@@ -63,7 +81,7 @@ abstract contract AttackCommand is UnitCommand {
                 remainingUnitsLength++;
             }
 
-            remainingDamage -= uint256(killedUnits) * uint256(unit.healthPoints);
+            remainingDamage -= uint256(killedUnits) * unitHealthPoints;
 
             TokenAmountLib.TokenAmount[] memory trainingCost = unitManager.getTotalUnitTrainingCost(units[i].unitId);
             for (uint256 j = 0; j < trainingCost.length; j++) {

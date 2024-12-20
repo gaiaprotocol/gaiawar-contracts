@@ -9,6 +9,7 @@ interface IBuildingManager {
         uint16 prerequisiteBuildingId;
         bool isHeadquarters;
         uint16 constructionRange;
+        uint16 healthBoostPercentage; // 1-10000 (0.01% - 100%)
         uint16 damageBoostPercentage; // 1-10000 (0.01% - 100%)
         TokenAmountLib.TokenAmount[] constructionCost;
         bool canBeConstructed;

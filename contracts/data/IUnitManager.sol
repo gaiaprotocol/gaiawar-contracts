@@ -12,6 +12,7 @@ interface IUnitManager {
         uint16 attackDamage;
         uint8 attackRange;
         uint8 movementRange;
+        uint16 healthBoostPercentage; // 1-10000 (0.01% - 100%)
         uint16 damageBoostPercentage; // 1-10000 (0.01% - 100%)
         TokenAmountLib.TokenAmount[] trainingCost;
         TokenAmountLib.TokenAmount[] rangedAttackCost;

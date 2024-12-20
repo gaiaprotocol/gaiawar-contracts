@@ -77,7 +77,8 @@ contract RangedAttack is AttackCommand, ReentrancyGuardUpgradeable {
             TokenAmountLib.TokenAmount[] memory defenderLoot
         ) = applyDamageToUnits(
                 toTile.units,
-                (attackerDamage * 10000) / (10000 + getDamageBoostPercentage(fromTile.buildingId, attackerUnits))
+                (attackerDamage * 10000) / (10000 + getDamageBoostPercentage(fromTile.buildingId, attackerUnits)),
+                getHealthBoostPercentage(fromTile.buildingId, attackerUnits)
             );
 
         if (remainingUnits.length == 0) {
