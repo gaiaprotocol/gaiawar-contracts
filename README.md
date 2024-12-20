@@ -6,6 +6,12 @@ node --loader ts-node/esm ./copy-abi-files-to-projects.ts
 cd ..
 ```
 
+```
+cd utils
+node --loader ts-node/esm ./merge-contracts.ts
+cd ..
+```
+
 ## Base Sepoila
 
 - LootVault:

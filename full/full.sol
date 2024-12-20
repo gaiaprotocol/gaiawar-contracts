@@ -16,11 +16,21 @@ contract Battleground is OperatorManagement, IBattleground {
 
     event TileUpdated(Coordinates coordinates, Tile tile);
 
-    function initialize(uint16 _width, uint16 _height) external initializer {
+    function initialize(
+        uint16 _width,
+        uint16 _height,
+        uint16 _maxUnitsPerTile,
+        address _lootVault,
+        address _buildingManager
+    ) external initializer {
         __Ownable_init(msg.sender);
 
         width = _width;
         height = _height;
+        maxUnitsPerTile = _maxUnitsPerTile;
+
+        lootVault = ILootVault(_lootVault);
+        buildingManager = IBuildingManager(_buildingManager);
     }
 
     function updateDimensions(uint16 _width, uint16 _height) external onlyOwner {
@@ -153,8 +163,9 @@ interface ILootVault {
 }
 
 
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
-contract LootVault is OperatorManagement, ILootVault {
+contract LootVault is OperatorManagement, ReentrancyGuardUpgradeable, ILootVault {
     address public protocolFeeRecipient;
     uint256 public protocolFeeRate;
 
@@ -167,6 +178,7 @@ contract LootVault is OperatorManagement, ILootVault {
 
     function initialize(address _protocolFeeRecipient, uint256 _protocolFeeRate) external initializer {
         __Ownable_init(msg.sender);
+        __ReentrancyGuard_init();
 
         protocolFeeRecipient = _protocolFeeRecipient;
         protocolFeeRate = _protocolFeeRate;
@@ -185,7 +197,7 @@ contract LootVault is OperatorManagement, ILootVault {
     function transferLoot(
         address recipient,
         TokenAmountLib.TokenAmount[] memory loot
-    ) external override onlyOperator {
+    ) external override onlyOperator nonReentrant {
         require(recipient != address(0), "Invalid recipient address");
         require(loot.length > 0, "No loot to transfer");
 
@@ -246,6 +258,155 @@ abstract contract OperatorManagement is OwnableUpgradeable {
     modifier onlyOperator() {
         require(operators[msg.sender], "Not an operator");
         _;
+    }
+}
+
+
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
+contract BuildingManager is OwnableUpgradeable, IBuildingManager {
+    using TokenAmountLib for TokenAmountLib.TokenAmount[];
+
+    uint16 public nextBuildingId;
+    mapping(uint16 => Building) public buildings;
+
+    function initialize() external initializer {
+        __Ownable_init(msg.sender);
+
+        nextBuildingId = 1;
+    }
+
+    function addBuilding(Building calldata building) external onlyOwner {
+        require(building.prerequisiteBuildingId < nextBuildingId, "Previous building does not exist");
+        require(building.constructionCost.length > 0, "Construction cost must be provided");
+
+        uint16 buildingId = nextBuildingId;
+        nextBuildingId += 1;
+
+        buildings[buildingId] = building;
+    }
+
+    function setConstructability(uint16 buildingId, bool canBeConstructed) external onlyOwner {
+        require(buildingId < nextBuildingId, "Building does not exist");
+
+        buildings[buildingId].canBeConstructed = canBeConstructed;
+    }
+
+    function getBuilding(uint16 buildingId) external view override returns (Building memory) {
+        return buildings[buildingId];
+    }
+
+    function getTotalBuildingConstructionCost(
+        uint16 buildingId
+    ) public view override returns (TokenAmountLib.TokenAmount[] memory) {
+        TokenAmountLib.TokenAmount[] memory totalCost;
+        uint16 currentBuildingId = buildingId;
+
+        while (currentBuildingId != 0) {
+            IBuildingManager.Building memory building = buildings[currentBuildingId];
+            totalCost = totalCost.merge(building.constructionCost);
+            currentBuildingId = building.prerequisiteBuildingId;
+        }
+
+        return totalCost;
+    }
+}
+
+
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+interface IBuildingManager {
+    struct Building {
+        uint16 prerequisiteBuildingId;
+        bool isHeadquarters;
+        uint16 constructionRange;
+        uint16 damageBoostPercentage; // 1-10000 (0.01% - 100%)
+        TokenAmountLib.TokenAmount[] constructionCost;
+        bool canBeConstructed;
+    }
+
+    function getBuilding(uint16 buildingId) external view returns (Building memory);
+
+    function getTotalBuildingConstructionCost(
+        uint16 buildingId
+    ) external view returns (TokenAmountLib.TokenAmount[] memory);
+}
+
+
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+interface IUnitManager {
+    struct Unit {
+        uint16 prerequisiteUnitId;
+        uint16[] trainingBuildingIds;
+        uint16 healthPoints;
+        uint16 attackDamage;
+        uint8 attackRange;
+        uint8 movementRange;
+        uint16 damageBoostPercentage; // 1-10000 (0.01% - 100%)
+        TokenAmountLib.TokenAmount[] trainingCost;
+        TokenAmountLib.TokenAmount[] rangedAttackCost;
+        bool canBeTrained;
+    }
+
+    function getUnit(uint16 unitId) external view returns (Unit memory);
+
+    function getTotalUnitTrainingCost(uint16 unitId) external view returns (TokenAmountLib.TokenAmount[] memory);
+}
+
+
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
+contract UnitManager is OwnableUpgradeable, IUnitManager {
+    using TokenAmountLib for TokenAmountLib.TokenAmount[];
+
+    uint16 public nextUnitId;
+    mapping(uint16 => Unit) public units;
+
+    function initialize() external initializer {
+        __Ownable_init(msg.sender);
+
+        nextUnitId = 1;
+    }
+
+    function addUnit(Unit calldata unit) external onlyOwner {
+        require(unit.trainingBuildingIds.length > 0, "Training building IDs must be provided");
+        for (uint256 i = 0; i < unit.trainingBuildingIds.length; i++) {
+            require(unit.trainingBuildingIds[i] > 0, "Training building IDs must be valid");
+        }
+
+        require(unit.healthPoints > 0, "Health points must be greater than 0");
+        require(unit.trainingCost.length > 0, "Training cost must be provided");
+
+        uint16 unitId = nextUnitId;
+        nextUnitId += 1;
+
+        units[unitId] = unit;
+    }
+
+    function setTrainability(uint16 unitId, bool canBeTrained) external onlyOwner {
+        require(unitId < nextUnitId, "Unit does not exist");
+
+        units[unitId].canBeTrained = canBeTrained;
+    }
+
+    function getUnit(uint16 unitId) external view override returns (Unit memory) {
+        return units[unitId];
+    }
+
+    function getTotalUnitTrainingCost(
+        uint16 unitId
+    ) public view override returns (TokenAmountLib.TokenAmount[] memory) {
+        TokenAmountLib.TokenAmount[] memory totalCost;
+        uint16 currentUnitId = unitId;
+
+        while (currentUnitId != 0) {
+            IUnitManager.Unit memory unit = units[currentUnitId];
+            totalCost = totalCost.merge(unit.trainingCost);
+            currentUnitId = unit.prerequisiteUnitId;
+        }
+
+        return totalCost;
     }
 }
 
@@ -403,157 +564,9 @@ library UnitQuantityLib {
 }
 
 
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
-contract BuildingManager is OwnableUpgradeable, IBuildingManager {
-    using TokenAmountLib for TokenAmountLib.TokenAmount[];
-
-    uint16 public nextBuildingId;
-    mapping(uint16 => Building) public buildings;
-
-    function initialize() external initializer {
-        __Ownable_init(msg.sender);
-
-        nextBuildingId = 1;
-    }
-
-    function addBuilding(Building calldata building) external onlyOwner {
-        require(building.prerequisiteBuildingId < nextBuildingId, "Previous building does not exist");
-        require(building.constructionCost.length > 0, "Construction cost must be provided");
-
-        uint16 buildingId = nextBuildingId;
-        nextBuildingId += 1;
-
-        buildings[buildingId] = building;
-    }
-
-    function setConstructability(uint16 buildingId, bool canBeConstructed) external onlyOwner {
-        require(buildingId < nextBuildingId, "Building does not exist");
-
-        buildings[buildingId].canBeConstructed = canBeConstructed;
-    }
-
-    function getBuilding(uint16 buildingId) external view override returns (Building memory) {
-        return buildings[buildingId];
-    }
-
-    function getTotalBuildingConstructionCost(
-        uint16 buildingId
-    ) public view override returns (TokenAmountLib.TokenAmount[] memory) {
-        TokenAmountLib.TokenAmount[] memory totalCost;
-        uint16 currentBuildingId = buildingId;
-
-        while (currentBuildingId != 0) {
-            IBuildingManager.Building memory building = buildings[currentBuildingId];
-            totalCost = totalCost.merge(building.constructionCost);
-            currentBuildingId = building.prerequisiteBuildingId;
-        }
-
-        return totalCost;
-    }
-}
-
-
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
-interface IBuildingManager {
-    struct Building {
-        uint16 prerequisiteBuildingId;
-        bool isHeadquarters;
-        uint16 constructionRange;
-        uint256 damageBoostPercentage; // 1-10000 (0.01% - 100%)
-        TokenAmountLib.TokenAmount[] constructionCost;
-        bool canBeConstructed;
-    }
-
-    function getBuilding(uint16 buildingId) external view returns (Building memory);
-
-    function getTotalBuildingConstructionCost(
-        uint16 buildingId
-    ) external view returns (TokenAmountLib.TokenAmount[] memory);
-}
-
-
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
-interface IUnitManager {
-    struct Unit {
-        uint16 prerequisiteUnitId;
-        uint16[] trainingBuildingIds;
-        uint16 healthPoints;
-        uint16 attackDamage;
-        uint8 attackRange;
-        uint8 movementRange;
-        uint16 damageBoostPercentage; // 1-10000 (0.01% - 100%)
-        TokenAmountLib.TokenAmount[] trainingCost;
-        TokenAmountLib.TokenAmount[] rangedAttackCost;
-        bool canBeTrained;
-    }
-
-    function getUnit(uint16 unitId) external view returns (Unit memory);
-
-    function getTotalUnitTrainingCost(uint16 unitId) external view returns (TokenAmountLib.TokenAmount[] memory);
-}
-
-
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-
-contract UnitManager is OwnableUpgradeable, IUnitManager {
-    using TokenAmountLib for TokenAmountLib.TokenAmount[];
-
-    uint16 public nextUnitId;
-    mapping(uint16 => Unit) public units;
-
-    function initialize() external initializer {
-        __Ownable_init(msg.sender);
-
-        nextUnitId = 1;
-    }
-
-    function addUnit(Unit calldata unit) external onlyOwner {
-        require(unit.trainingBuildingIds.length > 0, "Training building IDs must be provided");
-        for (uint256 i = 0; i < unit.trainingBuildingIds.length; i++) {
-            require(unit.trainingBuildingIds[i] > 0, "Training building IDs must be valid");
-        }
-
-        require(unit.healthPoints > 0, "Health points must be greater than 0");
-        require(unit.trainingCost.length > 0, "Training cost must be provided");
-
-        uint16 unitId = nextUnitId;
-        nextUnitId += 1;
-
-        units[unitId] = unit;
-    }
-
-    function setTrainability(uint16 unitId, bool canBeTrained) external onlyOwner {
-        require(unitId < nextUnitId, "Unit does not exist");
-
-        units[unitId].canBeTrained = canBeTrained;
-    }
-
-    function getUnit(uint16 unitId) external view override returns (Unit memory) {
-        return units[unitId];
-    }
-
-    function getTotalUnitTrainingCost(
-        uint16 unitId
-    ) public view override returns (TokenAmountLib.TokenAmount[] memory) {
-        TokenAmountLib.TokenAmount[] memory totalCost;
-        uint16 currentUnitId = unitId;
-
-        while (currentUnitId != 0) {
-            IUnitManager.Unit memory unit = units[currentUnitId];
-            totalCost = totalCost.merge(unit.trainingCost);
-            currentUnitId = unit.prerequisiteUnitId;
-        }
-
-        return totalCost;
-    }
-}
-
-
-
-contract Construct is BuildingCommand {
+contract Construct is BuildingCommand, ReentrancyGuardUpgradeable {
     using CoordinatesLib for IBattleground.Coordinates;
     using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
@@ -561,17 +574,18 @@ contract Construct is BuildingCommand {
     uint16 public enemyBuildingSearchRange;
 
     function initialize(
-        address _battleground,
         address _lootVault,
         address _buildingManager,
+        address _battleground,
         uint16 _headquartersSearchRange,
         uint16 _enemyBuildingSearchRange
     ) external initializer {
         __Ownable_init(msg.sender);
+        __ReentrancyGuard_init();
 
-        battleground = IBattleground(_battleground);
         lootVault = ILootVault(_lootVault);
         buildingManager = IBuildingManager(_buildingManager);
+        battleground = IBattleground(_battleground);
         headquartersSearchRange = _headquartersSearchRange;
         enemyBuildingSearchRange = _enemyBuildingSearchRange;
     }
@@ -651,7 +665,7 @@ contract Construct is BuildingCommand {
         return false;
     }
 
-    function construct(IBattleground.Coordinates memory coordinates, uint16 buildingId) external {
+    function construct(IBattleground.Coordinates memory coordinates, uint16 buildingId) external nonReentrant {
         IBattleground.Tile memory tile = battleground.getTile(coordinates);
         require(tile.occupant == address(0), "Tile already occupied");
 
@@ -682,12 +696,12 @@ contract Move is UnitCommand {
     using CoordinatesLib for IBattleground.Coordinates;
     using UnitQuantityLib for UnitQuantityLib.UnitQuantity[];
 
-    function initialize(address _battleground, address _lootVault, address _unitManager) external initializer {
+    function initialize(address _lootVault, address _unitManager, address _battleground) external initializer {
         __Ownable_init(msg.sender);
 
-        battleground = IBattleground(_battleground);
         lootVault = ILootVault(_lootVault);
         unitManager = IUnitManager(_unitManager);
+        battleground = IBattleground(_battleground);
     }
 
     function move(
@@ -740,17 +754,17 @@ contract MoveAndAttack is AttackCommand {
     using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
     function initialize(
-        address _battleground,
         address _lootVault,
+        address _buildingManager,
         address _unitManager,
-        address _buildingManager
+        address _battleground
     ) external initializer {
         __Ownable_init(msg.sender);
 
-        battleground = IBattleground(_battleground);
         lootVault = ILootVault(_lootVault);
-        unitManager = IUnitManager(_unitManager);
         buildingManager = IBuildingManager(_buildingManager);
+        unitManager = IUnitManager(_unitManager);
+        battleground = IBattleground(_battleground);
     }
 
     function moveAndAttack(
@@ -890,30 +904,32 @@ contract MoveAndAttack is AttackCommand {
 }
 
 
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
-contract RangedAttack is AttackCommand {
+contract RangedAttack is AttackCommand, ReentrancyGuardUpgradeable {
     using CoordinatesLib for IBattleground.Coordinates;
     using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
     function initialize(
-        address _battleground,
         address _lootVault,
+        address _buildingManager,
         address _unitManager,
-        address _buildingManager
+        address _battleground
     ) external initializer {
         __Ownable_init(msg.sender);
+        __ReentrancyGuard_init();
 
-        battleground = IBattleground(_battleground);
         lootVault = ILootVault(_lootVault);
-        unitManager = IUnitManager(_unitManager);
         buildingManager = IBuildingManager(_buildingManager);
+        unitManager = IUnitManager(_unitManager);
+        battleground = IBattleground(_battleground);
     }
 
     function rangedAttack(
         IBattleground.Coordinates memory from,
         IBattleground.Coordinates memory to,
         UnitQuantityLib.UnitQuantity[] memory attackerUnits
-    ) external onlyOwner {
+    ) external onlyOwner nonReentrant {
         require(attackerUnits.length > 0, "No units to attack with");
 
         IBattleground.Tile memory fromTile = battleground.getTile(from);
@@ -972,8 +988,9 @@ contract RangedAttack is AttackCommand {
             if (toTile.buildingId == 0) {
                 toTile.loot = toTile.loot.merge(defenderLoot).merge(totalAttackCost);
             } else {
-                TokenAmountLib.TokenAmount[] memory constructionCost = buildingManager
-                    .getTotalBuildingConstructionCost(toTile.buildingId);
+                TokenAmountLib.TokenAmount[] memory constructionCost = buildingManager.getTotalBuildingConstructionCost(
+                    toTile.buildingId
+                );
                 toTile.buildingId = 0;
                 toTile.loot = toTile.loot.merge(defenderLoot).merge(totalAttackCost).merge(constructionCost);
             }
@@ -987,22 +1004,24 @@ contract RangedAttack is AttackCommand {
 }
 
 
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
-contract Train is UnitCommand {
+contract Train is UnitCommand, ReentrancyGuardUpgradeable {
     using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
-    function initialize(address _battleground, address _lootVault, address _unitManager) external initializer {
+    function initialize(address _lootVault, address _unitManager, address _battleground) external initializer {
         __Ownable_init(msg.sender);
+        __ReentrancyGuard_init();
 
-        battleground = IBattleground(_battleground);
         lootVault = ILootVault(_lootVault);
         unitManager = IUnitManager(_unitManager);
+        battleground = IBattleground(_battleground);
     }
 
     function train(
         IBattleground.Coordinates memory coordinates,
         UnitQuantityLib.UnitQuantity memory unitQuantity
-    ) external {
+    ) external nonReentrant {
         require(unitQuantity.quantity > 0, "Quantity must be greater than 0");
 
         IBattleground.Tile memory tile = battleground.getTile(coordinates);
@@ -1036,9 +1055,7 @@ contract Train is UnitCommand {
         }
 
         if (!foundSameUnit) {
-            UnitQuantityLib.UnitQuantity[] memory newUnits = new UnitQuantityLib.UnitQuantity[](
-                tile.units.length + 1
-            );
+            UnitQuantityLib.UnitQuantity[] memory newUnits = new UnitQuantityLib.UnitQuantity[](tile.units.length + 1);
             for (uint256 i = 0; i < tile.units.length; i++) {
                 newUnits[i] = tile.units[i];
             }
@@ -1051,19 +1068,21 @@ contract Train is UnitCommand {
 }
 
 
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
-contract UpgradeBuilding is BuildingCommand {
+contract UpgradeBuilding is BuildingCommand, ReentrancyGuardUpgradeable {
     using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
-    function initialize(address _battleground, address _lootVault, address _buildingManager) external initializer {
+    function initialize(address _lootVault, address _buildingManager, address _battleground) external initializer {
         __Ownable_init(msg.sender);
+        __ReentrancyGuard_init();
 
-        battleground = IBattleground(_battleground);
         lootVault = ILootVault(_lootVault);
         buildingManager = IBuildingManager(_buildingManager);
+        battleground = IBattleground(_battleground);
     }
 
-    function upgradeBuilding(IBattleground.Coordinates memory coordinates, uint16 buildingId) external {
+    function upgradeBuilding(IBattleground.Coordinates memory coordinates, uint16 buildingId) external nonReentrant {
         IBattleground.Tile memory tile = battleground.getTile(coordinates);
         require(tile.occupant == msg.sender, "Only tile occupant can upgrade building");
 
@@ -1082,22 +1101,24 @@ contract UpgradeBuilding is BuildingCommand {
 }
 
 
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
-contract UpgradeUnit is UnitCommand {
+contract UpgradeUnit is UnitCommand, ReentrancyGuardUpgradeable {
     using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
-    function initialize(address _battleground, address _lootVault, address _unitManager) external initializer {
+    function initialize(address _lootVault, address _unitManager, address _battleground) external initializer {
         __Ownable_init(msg.sender);
+        __ReentrancyGuard_init();
 
-        battleground = IBattleground(_battleground);
         lootVault = ILootVault(_lootVault);
         unitManager = IUnitManager(_unitManager);
+        battleground = IBattleground(_battleground);
     }
 
     function upgradeUnit(
         IBattleground.Coordinates memory coordinates,
         UnitQuantityLib.UnitQuantity memory unitQuantity
-    ) external {
+    ) external nonReentrant {
         require(unitQuantity.quantity > 0, "Quantity must be greater than 0");
 
         IBattleground.Tile memory tile = battleground.getTile(coordinates);
@@ -1132,9 +1153,7 @@ contract UpgradeUnit is UnitCommand {
         }
 
         if (!foundSameUnit) {
-            UnitQuantityLib.UnitQuantity[] memory newUnits = new UnitQuantityLib.UnitQuantity[](
-                tile.units.length + 1
-            );
+            UnitQuantityLib.UnitQuantity[] memory newUnits = new UnitQuantityLib.UnitQuantity[](tile.units.length + 1);
             for (uint256 i = 0; i < tile.units.length; i++) {
                 newUnits[i] = tile.units[i];
             }
@@ -1208,9 +1227,7 @@ abstract contract AttackCommand is UnitCommand {
 
             remainingDamage -= uint256(killedUnits) * uint256(unit.healthPoints);
 
-            TokenAmountLib.TokenAmount[] memory trainingCost = unitManager.getTotalUnitTrainingCost(
-                units[i].unitId
-            );
+            TokenAmountLib.TokenAmount[] memory trainingCost = unitManager.getTotalUnitTrainingCost(units[i].unitId);
             for (uint256 j = 0; j < trainingCost.length; j++) {
                 trainingCost[j].amount *= killedUnits;
             }
@@ -1244,15 +1261,15 @@ abstract contract BuildingCommand is Command {
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 abstract contract Command is OwnableUpgradeable {
-    IBattleground public battleground;
     ILootVault public lootVault;
-
-    function updateBattleground(address _battleground) external onlyOwner {
-        battleground = IBattleground(_battleground);
-    }
+    IBattleground public battleground;
 
     function updateLootVault(address _lootVault) external onlyOwner {
         lootVault = ILootVault(_lootVault);
+    }
+
+    function updateBattleground(address _battleground) external onlyOwner {
+        battleground = IBattleground(_battleground);
     }
 }
 
@@ -1263,6 +1280,294 @@ abstract contract UnitCommand is Command {
 
     function updateUnitManager(address _unitManager) external onlyOwner {
         unitManager = IUnitManager(_unitManager);
+    }
+}
+
+
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import "@openzeppelin/contracts/access/Ownable2Step.sol";
+
+contract Material is ERC20Permit, Ownable2Step {
+    address public immutable factory;
+
+    string private _name;
+    string private _symbol;
+
+    mapping(address => bool) public whitelist;
+
+    event NameUpdated(string name);
+    event SymbolUpdated(string symbol);
+    event WhitelistAdded(address indexed account);
+    event WhitelistRemoved(address indexed account);
+
+    constructor(
+        address owner_,
+        string memory name_,
+        string memory symbol_
+    ) ERC20Permit("Material") ERC20("", "") Ownable(owner_) {
+        factory = msg.sender;
+        _name = name_;
+        _symbol = symbol_;
+
+        emit NameUpdated(name_);
+        emit SymbolUpdated(symbol_);
+    }
+
+    function name() public view virtual override returns (string memory) {
+        return _name;
+    }
+
+    function symbol() public view virtual override returns (string memory) {
+        return _symbol;
+    }
+
+    function updateName(string memory name_) external onlyOwner {
+        _name = name_;
+        emit NameUpdated(name_);
+    }
+
+    function updateSymbol(string memory symbol_) external onlyOwner {
+        _symbol = symbol_;
+        emit SymbolUpdated(symbol_);
+    }
+
+    modifier onlyFactory() {
+        require(msg.sender == factory, "Material: caller is not the factory");
+        _;
+    }
+
+    function mint(address to, uint256 amount) external onlyFactory {
+        _mint(to, amount);
+    }
+
+    function burn(address from, uint256 amount) external onlyFactory {
+        _burn(from, amount);
+    }
+
+    function addToWhitelist(address[] calldata _addresses) external onlyOwner {
+        for (uint256 i = 0; i < _addresses.length; i++) {
+            require(!whitelist[_addresses[i]], "Address is already whitelisted");
+            whitelist[_addresses[i]] = true;
+            emit WhitelistAdded(_addresses[i]);
+        }
+    }
+
+    function removeFromWhitelist(address[] calldata _addresses) external onlyOwner {
+        for (uint256 i = 0; i < _addresses.length; i++) {
+            require(whitelist[_addresses[i]], "Address is not whitelisted");
+            whitelist[_addresses[i]] = false;
+            emit WhitelistRemoved(_addresses[i]);
+        }
+    }
+
+    function isWhitelisted(address _address) public view returns (bool) {
+        return whitelist[_address];
+    }
+
+    function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
+        if (whitelist[msg.sender]) {
+            _transfer(sender, recipient, amount);
+            return true;
+        }
+        return super.transferFrom(sender, recipient, amount);
+    }
+}
+
+
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
+
+contract MaterialFactory is OwnableUpgradeable, ReentrancyGuardUpgradeable {
+    using Address for address payable;
+
+    uint256 public priceIncrement;
+    address payable public protocolFeeRecipient;
+    uint256 public protocolFeeRate;
+    uint256 public materialOwnerFeeRate;
+
+    event ProtocolFeeRecipientUpdated(address indexed protocolFeeRecipient);
+    event ProtocolFeeRateUpdated(uint256 rate);
+    event MaterialOwnerFeeRateUpdated(uint256 rate);
+    event MaterialCreated(
+        address indexed materialOwner,
+        address indexed materialAddress,
+        string name,
+        string symbol,
+        bytes32 metadataHash
+    );
+    event MaterialDeleted(address indexed materialAddress);
+    event TradeExecuted(
+        address indexed trader,
+        address indexed materialAddress,
+        bool indexed isBuy,
+        uint256 amount,
+        uint256 price,
+        uint256 protocolFee,
+        uint256 materialOwnerFee,
+        uint256 supply
+    );
+
+    function initialize(
+        address payable _protocolFeeRecipient,
+        uint256 _protocolFeeRate,
+        uint256 _materialOwnerFeeRate,
+        uint256 _priceIncrement
+    ) external initializer {
+        __Ownable_init(msg.sender);
+        __ReentrancyGuard_init();
+
+        protocolFeeRecipient = _protocolFeeRecipient;
+        protocolFeeRate = _protocolFeeRate;
+        materialOwnerFeeRate = _materialOwnerFeeRate;
+        priceIncrement = _priceIncrement;
+
+        emit ProtocolFeeRecipientUpdated(_protocolFeeRecipient);
+        emit ProtocolFeeRateUpdated(_protocolFeeRate);
+        emit MaterialOwnerFeeRateUpdated(_materialOwnerFeeRate);
+    }
+
+    function updateProtocolFeeRecipient(address payable _protocolFeeRecipient) external onlyOwner {
+        require(_protocolFeeRecipient != address(0), "Invalid protocol fee recipient address");
+        protocolFeeRecipient = _protocolFeeRecipient;
+        emit ProtocolFeeRecipientUpdated(_protocolFeeRecipient);
+    }
+
+    function updateProtocolFeeRate(uint256 _rate) external onlyOwner {
+        require(_rate <= 1 ether, "Fee rate exceeds maximum");
+        protocolFeeRate = _rate;
+        emit ProtocolFeeRateUpdated(_rate);
+    }
+
+    function updateMaterialOwnerFeeRate(uint256 _rate) external onlyOwner {
+        require(_rate <= 1 ether, "Fee rate exceeds maximum");
+        materialOwnerFeeRate = _rate;
+        emit MaterialOwnerFeeRateUpdated(_rate);
+    }
+
+    function createMaterial(string memory name, string memory symbol, bytes32 metadataHash) public returns (address) {
+        Material newMaterial = new Material(msg.sender, name, symbol);
+        emit MaterialCreated(msg.sender, address(newMaterial), name, symbol, metadataHash);
+        return address(newMaterial);
+    }
+
+    function deleteMaterial(address materialAddress) external {
+        Material material = Material(materialAddress);
+        require(material.owner() == msg.sender, "Not material owner");
+        require(material.totalSupply() == 0, "Supply must be zero");
+
+        material.renounceOwnership();
+        emit MaterialDeleted(materialAddress);
+    }
+
+    function getPrice(uint256 supply, uint256 amount) public view returns (uint256) {
+        return PricingLib.getPrice(supply, amount, priceIncrement, 1 ether);
+    }
+
+    function getBuyPrice(address materialAddress, uint256 amount) public view returns (uint256) {
+        Material material = Material(materialAddress);
+        return PricingLib.getBuyPrice(material.totalSupply(), amount, priceIncrement, 1 ether);
+    }
+
+    function getSellPrice(address materialAddress, uint256 amount) public view returns (uint256) {
+        Material material = Material(materialAddress);
+        return PricingLib.getSellPrice(material.totalSupply(), amount, priceIncrement, 1 ether);
+    }
+
+    function getBuyPriceAfterFee(address materialAddress, uint256 amount) external view returns (uint256) {
+        uint256 price = getBuyPrice(materialAddress, amount);
+        uint256 protocolFee = (price * protocolFeeRate) / 1 ether;
+        uint256 materialOwnerFee = (price * materialOwnerFeeRate) / 1 ether;
+        return price + protocolFee + materialOwnerFee;
+    }
+
+    function getSellPriceAfterFee(address materialAddress, uint256 amount) external view returns (uint256) {
+        uint256 price = getSellPrice(materialAddress, amount);
+        uint256 protocolFee = (price * protocolFeeRate) / 1 ether;
+        uint256 materialOwnerFee = (price * materialOwnerFeeRate) / 1 ether;
+        return price - protocolFee - materialOwnerFee;
+    }
+
+    function executeTrade(address materialAddress, uint256 amount, uint256 price, bool isBuy) private nonReentrant {
+        Material material = Material(materialAddress);
+        uint256 protocolFee = (price * protocolFeeRate) / 1 ether;
+        uint256 materialOwnerFee = (price * materialOwnerFeeRate) / 1 ether;
+
+        if (isBuy) {
+            require(msg.value >= price + protocolFee + materialOwnerFee, "Insufficient payment");
+            material.mint(msg.sender, amount);
+            protocolFeeRecipient.sendValue(protocolFee);
+            payable(material.owner()).sendValue(materialOwnerFee);
+            if (msg.value > price + protocolFee + materialOwnerFee) {
+                uint256 refund = msg.value - price - protocolFee - materialOwnerFee;
+                payable(msg.sender).sendValue(refund);
+            }
+        } else {
+            require(material.balanceOf(msg.sender) >= amount, "Insufficient balance");
+            material.burn(msg.sender, amount);
+            uint256 netAmount = price - protocolFee - materialOwnerFee;
+            payable(msg.sender).sendValue(netAmount);
+            protocolFeeRecipient.sendValue(protocolFee);
+            payable(material.owner()).sendValue(materialOwnerFee);
+        }
+
+        emit TradeExecuted(
+            msg.sender,
+            materialAddress,
+            isBuy,
+            amount,
+            price,
+            protocolFee,
+            materialOwnerFee,
+            material.totalSupply()
+        );
+    }
+
+    function buy(address materialAddress, uint256 amount) external payable {
+        uint256 price = getBuyPrice(materialAddress, amount);
+        executeTrade(materialAddress, amount, price, true);
+    }
+
+    function sell(address materialAddress, uint256 amount) external {
+        uint256 price = getSellPrice(materialAddress, amount);
+        executeTrade(materialAddress, amount, price, false);
+    }
+}
+
+
+library PricingLib {
+    function getPrice(
+        uint256 supply,
+        uint256 amount,
+        uint256 priceIncrement,
+        uint256 scaleFactor
+    ) internal pure returns (uint256) {
+        uint256 startPrice = priceIncrement + (supply * priceIncrement) / scaleFactor;
+        uint256 endSupply = supply + amount;
+        uint256 endPrice = priceIncrement + (endSupply * priceIncrement) / scaleFactor;
+        uint256 averagePrice = (startPrice + endPrice) / 2;
+        uint256 totalCost = (averagePrice * amount) / scaleFactor;
+        return totalCost;
+    }
+
+    function getBuyPrice(
+        uint256 supply,
+        uint256 amount,
+        uint256 priceIncrement,
+        uint256 scaleFactor
+    ) internal pure returns (uint256) {
+        return getPrice(supply, amount, priceIncrement, scaleFactor);
+    }
+
+    function getSellPrice(
+        uint256 supply,
+        uint256 amount,
+        uint256 priceIncrement,
+        uint256 scaleFactor
+    ) internal pure returns (uint256) {
+        uint256 supplyAfterSale = supply - amount;
+        return getPrice(supplyAfterSale, amount, priceIncrement, scaleFactor);
     }
 }
 
