@@ -41,6 +41,10 @@ contract UnitManager is OwnableUpgradeable, IUnitManager {
         return units[unitId];
     }
 
+    function getTrainingCost(uint16 unitId) external view returns (TokenAmountLib.TokenAmount[] memory) {
+        return units[unitId].trainingCost;
+    }
+
     function getTotalUnitTrainingCost(
         uint16 unitId
     ) public view override returns (TokenAmountLib.TokenAmount[] memory) {

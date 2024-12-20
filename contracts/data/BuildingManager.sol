@@ -36,6 +36,10 @@ contract BuildingManager is OwnableUpgradeable, IBuildingManager {
         return buildings[buildingId];
     }
 
+    function getConstructionCost(uint16 buildingId) external view returns (TokenAmountLib.TokenAmount[] memory) {
+        return buildings[buildingId].constructionCost;
+    }
+
     function getTotalBuildingConstructionCost(
         uint16 buildingId
     ) public view override returns (TokenAmountLib.TokenAmount[] memory) {
