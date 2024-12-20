@@ -20,7 +20,7 @@ contract Move is UnitCommand {
         IBattleground.Coordinates memory from,
         IBattleground.Coordinates memory to,
         UnitQuantityLib.UnitQuantity[] memory units
-    ) external onlyOwner {
+    ) external {
         require(units.length > 0, "No units to move");
 
         IBattleground.Tile memory fromTile = battleground.getTile(from);
@@ -47,7 +47,7 @@ contract Move is UnitCommand {
         }
 
         fromTile.units = fromTile.units.subtract(units);
-        if (fromTile.units.length == 0) {
+        if (fromTile.buildingId == 0 && fromTile.units.length == 0) {
             fromTile.occupant = address(0);
         }
         battleground.updateTile(from, fromTile);

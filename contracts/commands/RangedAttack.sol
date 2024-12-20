@@ -28,7 +28,7 @@ contract RangedAttack is AttackCommand, ReentrancyGuardUpgradeable {
         IBattleground.Coordinates memory from,
         IBattleground.Coordinates memory to,
         UnitQuantityLib.UnitQuantity[] memory attackerUnits
-    ) external onlyOwner nonReentrant {
+    ) external nonReentrant {
         require(attackerUnits.length > 0, "No units to attack with");
 
         IBattleground.Tile memory fromTile = battleground.getTile(from);
