@@ -1,4 +1,6 @@
 import addCommandsToMaterialWhitelist from "../_shared/addCommandsToMaterialWhitelist.ts";
+import addOperatorsToBattleground from "../_shared/addOperatorsToBattleground.ts";
+import addOperatorsToLootVault from "../_shared/addOperatorsToLootVault.ts";
 import deployBattleground from "../_shared/deployBattleground.ts";
 import deployBuildingManager from "../_shared/deployBuildingManager.ts";
 import deployConstruct from "../_shared/deployConstruct.ts";
@@ -66,6 +68,19 @@ async function main() {
     unitManagerAddress,
     battlegroundAddress,
   );
+  await addOperatorsToLootVault(lootVaultAddress, [
+    battlegroundAddress,
+    moveAndAttackAddress,
+  ]);
+  await addOperatorsToBattleground(battlegroundAddress, [
+    constructAddress,
+    upgradeBuildingAddress,
+    trainAddress,
+    upgradeUnitAddress,
+    moveAddress,
+    moveAndAttackAddress,
+    rangedAttackAddress,
+  ]);
   await addCommandsToMaterialWhitelist(materialAddresses, [
     constructAddress,
     upgradeBuildingAddress,

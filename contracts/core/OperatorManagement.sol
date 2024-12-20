@@ -9,19 +9,29 @@ abstract contract OperatorManagement is OwnableUpgradeable {
     event OperatorAdded(address indexed operator);
     event OperatorRemoved(address indexed operator);
 
-    function addOperator(address operator) external onlyOwner {
-        require(operator != address(0), "Invalid operator address");
-        require(!operators[operator], "Already an operator");
+    function addOperators(address[] calldata _operators) external onlyOwner {
+        require(_operators.length > 0, "No operators provided");
 
-        operators[operator] = true;
-        emit OperatorAdded(operator);
+        for (uint256 i = 0; i < _operators.length; i++) {
+            address operator = _operators[i];
+            require(operator != address(0), "Invalid operator address");
+            require(!operators[operator], "Already an operator");
+
+            operators[operator] = true;
+            emit OperatorAdded(operator);
+        }
     }
 
-    function removeOperator(address operator) external onlyOwner {
-        require(operators[operator], "Not an operator");
+    function removeOperators(address[] calldata _operators) external onlyOwner {
+        require(_operators.length > 0, "No operators provided");
 
-        operators[operator] = false;
-        emit OperatorRemoved(operator);
+        for (uint256 i = 0; i < _operators.length; i++) {
+            address operator = _operators[i];
+            require(operators[operator], "Not an operator");
+
+            operators[operator] = false;
+            emit OperatorRemoved(operator);
+        }
     }
 
     modifier onlyOperator() {

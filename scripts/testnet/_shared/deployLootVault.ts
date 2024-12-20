@@ -14,7 +14,6 @@ export default async function deployLootVault() {
     ],
     {
       initializer: "initialize",
-      initialOwner: account1.address,
     },
   );
   await contract.waitForDeployment();
