@@ -1,5 +1,4 @@
-import { ethers } from "hardhat";
-import { Material } from "../../../typechain-types/index.js";
+import addCommandsToMaterialWhitelist from "../_shared/addCommandsToMaterialWhitelist.ts";
 
 const materialAddresses = {
   wood: "0xFCDA5C6F9ECDA91E991Fe24C11A266C0a9EB158b",
@@ -19,18 +18,10 @@ const commandAddresses = {
 };
 
 async function main() {
-  const Material = await ethers.getContractFactory("Material");
-
-  for (const [name, address] of Object.entries(materialAddresses)) {
-    const contract = Material.attach(address) as Material;
-
-    const tx = await contract.addToWhitelist(Object.values(commandAddresses));
-    await tx.wait();
-
-    console.log(`Added all commands to the whitelist of ${name}`);
-  }
-
-  console.log("Done!");
+  await addCommandsToMaterialWhitelist(
+    materialAddresses,
+    Object.values(commandAddresses),
+  );
 }
 
 main()

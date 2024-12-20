@@ -15,37 +15,37 @@ cd ..
 ## Base Sepoila
 
 - LootVault:
-  [0xc4033E6991e82c5C2EBEB033129Ee6F1F6d5554c](https://sepolia.basescan.org/address/0xc4033E6991e82c5C2EBEB033129Ee6F1F6d5554c)
+  [0x3D6920b8659c8Dbd0F1a2d9443e8Fc0cE93Bc6e8](https://sepolia.basescan.org/address/0x3D6920b8659c8Dbd0F1a2d9443e8Fc0cE93Bc6e8)
 
 - BuildingManager:
-  [0x3f1694b9877aD0736bEd75887Ac950E550260e1c](https://sepolia.basescan.org/address/0x3f1694b9877aD0736bEd75887Ac950E550260e1c)
+  [0x2bc60e69292312196EB09E82B79dB35e660EeA11](https://sepolia.basescan.org/address/0x2bc60e69292312196EB09E82B79dB35e660EeA11)
 
 - UnitManager:
-  [0x9a2F907fFd5382aDaF61F10c2c3764155816b570](https://sepolia.basescan.org/address/0x9a2F907fFd5382aDaF61F10c2c3764155816b570)
+  [0xE0f29c670CCefFD40Ae53b28864b165cb363bCAc](https://sepolia.basescan.org/address/0xE0f29c670CCefFD40Ae53b28864b165cb363bCAc)
 
 - Battleground:
-  [0x47e6010ef1d04B5F60a341fcac62CB158452D298](https://sepolia.basescan.org/address/0x47e6010ef1d04B5F60a341fcac62CB158452D298)
+  [0x204C9E976d3acfa1d43D3b16970a3917617AF42a](https://sepolia.basescan.org/address/0x204C9E976d3acfa1d43D3b16970a3917617AF42a)
 
 - Construct:
-  [0xBCF89848fC61D163798064383840A6Fa7A8594E3](https://sepolia.basescan.org/address/0xBCF89848fC61D163798064383840A6Fa7A8594E3)
+  [0x143Dbe7119cAf9E3163a521C3a3dEF5f32BdF6d3](https://sepolia.basescan.org/address/0x143Dbe7119cAf9E3163a521C3a3dEF5f32BdF6d3)
 
 - UpgradeBuilding:
-  [0xcF60549fb943b682Dd7E9f7649fea84d1ed5Eb2B](https://sepolia.basescan.org/address/0xcF60549fb943b682Dd7E9f7649fea84d1ed5Eb2B)
+  [0xC31e7ea2f9AB87281B1A5a71F4f0f59af3156ccC](https://sepolia.basescan.org/address/0xC31e7ea2f9AB87281B1A5a71F4f0f59af3156ccC)
 
 - Train:
-  [0xB4d5bA57c2f589851950d6C3512b6a18A12Aeb9b](https://sepolia.basescan.org/address/0xB4d5bA57c2f589851950d6C3512b6a18A12Aeb9b)
+  [0x67d23c44B79e27bB657444C7B4EceAdd5E2CB42e](https://sepolia.basescan.org/address/0x67d23c44B79e27bB657444C7B4EceAdd5E2CB42e)
 
 - UpgradeUnit:
-  [0x9D4F0549319D1477D2B535FaFCEA59af429D8a39](https://sepolia.basescan.org/address/0x9D4F0549319D1477D2B535FaFCEA59af429D8a39)
+  [0x115d74aaE349bb6c3881C357810cD51fCaCEBE08](https://sepolia.basescan.org/address/0x115d74aaE349bb6c3881C357810cD51fCaCEBE08)
 
 - Move:
-  [0x954381Be392B2ba6919BF55A7197874dF2915426](https://sepolia.basescan.org/address/0x954381Be392B2ba6919BF55A7197874dF2915426)
+  [0xb7aBeC74d9539961ebdd3DA167D2D437712dF789](https://sepolia.basescan.org/address/0xb7aBeC74d9539961ebdd3DA167D2D437712dF789)
 
 - MoveAndAttack:
-  [0xa610ECcaCDB247C60ca3A4E3Ad93287D35F3fA18](https://sepolia.basescan.org/address/0xa610ECcaCDB247C60ca3A4E3Ad93287D35F3fA18)
+  [0x017Cd8C7912a1F419100aE1d868Ffe892bB97fdA](https://sepolia.basescan.org/address/0x017Cd8C7912a1F419100aE1d868Ffe892bB97fdA)
 
 - RangedAttack:
-  [0x5Aed8F6447fc4A0cd84fDDe8f736d77526EE2F52](https://sepolia.basescan.org/address/0x5Aed8F6447fc4A0cd84fDDe8f736d77526EE2F52)
+  [0x470eb178fd1Dd71e90C118aD02a7d0448f638C76](https://sepolia.basescan.org/address/0x470eb178fd1Dd71e90C118aD02a7d0448f638C76)
 
 - Materials
   - Wood:

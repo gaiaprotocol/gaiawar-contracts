@@ -1,21 +1,10 @@
-import { ethers, upgrades } from "hardhat";
+import deployBattleground from "../_shared/deployBattleground.ts";
 
 async function main() {
-  const Battleground = await ethers.getContractFactory("Battleground");
+  const lootVaultAddress = "0xc4033E6991e82c5C2EBEB033129Ee6F1F6d5554c";
+  const buildingManagerAddress = "0x3f1694b9877aD0736bEd75887Ac950E550260e1c";
 
-  console.log("Deploying Battleground...");
-  const contract = await upgrades.deployProxy(Battleground, [
-    100, // width
-    100, // height
-    50, // maxUnitsPerTile
-    "0xc4033E6991e82c5C2EBEB033129Ee6F1F6d5554c", // lootVault
-    "0x3f1694b9877aD0736bEd75887Ac950E550260e1c", // buildingManager
-  ], {
-    initializer: "initialize",
-  });
-  await contract.waitForDeployment();
-
-  console.log("Battleground deployed to:", contract.target);
+  await deployBattleground(lootVaultAddress, buildingManagerAddress);
 }
 
 main()

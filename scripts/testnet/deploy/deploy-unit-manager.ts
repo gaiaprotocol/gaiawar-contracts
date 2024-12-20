@@ -1,15 +1,7 @@
-import { ethers, upgrades } from "hardhat";
+import deployUnitManager from "../_shared/deployUnitManager.ts";
 
 async function main() {
-  const UnitManager = await ethers.getContractFactory("UnitManager");
-
-  console.log("Deploying UnitManager...");
-  const contract = await upgrades.deployProxy(UnitManager, [], {
-    initializer: "initialize",
-  });
-  await contract.waitForDeployment();
-
-  console.log("UnitManager deployed to:", contract.target);
+  await deployUnitManager();
 }
 
 main()

@@ -1,21 +1,15 @@
-import { ethers, upgrades } from "hardhat";
+import deployConstruct from "../_shared/deployConstruct.ts";
 
 async function main() {
-  const Construct = await ethers.getContractFactory("Construct");
+  const lootVaultAddress = "0xc4033E6991e82c5C2EBEB033129Ee6F1F6d5554c";
+  const buildingManagerAddress = "0x3f1694b9877aD0736bEd75887Ac950E550260e1c";
+  const battlegroundAddress = "0x47e6010ef1d04B5F60a341fcac62CB158452D298";
 
-  console.log("Deploying Construct...");
-  const contract = await upgrades.deployProxy(Construct, [
-    "0xc4033E6991e82c5C2EBEB033129Ee6F1F6d5554c", // lootVault
-    "0x3f1694b9877aD0736bEd75887Ac950E550260e1c", // buildingManager
-    "0x47e6010ef1d04B5F60a341fcac62CB158452D298", // battleground
-    7, // headquartersSearchRange
-    3, // enemyBuildingSearchRange
-  ], {
-    initializer: "initialize",
-  });
-  await contract.waitForDeployment();
-
-  console.log("Construct deployed to:", contract.target);
+  await deployConstruct(
+    lootVaultAddress,
+    buildingManagerAddress,
+    battlegroundAddress,
+  );
 }
 
 main()

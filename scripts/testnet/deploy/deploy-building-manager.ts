@@ -1,15 +1,7 @@
-import { ethers, upgrades } from "hardhat";
+import deployBuildingManager from "../_shared/deployBuildingManager.ts";
 
 async function main() {
-  const BuildingManager = await ethers.getContractFactory("BuildingManager");
-
-  console.log("Deploying BuildingManager...");
-  const contract = await upgrades.deployProxy(BuildingManager, [], {
-    initializer: "initialize",
-  });
-  await contract.waitForDeployment();
-
-  console.log("BuildingManager deployed to:", contract.target);
+  await deployBuildingManager();
 }
 
 main()
