@@ -93,9 +93,14 @@ contract Construct is BuildingCommand, ReentrancyGuardUpgradeable {
 
         for (int16 x = from.x; x <= to.x; x++) {
             for (int16 y = from.y; y <= to.y; y++) {
-                IBattleground.Tile memory tile = battleground.getTile(IBattleground.Coordinates(x, y));
+                IBattleground.Coordinates memory tileCoordinates = IBattleground.Coordinates(x, y);
+                IBattleground.Tile memory tile = battleground.getTile(tileCoordinates);
 
-                if (tile.occupant != address(0) && tile.occupant != msg.sender) {
+                if (
+                    tile.occupant != address(0) &&
+                    tile.occupant != msg.sender &&
+                    coordinates.manhattanDistance(tileCoordinates) <= enemyBuildingSearchRange
+                ) {
                     return true;
                 }
             }
