@@ -53,6 +53,10 @@ contract Move is UnitCommand {
         battleground.updateTile(from, fromTile);
 
         toTile.units = toTile.units.merge(units);
+
+        lootVault.transferLoot(msg.sender, toTile.loot);
+        toTile.loot = new TokenAmountLib.TokenAmount[](0);
+
         toTile.occupant = msg.sender;
         battleground.updateTile(to, toTile);
     }

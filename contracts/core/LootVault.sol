@@ -48,12 +48,9 @@ contract LootVault is OperatorManagement, ReentrancyGuardUpgradeable, ILootVault
             if (loot[i].tokenType == TokenAmountLib.TokenType.ERC20) {
                 uint256 protocolFee = (amount * protocolFeeRate) / 1 ether;
                 uint256 recipientAmount = amount - protocolFee;
+                require(IERC20(loot[i].tokenAddress).transfer(recipient, recipientAmount), "Token transfer failed");
                 require(
-                    IERC20(loot[i].tokenAddress).transferFrom(address(this), recipient, recipientAmount),
-                    "Token transfer failed"
-                );
-                require(
-                    IERC20(loot[i].tokenAddress).transferFrom(address(this), protocolFeeRecipient, protocolFee),
+                    IERC20(loot[i].tokenAddress).transfer(protocolFeeRecipient, protocolFee),
                     "Token transfer failed"
                 );
             } else if (loot[i].tokenType == TokenAmountLib.TokenType.ERC1155) {
