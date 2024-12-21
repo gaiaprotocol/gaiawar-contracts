@@ -3728,6 +3728,1106 @@
           ]
         }
       }
+    },
+    "dbe0e0c4c6f6f447ce25048bdb429e4eb36fe09c48c1731de155d6033a9f3f88": {
+      "address": "0xE73De120bE71bf03960Ba88aE5245166012eae31",
+      "txHash": "0xde06940d66d71590d12a22c5d7f153416b9c7c693cf1ca29f9a2cef96f846125",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "lootVault",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(ILootVault)2512",
+            "contract": "Command",
+            "src": "contracts/commands/base/Command.sol:9"
+          },
+          {
+            "label": "battleground",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IBattleground)2498",
+            "contract": "Command",
+            "src": "contracts/commands/base/Command.sol:10"
+          },
+          {
+            "label": "unitManager",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_contract(IUnitManager)2601",
+            "contract": "UnitCommand",
+            "src": "contracts/commands/base/UnitCommand.sol:8"
+          },
+          {
+            "label": "buildingManager",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_contract(IBuildingManager)2551",
+            "contract": "AttackCommand",
+            "src": "contracts/commands/base/AttackCommand.sol:11"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(IBattleground)2498": {
+            "label": "contract IBattleground",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IBuildingManager)2551": {
+            "label": "contract IBuildingManager",
+            "numberOfBytes": "20"
+          },
+          "t_contract(ILootVault)2512": {
+            "label": "contract ILootVault",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IUnitManager)2601": {
+            "label": "contract IUnitManager",
+            "numberOfBytes": "20"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "b961f23fa926449da5d343419e264963cbe97a73eb03504cac9d2c9006a1d5bf": {
+      "address": "0x5300e5333Fd85A7401bfAB30082eA01aa8F5b264",
+      "txHash": "0x374cc23de43e45ef339cee70237a8a6372d032cb5c01329733d892097af081ea",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "lootVault",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(ILootVault)2512",
+            "contract": "Command",
+            "src": "contracts/commands/base/Command.sol:9"
+          },
+          {
+            "label": "battleground",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IBattleground)2498",
+            "contract": "Command",
+            "src": "contracts/commands/base/Command.sol:10"
+          },
+          {
+            "label": "unitManager",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_contract(IUnitManager)2601",
+            "contract": "UnitCommand",
+            "src": "contracts/commands/base/UnitCommand.sol:8"
+          },
+          {
+            "label": "buildingManager",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_contract(IBuildingManager)2551",
+            "contract": "AttackCommand",
+            "src": "contracts/commands/base/AttackCommand.sol:11"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)158_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(IBattleground)2498": {
+            "label": "contract IBattleground",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IBuildingManager)2551": {
+            "label": "contract IBuildingManager",
+            "numberOfBytes": "20"
+          },
+          "t_contract(ILootVault)2512": {
+            "label": "contract ILootVault",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IUnitManager)2601": {
+            "label": "contract IUnitManager",
+            "numberOfBytes": "20"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:43",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "d93801ed8e596803acb4c2b826a16357d277f6169a462dc2fb5940a1d2b0ddb6": {
+      "address": "0xf1FFb2396469DA4EcEBeD62E8747C764E31C775b",
+      "txHash": "0xaab02bc7f4a9c0fdd0f6d07fd161205e5fe7e38671c545ec74f75d51a7cf6b7b",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "lootVault",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(ILootVault)1943",
+            "contract": "Command",
+            "src": "contracts/commands/base/Command.sol:9"
+          },
+          {
+            "label": "battleground",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IBattleground)1929",
+            "contract": "Command",
+            "src": "contracts/commands/base/Command.sol:10"
+          },
+          {
+            "label": "unitManager",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_contract(IUnitManager)2032",
+            "contract": "UnitCommand",
+            "src": "contracts/commands/base/UnitCommand.sol:8"
+          },
+          {
+            "label": "buildingManager",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_contract(IBuildingManager)1982",
+            "contract": "AttackCommand",
+            "src": "contracts/commands/base/AttackCommand.sol:11"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(IBattleground)1929": {
+            "label": "contract IBattleground",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IBuildingManager)1982": {
+            "label": "contract IBuildingManager",
+            "numberOfBytes": "20"
+          },
+          "t_contract(ILootVault)1943": {
+            "label": "contract ILootVault",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IUnitManager)2032": {
+            "label": "contract IUnitManager",
+            "numberOfBytes": "20"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "dabbcccb6732ba521ab2f0f1cbe4b8803ac2ce6ad2d3091e687051bf90d2ccf6": {
+      "address": "0x993f03c2faC35daff6218296650b5327cdb0440b",
+      "txHash": "0xadaa39c78d48342bbc4bd3e0fc75ac1cc8d63901d7433e6847e8ff8b8d7e2b6b",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "lootVault",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(ILootVault)1943",
+            "contract": "Command",
+            "src": "contracts/commands/base/Command.sol:9"
+          },
+          {
+            "label": "battleground",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IBattleground)1929",
+            "contract": "Command",
+            "src": "contracts/commands/base/Command.sol:10"
+          },
+          {
+            "label": "unitManager",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_contract(IUnitManager)2032",
+            "contract": "UnitCommand",
+            "src": "contracts/commands/base/UnitCommand.sol:8"
+          },
+          {
+            "label": "buildingManager",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_contract(IBuildingManager)1982",
+            "contract": "AttackCommand",
+            "src": "contracts/commands/base/AttackCommand.sol:11"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(IBattleground)1929": {
+            "label": "contract IBattleground",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IBuildingManager)1982": {
+            "label": "contract IBuildingManager",
+            "numberOfBytes": "20"
+          },
+          "t_contract(ILootVault)1943": {
+            "label": "contract ILootVault",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IUnitManager)2032": {
+            "label": "contract IUnitManager",
+            "numberOfBytes": "20"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "970a7858d66cb77c0236bf9eb0c66133a3e90961493ac2cb8b670325eaa24e5c": {
+      "address": "0x51322aE0Ed630355C6a74C4E96C2C10c72B9EE7e",
+      "txHash": "0x45eaf262b8afc650f42b4ef58783cc750c9bc6a89b917186bf7c4453394b31f1",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "lootVault",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(ILootVault)1943",
+            "contract": "Command",
+            "src": "contracts/commands/base/Command.sol:9"
+          },
+          {
+            "label": "battleground",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IBattleground)1929",
+            "contract": "Command",
+            "src": "contracts/commands/base/Command.sol:10"
+          },
+          {
+            "label": "unitManager",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_contract(IUnitManager)2032",
+            "contract": "UnitCommand",
+            "src": "contracts/commands/base/UnitCommand.sol:8"
+          },
+          {
+            "label": "buildingManager",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_contract(IBuildingManager)1982",
+            "contract": "AttackCommand",
+            "src": "contracts/commands/base/AttackCommand.sol:11"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(IBattleground)1929": {
+            "label": "contract IBattleground",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IBuildingManager)1982": {
+            "label": "contract IBuildingManager",
+            "numberOfBytes": "20"
+          },
+          "t_contract(ILootVault)1943": {
+            "label": "contract ILootVault",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IUnitManager)2032": {
+            "label": "contract IUnitManager",
+            "numberOfBytes": "20"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "be64451360e64cee503e2197fdf3cb4302d4187cb78dcc2edf8681a7e489ab93": {
+      "address": "0xFe6984B6019f00f39bD2E837d696ED4297Df4157",
+      "txHash": "0x4fe324f4836c63f515bdd37e94024213e3c3806e45a153375e274dba0947f4d0",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "lootVault",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(ILootVault)2515",
+            "contract": "Command",
+            "src": "contracts/commands/base/Command.sol:9"
+          },
+          {
+            "label": "battleground",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IBattleground)2501",
+            "contract": "Command",
+            "src": "contracts/commands/base/Command.sol:10"
+          },
+          {
+            "label": "unitManager",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_contract(IUnitManager)2604",
+            "contract": "UnitCommand",
+            "src": "contracts/commands/base/UnitCommand.sol:8"
+          },
+          {
+            "label": "buildingManager",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_contract(IBuildingManager)2554",
+            "contract": "AttackCommand",
+            "src": "contracts/commands/base/AttackCommand.sol:11"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)158_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(IBattleground)2501": {
+            "label": "contract IBattleground",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IBuildingManager)2554": {
+            "label": "contract IBuildingManager",
+            "numberOfBytes": "20"
+          },
+          "t_contract(ILootVault)2515": {
+            "label": "contract ILootVault",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IUnitManager)2604": {
+            "label": "contract IUnitManager",
+            "numberOfBytes": "20"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:43",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "13ef7135c9b0c51f1a2563a31d463111a3a373c90327192d52720c1198569d60": {
+      "address": "0x59aD4eFcEb164C0fC33c52bBaD176Cd4EBE781dc",
+      "txHash": "0xaa1479dbfbeacd66594635714fdfde574d7158bcb67d2dfaf1324b66b1047488",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "lootVault",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(ILootVault)2008",
+            "contract": "Command",
+            "src": "contracts/commands/base/Command.sol:9"
+          },
+          {
+            "label": "battleground",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IBattleground)1994",
+            "contract": "Command",
+            "src": "contracts/commands/base/Command.sol:10"
+          },
+          {
+            "label": "unitManager",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_contract(IUnitManager)2097",
+            "contract": "UnitCommand",
+            "src": "contracts/commands/base/UnitCommand.sol:8"
+          },
+          {
+            "label": "buildingManager",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_contract(IBuildingManager)2047",
+            "contract": "AttackCommand",
+            "src": "contracts/commands/base/AttackCommand.sol:11"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(IBattleground)1994": {
+            "label": "contract IBattleground",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IBuildingManager)2047": {
+            "label": "contract IBuildingManager",
+            "numberOfBytes": "20"
+          },
+          "t_contract(ILootVault)2008": {
+            "label": "contract ILootVault",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IUnitManager)2097": {
+            "label": "contract IUnitManager",
+            "numberOfBytes": "20"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "da697980d5ee22852d6ff92968fd109038608766e336b2620a934210ad53a9a9": {
+      "address": "0x3FA75bdaeb29307421dC032b1e2127ca38D827a4",
+      "txHash": "0xa7986109c76b482b58b80202a7d3748b6a1bd20aaaf2769f68afe09be491d5f5",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "lootVault",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(ILootVault)2013",
+            "contract": "Command",
+            "src": "contracts/commands/base/Command.sol:9"
+          },
+          {
+            "label": "battleground",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IBattleground)1999",
+            "contract": "Command",
+            "src": "contracts/commands/base/Command.sol:10"
+          },
+          {
+            "label": "unitManager",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_contract(IUnitManager)2102",
+            "contract": "UnitCommand",
+            "src": "contracts/commands/base/UnitCommand.sol:8"
+          },
+          {
+            "label": "buildingManager",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_contract(IBuildingManager)2052",
+            "contract": "AttackCommand",
+            "src": "contracts/commands/base/AttackCommand.sol:11"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(IBattleground)1999": {
+            "label": "contract IBattleground",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IBuildingManager)2052": {
+            "label": "contract IBuildingManager",
+            "numberOfBytes": "20"
+          },
+          "t_contract(ILootVault)2013": {
+            "label": "contract ILootVault",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IUnitManager)2102": {
+            "label": "contract IUnitManager",
+            "numberOfBytes": "20"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
     }
   }
 }

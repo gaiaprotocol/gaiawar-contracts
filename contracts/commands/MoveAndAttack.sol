@@ -57,7 +57,7 @@ contract MoveAndAttack is AttackCommand {
         }
 
         fromTile.units = fromTile.units.subtract(attackerUnits);
-        if (fromTile.units.length == 0) {
+        if (fromTile.buildingId == 0 && fromTile.units.length == 0) {
             fromTile.occupant = address(0);
         }
         battleground.updateTile(from, fromTile);
@@ -68,19 +68,33 @@ contract MoveAndAttack is AttackCommand {
         bool toFinish = false;
         while (true) {
             uint256 attackerDamage = toFinish ? type(uint256).max : 0;
-            if (!toFinish) {
+            uint256 totalAttackerUnitCount;
+
+            if (toFinish) {
+                for (uint256 i = 0; i < attackerUnits.length; i++) {
+                    totalAttackerUnitCount += attackerUnits[i].quantity;
+                }
+            } else {
                 for (uint256 i = 0; i < attackerUnits.length; i++) {
                     IUnitManager.Unit memory unit = unitManager.getUnit(attackerUnits[i].unitId);
                     attackerDamage += uint256(unit.attackDamage) * uint256(attackerUnits[i].quantity);
+                    totalAttackerUnitCount += attackerUnits[i].quantity;
                 }
                 attackerDamage = (attackerDamage * 10000) / (10000 + getDamageBoostPercentage(0, attackerUnits));
             }
 
             uint256 defenderDamage = toFinish ? type(uint256).max : 0;
-            if (!toFinish) {
+            uint256 totalDefenderUnitCount;
+
+            if (toFinish) {
+                for (uint256 i = 0; i < toTile.units.length; i++) {
+                    totalDefenderUnitCount += toTile.units[i].quantity;
+                }
+            } else {
                 for (uint256 i = 0; i < toTile.units.length; i++) {
                     IUnitManager.Unit memory unit = unitManager.getUnit(toTile.units[i].unitId);
                     defenderDamage += uint256(unit.attackDamage) * uint256(toTile.units[i].quantity);
+                    totalDefenderUnitCount += toTile.units[i].quantity;
                 }
                 defenderDamage =
                     (defenderDamage * 10000) /
@@ -89,13 +103,13 @@ contract MoveAndAttack is AttackCommand {
 
             (
                 UnitQuantityLib.UnitQuantity[] memory remainingDefenderUnits,
-                uint256 remainingAttackerDamage,
+                uint256 totalRemainingAttackerUnitCount,
                 TokenAmountLib.TokenAmount[] memory attackerLoot
             ) = applyDamageToUnits(defenderUnits, attackerDamage, getHealthBoostPercentage(0, attackerUnits));
 
             (
                 UnitQuantityLib.UnitQuantity[] memory remainingAttackerUnits,
-                uint256 remainingDefenderDamage,
+                uint256 totalRemainingDefenderUnitCount,
                 TokenAmountLib.TokenAmount[] memory defenderLoot
             ) = applyDamageToUnits(
                     attackerUnits,
@@ -150,7 +164,10 @@ contract MoveAndAttack is AttackCommand {
                 break;
             }
             // Never reached
-            else if (attackerDamage == remainingDefenderDamage && defenderDamage == remainingAttackerDamage) {
+            else if (
+                totalRemainingAttackerUnitCount == totalAttackerUnitCount &&
+                totalRemainingDefenderUnitCount == totalDefenderUnitCount
+            ) {
                 require(!toFinish, "Infinite loop detected");
                 toFinish = true;
             }

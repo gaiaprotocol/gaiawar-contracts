@@ -53,21 +53,20 @@ abstract contract AttackCommand is UnitCommand {
         view
         returns (
             UnitQuantityLib.UnitQuantity[] memory remainingUnits,
-            uint256 remainingDamage,
+            uint256 totalRemainingUnitCount,
             TokenAmountLib.TokenAmount[] memory loot
         )
     {
-        remainingDamage = damage;
-
         uint256 remainingUnitsLength = 0;
 
         for (uint256 i = 0; i < units.length; i++) {
             IUnitManager.Unit memory unit = unitManager.getUnit(units[i].unitId);
             uint256 unitHealthPoints = (uint256(unit.healthPoints) * (10000 + healthBoostPercentage)) / 10000;
 
-            uint16 killedUnits = uint16(remainingDamage / unitHealthPoints);
+            uint16 killedUnits = uint16(damage / unitHealthPoints);
 
             if (killedUnits == 0) {
+                remainingUnitsLength++;
                 continue;
             }
 
@@ -81,7 +80,7 @@ abstract contract AttackCommand is UnitCommand {
                 remainingUnitsLength++;
             }
 
-            remainingDamage -= uint256(killedUnits) * unitHealthPoints;
+            damage -= uint256(killedUnits) * unitHealthPoints;
 
             TokenAmountLib.TokenAmount[] memory trainingCost = unitManager.getTotalUnitTrainingCost(units[i].unitId);
             for (uint256 j = 0; j < trainingCost.length; j++) {
@@ -98,6 +97,8 @@ abstract contract AttackCommand is UnitCommand {
             if (units[i].quantity > 0) {
                 remainingUnits[index] = units[i];
                 index++;
+
+                totalRemainingUnitCount += units[i].quantity;
             }
         }
     }
