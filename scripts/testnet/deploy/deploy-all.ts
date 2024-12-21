@@ -70,6 +70,7 @@ async function main() {
   );
   await addOperatorsToLootVault(lootVaultAddress, [
     battlegroundAddress,
+    moveAddress,
     moveAndAttackAddress,
   ]);
   await addOperatorsToBattleground(battlegroundAddress, [

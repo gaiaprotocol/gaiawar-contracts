@@ -125,12 +125,17 @@ contract MoveAndAttack is AttackCommand {
                 toTile.units = remainingAttackerUnits;
 
                 if (toTile.buildingId == 0) {
-                    lootVault.transferLoot(msg.sender, totalLoot);
+                    if (totalLoot.length > 0) {
+                        lootVault.transferLoot(msg.sender, totalLoot);
+                    }
                 } else {
                     TokenAmountLib.TokenAmount[] memory constructionCost = buildingManager
                         .getTotalBuildingConstructionCost(toTile.buildingId);
                     toTile.buildingId = 0;
-                    lootVault.transferLoot(msg.sender, totalLoot.merge(constructionCost));
+                    totalLoot = totalLoot.merge(constructionCost);
+                    if (totalLoot.length > 0) {
+                        lootVault.transferLoot(msg.sender, totalLoot);
+                    }
                 }
 
                 toTile.loot = new TokenAmountLib.TokenAmount[](0);

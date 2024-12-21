@@ -17,6 +17,7 @@ const commandAddresses = {
 async function main() {
   await addOperatorsToLootVault(LOOT_VAULT_ADDRESS, [
     BATTLEGROUND_ADDRESS,
+    commandAddresses.Move,
     commandAddresses.MoveAndAttack,
   ]);
   await addOperatorsToBattleground(BATTLEGROUND_ADDRESS, [
