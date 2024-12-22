@@ -62,13 +62,17 @@ contract Battleground is OperatorManagement, IBattleground {
         return tiles[coordinates.x][coordinates.y];
     }
 
-    function getTiles(Coordinates[] memory coordinates) external view returns (Tile[] memory) {
-        uint256 count = coordinates.length;
+    function getTiles(Coordinates memory from, Coordinates memory to) external view returns (Tile[] memory) {
+        uint256 totalTiles = uint256(uint16(to.x - from.x + 1)) * uint256(uint16(to.y - from.y + 1));
 
-        Tile[] memory result = new Tile[](count);
-        for (uint256 i = 0; i < count; i++) {
-            Coordinates memory coordinate = coordinates[i];
-            result[i] = tiles[coordinate.x][coordinate.y];
+        Tile[] memory result = new Tile[](totalTiles);
+        uint256 index = 0;
+
+        for (int16 x = from.x; x <= to.x; x++) {
+            for (int16 y = from.y; y <= to.y; y++) {
+                result[index] = tiles[x][y];
+                index++;
+            }
         }
 
         return result;
