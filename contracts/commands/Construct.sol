@@ -111,7 +111,7 @@ contract Construct is BuildingCommand, ReentrancyGuardUpgradeable {
 
     function construct(IBattleground.Coordinates memory coordinates, uint16 buildingId) external nonReentrant {
         IBattleground.Tile memory tile = battleground.getTile(coordinates);
-        require(tile.occupant == address(0), "Tile already occupied");
+        require(tile.occupant == address(0) || (tile.occupant == msg.sender && tile.buildingId == 0), "Tile occupied");
 
         IBuildingManager.Building memory building = buildingManager.getBuilding(buildingId);
         require(
