@@ -80,42 +80,42 @@ contract MoveAndAttack is AttackCommand {
                     attackerDamage += uint256(unit.attackDamage) * uint256(attackerUnits[i].quantity);
                     totalAttackerUnitCount += attackerUnits[i].quantity;
                 }
-                attackerDamage = (attackerDamage * 10000) / (10000 + getDamageBoostPercentage(0, attackerUnits));
+                attackerDamage = (attackerDamage * (10000 + getDamageBoostPercentage(0, attackerUnits))) / 10000;
             }
 
             uint256 defenderDamage = toFinish ? type(uint256).max : 0;
             uint256 totalDefenderUnitCount;
 
             if (toFinish) {
-                for (uint256 i = 0; i < toTile.units.length; i++) {
-                    totalDefenderUnitCount += toTile.units[i].quantity;
+                for (uint256 i = 0; i < defenderUnits.length; i++) {
+                    totalDefenderUnitCount += defenderUnits[i].quantity;
                 }
             } else {
-                for (uint256 i = 0; i < toTile.units.length; i++) {
-                    IUnitManager.Unit memory unit = unitManager.getUnit(toTile.units[i].unitId);
-                    defenderDamage += uint256(unit.attackDamage) * uint256(toTile.units[i].quantity);
-                    totalDefenderUnitCount += toTile.units[i].quantity;
+                for (uint256 i = 0; i < defenderUnits.length; i++) {
+                    IUnitManager.Unit memory unit = unitManager.getUnit(defenderUnits[i].unitId);
+                    defenderDamage += uint256(unit.attackDamage) * uint256(defenderUnits[i].quantity);
+                    totalDefenderUnitCount += defenderUnits[i].quantity;
                 }
                 defenderDamage =
-                    (defenderDamage * 10000) /
-                    (10000 + getDamageBoostPercentage(toTile.buildingId, defenderUnits));
+                    (defenderDamage * (10000 + getDamageBoostPercentage(toTile.buildingId, defenderUnits))) /
+                    10000;
             }
 
             (
                 UnitQuantityLib.UnitQuantity[] memory remainingDefenderUnits,
-                uint256 totalRemainingAttackerUnitCount,
+                uint256 totalRemainingDefenderUnitCount,
                 TokenAmountLib.TokenAmount[] memory attackerLoot
-            ) = applyDamageToUnits(defenderUnits, attackerDamage, getHealthBoostPercentage(0, attackerUnits));
+            ) = applyDamageToUnits(
+                    defenderUnits,
+                    attackerDamage,
+                    getHealthBoostPercentage(toTile.buildingId, defenderUnits)
+                );
 
             (
                 UnitQuantityLib.UnitQuantity[] memory remainingAttackerUnits,
-                uint256 totalRemainingDefenderUnitCount,
+                uint256 totalRemainingAttackerUnitCount,
                 TokenAmountLib.TokenAmount[] memory defenderLoot
-            ) = applyDamageToUnits(
-                    attackerUnits,
-                    defenderDamage,
-                    getHealthBoostPercentage(toTile.buildingId, defenderUnits)
-                );
+            ) = applyDamageToUnits(attackerUnits, defenderDamage, getHealthBoostPercentage(0, attackerUnits));
 
             totalLoot = totalLoot.merge(attackerLoot).merge(defenderLoot);
 
