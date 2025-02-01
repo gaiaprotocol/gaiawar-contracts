@@ -4,14 +4,20 @@ pragma solidity ^0.8.28;
 import "./UnitCommand.sol";
 import "../../data/IUnitManager.sol";
 import "../../data/IBuildingManager.sol";
+import "../../gaiaprotocol/social/ClanEmblems.sol";
 
 abstract contract AttackCommand is UnitCommand {
     using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
     IBuildingManager public buildingManager;
+    ClanEmblems public clanEmblems;
 
     function updateBuildingManager(address _buildingManager) external onlyOwner {
         buildingManager = IBuildingManager(_buildingManager);
+    }
+
+    function updateClanEmblems(address _clanEmblems) external onlyOwner {
+        clanEmblems = ClanEmblems(_clanEmblems);
     }
 
     function getHealthBoostPercentage(

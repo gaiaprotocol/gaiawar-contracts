@@ -26,4 +26,6 @@ interface IBattleground {
     function hasHeadquarters(address player) external view returns (bool);
 
     function updateTile(Coordinates memory coordinates, Tile memory tile) external;
+
+    function isNewPlayer(address player) external view returns (bool);
 }

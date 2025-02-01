@@ -16,6 +16,7 @@ contract Battleground is OperatorManagement, IBattleground {
 
     mapping(int16 => mapping(int16 => Tile)) public tiles;
     mapping(address => Coordinates[]) public playerHeadquarters;
+    mapping(address => uint256) public firstHeadquartersTimestamp;
 
     event TileUpdated(Coordinates coordinates, Tile tile);
 
@@ -93,6 +94,9 @@ contract Battleground is OperatorManagement, IBattleground {
     }
 
     function _addHQCoordinate(address player, Coordinates memory coordinates) private {
+        if (playerHeadquarters[player].length == 0) {
+            firstHeadquartersTimestamp[player] = block.timestamp;
+        }
         playerHeadquarters[player].push(coordinates);
     }
 
@@ -145,5 +149,13 @@ contract Battleground is OperatorManagement, IBattleground {
 
         lootVault.transferLoot(msg.sender, tile.loot);
         tile.loot = new TokenAmountLib.TokenAmount[](0);
+    }
+
+    function isNewPlayer(address player) external view returns (bool) {
+        uint256 firstTimestamp = firstHeadquartersTimestamp[player];
+        if (firstTimestamp == 0) {
+            return false;
+        }
+        return block.timestamp < firstTimestamp + 600;
     }
 }

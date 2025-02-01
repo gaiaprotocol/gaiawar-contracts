@@ -13,7 +13,8 @@ contract RangedAttack is AttackCommand, ReentrancyGuardUpgradeable {
         address _lootVault,
         address _buildingManager,
         address _unitManager,
-        address _battleground
+        address _battleground,
+        address _clanEmblems
     ) external initializer {
         __Ownable_init(msg.sender);
         __ReentrancyGuard_init();
@@ -22,6 +23,7 @@ contract RangedAttack is AttackCommand, ReentrancyGuardUpgradeable {
         buildingManager = IBuildingManager(_buildingManager);
         unitManager = IUnitManager(_unitManager);
         battleground = IBattleground(_battleground);
+        clanEmblems = ClanEmblems(_clanEmblems);
     }
 
     function rangedAttack(
@@ -38,6 +40,11 @@ contract RangedAttack is AttackCommand, ReentrancyGuardUpgradeable {
         require(
             toTile.occupant != address(0) && toTile.occupant != msg.sender,
             "You cannot attack an empty tile or your own tile"
+        );
+        require(!battleground.isNewPlayer(toTile.occupant), "You cannot attack a new player");
+        require(
+            !clanEmblems.sharesAnyClan(msg.sender, toTile.occupant),
+            "You cannot attack a tile owned by a clan member"
         );
 
         uint16 distance = from.manhattanDistance(to);
