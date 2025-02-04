@@ -6,6 +6,7 @@ export default async function deployMoveAndAttack(
   buildingManagerAddress: string | Addressable,
   unitManagerAddress: string | Addressable,
   battlegroundAddress: string | Addressable,
+  clanEmblemsAddress: string | Addressable,
 ) {
   const MoveAndAttack = await ethers.getContractFactory("MoveAndAttack");
 
@@ -15,6 +16,7 @@ export default async function deployMoveAndAttack(
     buildingManagerAddress,
     unitManagerAddress,
     battlegroundAddress,
+    clanEmblemsAddress,
   ], {
     initializer: "initialize",
   });

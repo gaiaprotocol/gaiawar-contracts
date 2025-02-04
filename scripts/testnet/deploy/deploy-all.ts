@@ -13,12 +13,14 @@ import deployUnitManager from "../_shared/deployUnitManager.ts";
 import deployUpgradeBuilding from "../_shared/deployUpgradeBuilding.ts";
 import deployUpgradeUnit from "../_shared/deployUpgradeUnit.ts";
 
-const materialAddresses = {
+const MATERIAL_ADDRESSES = {
   wood: "0xFCDA5C6F9ECDA91E991Fe24C11A266C0a9EB158b",
   stone: "0x122481f4987038DFCE8a9F4A9bD1Ce2B53b7c051",
   iron: "0x482868a5E794beB808BdfAE0a658e8B3156046aC",
   ducat: "0xD163DACBa1F7eCd04897AD795Fb7752c0C466f93",
 };
+
+const CLAN_EMBLEMS_ADDRESS = "0xFFa8483e3333200cBA48c9b46Da137fF7636BB95";
 
 async function main() {
   // core
@@ -61,12 +63,14 @@ async function main() {
     buildingManagerAddress,
     unitManagerAddress,
     battlegroundAddress,
+    CLAN_EMBLEMS_ADDRESS,
   );
   const rangedAttackAddress = await deployRangedAttack(
     lootVaultAddress,
     buildingManagerAddress,
     unitManagerAddress,
     battlegroundAddress,
+    CLAN_EMBLEMS_ADDRESS,
   );
   await addOperatorsToLootVault(lootVaultAddress, [
     battlegroundAddress,
@@ -82,7 +86,7 @@ async function main() {
     moveAndAttackAddress,
     rangedAttackAddress,
   ]);
-  await addCommandsToMaterialWhitelist(materialAddresses, [
+  await addCommandsToMaterialWhitelist(MATERIAL_ADDRESSES, [
     constructAddress,
     upgradeBuildingAddress,
     trainAddress,

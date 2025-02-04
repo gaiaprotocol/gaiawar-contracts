@@ -6,6 +6,7 @@ export default async function deployRangedAttack(
   buildingManagerAddress: string | Addressable,
   unitManagerAddress: string | Addressable,
   battlegroundAddress: string | Addressable,
+  clanEmblemsAddress: string | Addressable,
 ) {
   const RangedAttack = await ethers.getContractFactory("RangedAttack");
 
@@ -15,6 +16,7 @@ export default async function deployRangedAttack(
     buildingManagerAddress,
     unitManagerAddress,
     battlegroundAddress,
+    clanEmblemsAddress,
   ], {
     initializer: "initialize",
   });
