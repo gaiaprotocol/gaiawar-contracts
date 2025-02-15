@@ -11,6 +11,22 @@ const materialAddresses = {
   ducat: "0xD163DACBa1F7eCd04897AD795Fb7752c0C466f93",
 };
 
+//TODO:
+const itemAddress = "";
+
+//TODO:
+enum ITEM_TOKEN_IDS {
+  AXE,
+  SPEAR,
+  SHIELD,
+  HOOD,
+  CROSSBOW,
+  BALLISTA,
+  CATAPULT,
+  CAMEL,
+  ELEPHANT,
+}
+
 enum TokenType {
   ERC20,
   ERC1155,
@@ -176,16 +192,216 @@ const units: {
     rangedAttackCost: [],
     canBeTrained: true,
   },
-  //TODO:
   // Axe Warrior
+  {
+    prerequisiteUnitId: 1, // Swordsman
+    trainingBuildingIds: [],
+    healthPoints: 150,
+    attackDamage: 50,
+    attackRange: 0,
+    movementRange: 4,
+    healthBoostPercentage: 0,
+    damageBoostPercentage: 0,
+    trainingCost: [
+      {
+        tokenType: TokenType.ERC1155,
+        tokenAddress: itemAddress,
+        tokenId: ITEM_TOKEN_IDS.AXE,
+        amount: 1n,
+      },
+    ],
+    rangedAttackCost: [],
+    canBeTrained: true,
+  },
   // Spearman
+  {
+    prerequisiteUnitId: 1,
+    trainingBuildingIds: [],
+    healthPoints: 100,
+    attackDamage: 75,
+    attackRange: 0,
+    movementRange: 4,
+    healthBoostPercentage: 0,
+    damageBoostPercentage: 0,
+    trainingCost: [
+      {
+        tokenType: TokenType.ERC1155,
+        tokenAddress: itemAddress,
+        tokenId: ITEM_TOKEN_IDS.SPEAR,
+        amount: 1n,
+      },
+    ],
+    rangedAttackCost: [],
+    canBeTrained: true,
+  },
   // Shield Bearer
+  {
+    prerequisiteUnitId: 1,
+    trainingBuildingIds: [],
+    healthPoints: 250,
+    attackDamage: 5,
+    attackRange: 0,
+    movementRange: 4,
+    healthBoostPercentage: 0,
+    damageBoostPercentage: 0,
+    trainingCost: [
+      {
+        tokenType: TokenType.ERC1155,
+        tokenAddress: itemAddress,
+        tokenId: ITEM_TOKEN_IDS.SHIELD,
+        amount: 1n,
+      },
+    ],
+    rangedAttackCost: [],
+    canBeTrained: true,
+  },
   // Scout
+  {
+    prerequisiteUnitId: 1,
+    trainingBuildingIds: [],
+    healthPoints: 100,
+    attackDamage: 60,
+    attackRange: 0,
+    movementRange: 5,
+    healthBoostPercentage: 0,
+    damageBoostPercentage: 0,
+    trainingCost: [
+      {
+        tokenType: TokenType.ERC1155,
+        tokenAddress: itemAddress,
+        tokenId: ITEM_TOKEN_IDS.HOOD,
+        amount: 1n,
+      },
+    ],
+    rangedAttackCost: [],
+    canBeTrained: true,
+  },
   // Crossbowman
+  {
+    prerequisiteUnitId: 2, // Archer
+    trainingBuildingIds: [],
+    healthPoints: 70,
+    attackDamage: 30,
+    attackRange: 4,
+    movementRange: 4,
+    healthBoostPercentage: 0,
+    damageBoostPercentage: 0,
+    trainingCost: [
+      {
+        tokenType: TokenType.ERC1155,
+        tokenAddress: itemAddress,
+        tokenId: ITEM_TOKEN_IDS.CROSSBOW,
+        amount: 1n,
+      },
+    ],
+    rangedAttackCost: [
+      {
+        tokenType: TokenType.ERC20,
+        tokenAddress: materialAddresses.wood,
+        tokenId: 0,
+        amount: parseEther("3"),
+      },
+    ],
+    canBeTrained: true,
+  },
   // Ballista
+  {
+    prerequisiteUnitId: 2,
+    trainingBuildingIds: [],
+    healthPoints: 10,
+    attackDamage: 50,
+    attackRange: 7,
+    movementRange: 0,
+    healthBoostPercentage: 0,
+    damageBoostPercentage: 0,
+    trainingCost: [
+      {
+        tokenType: TokenType.ERC1155,
+        tokenAddress: itemAddress,
+        tokenId: ITEM_TOKEN_IDS.BALLISTA,
+        amount: 1n,
+      },
+    ],
+    rangedAttackCost: [
+      {
+        tokenType: TokenType.ERC20,
+        tokenAddress: materialAddresses.wood,
+        tokenId: 0,
+        amount: parseEther("5"),
+      },
+    ],
+    canBeTrained: true,
+  },
   // Catapult
+  {
+    prerequisiteUnitId: 2,
+    trainingBuildingIds: [],
+    healthPoints: 30,
+    attackDamage: 40,
+    attackRange: 6,
+    movementRange: 2,
+    healthBoostPercentage: 0,
+    damageBoostPercentage: 0,
+    trainingCost: [
+      {
+        tokenType: TokenType.ERC1155,
+        tokenAddress: itemAddress,
+        tokenId: ITEM_TOKEN_IDS.CATAPULT,
+        amount: 1n,
+      },
+    ],
+    rangedAttackCost: [
+      {
+        tokenType: TokenType.ERC20,
+        tokenAddress: materialAddresses.wood,
+        tokenId: 0,
+        amount: parseEther("4"),
+      },
+    ],
+    canBeTrained: true,
+  },
   // Camel Rider
+  {
+    prerequisiteUnitId: 3, // Cavalry
+    trainingBuildingIds: [],
+    healthPoints: 300,
+    attackDamage: 40,
+    attackRange: 0,
+    movementRange: 5,
+    healthBoostPercentage: 0,
+    damageBoostPercentage: 0,
+    trainingCost: [
+      {
+        tokenType: TokenType.ERC1155,
+        tokenAddress: itemAddress,
+        tokenId: ITEM_TOKEN_IDS.CAMEL,
+        amount: 1n,
+      },
+    ],
+    rangedAttackCost: [],
+    canBeTrained: true,
+  },
   // War Elephant
+  {
+    prerequisiteUnitId: 3,
+    trainingBuildingIds: [],
+    healthPoints: 400,
+    attackDamage: 30,
+    attackRange: 0,
+    movementRange: 3,
+    healthBoostPercentage: 0,
+    damageBoostPercentage: 0,
+    trainingCost: [
+      {
+        tokenType: TokenType.ERC1155,
+        tokenAddress: itemAddress,
+        tokenId: ITEM_TOKEN_IDS.ELEPHANT,
+        amount: 1n,
+      },
+    ],
+    rangedAttackCost: [],
+    canBeTrained: true,
+  },
 ];
 
 async function main() {
