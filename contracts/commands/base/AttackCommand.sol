@@ -4,7 +4,7 @@ pragma solidity ^0.8.28;
 import "./UnitCommand.sol";
 import "../../data/IUnitManager.sol";
 import "../../data/IBuildingManager.sol";
-import "../../gaiaprotocol/social/ClanEmblems.sol";
+import "gaiaprotocol/contracts/social/ClanEmblems.sol";
 
 abstract contract AttackCommand is UnitCommand {
     using TokenAmountLib for TokenAmountLib.TokenAmount[];
