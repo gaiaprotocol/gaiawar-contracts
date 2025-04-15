@@ -10,11 +10,14 @@ contract UpgradeBuilding is BuildingCommand, ReentrancyGuardUpgradeable {
     function initialize(address _lootVault, address _buildingManager, address _battleground) external initializer {
         __Ownable_init(msg.sender);
         __ReentrancyGuard_init();
+        __UUPSUpgradeable_init();
 
         lootVault = ILootVault(_lootVault);
         buildingManager = IBuildingManager(_buildingManager);
         battleground = IBattleground(_battleground);
     }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     function upgradeBuilding(IBattleground.Coordinates memory coordinates, uint16 buildingId) external nonReentrant {
         IBattleground.Tile memory tile = battleground.getTile(coordinates);

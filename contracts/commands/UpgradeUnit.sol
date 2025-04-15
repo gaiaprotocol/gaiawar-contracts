@@ -10,11 +10,14 @@ contract UpgradeUnit is UnitCommand, ReentrancyGuardUpgradeable {
     function initialize(address _lootVault, address _unitManager, address _battleground) external initializer {
         __Ownable_init(msg.sender);
         __ReentrancyGuard_init();
+        __UUPSUpgradeable_init();
 
         lootVault = ILootVault(_lootVault);
         unitManager = IUnitManager(_unitManager);
         battleground = IBattleground(_battleground);
     }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     function upgradeUnit(
         IBattleground.Coordinates memory coordinates,

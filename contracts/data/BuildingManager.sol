@@ -2,9 +2,10 @@
 pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "./IBuildingManager.sol";
 
-contract BuildingManager is OwnableUpgradeable, IBuildingManager {
+contract BuildingManager is OwnableUpgradeable, IBuildingManager, UUPSUpgradeable {
     using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
     uint16 public nextBuildingId;
@@ -12,9 +13,12 @@ contract BuildingManager is OwnableUpgradeable, IBuildingManager {
 
     function initialize() external initializer {
         __Ownable_init(msg.sender);
+        __UUPSUpgradeable_init();
 
         nextBuildingId = 1;
     }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     function addBuilding(Building calldata building) external onlyOwner {
         require(building.prerequisiteBuildingId < nextBuildingId, "Previous building does not exist");

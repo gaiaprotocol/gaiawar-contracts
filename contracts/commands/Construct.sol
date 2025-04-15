@@ -21,6 +21,7 @@ contract Construct is BuildingCommand, ReentrancyGuardUpgradeable {
     ) external initializer {
         __Ownable_init(msg.sender);
         __ReentrancyGuard_init();
+        __UUPSUpgradeable_init();
 
         lootVault = ILootVault(_lootVault);
         buildingManager = IBuildingManager(_buildingManager);
@@ -28,6 +29,8 @@ contract Construct is BuildingCommand, ReentrancyGuardUpgradeable {
         headquartersSearchRange = _headquartersSearchRange;
         enemyBuildingSearchRange = _enemyBuildingSearchRange;
     }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     function updateHeadquartersSearchRange(uint16 _headquartersSearchRange) external onlyOwner {
         headquartersSearchRange = _headquartersSearchRange;

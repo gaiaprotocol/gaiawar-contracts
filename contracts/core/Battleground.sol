@@ -28,6 +28,7 @@ contract Battleground is OperatorManagement, IBattleground {
         address _buildingManager
     ) external initializer {
         __Ownable_init(msg.sender);
+        __UUPSUpgradeable_init();
 
         width = _width;
         height = _height;
@@ -36,6 +37,8 @@ contract Battleground is OperatorManagement, IBattleground {
         lootVault = ILootVault(_lootVault);
         buildingManager = IBuildingManager(_buildingManager);
     }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     function updateDimensions(uint16 _width, uint16 _height) external onlyOwner {
         require(_width > 0, "Width must be greater than 0");

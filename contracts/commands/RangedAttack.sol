@@ -18,6 +18,7 @@ contract RangedAttack is AttackCommand, ReentrancyGuardUpgradeable {
     ) external initializer {
         __Ownable_init(msg.sender);
         __ReentrancyGuard_init();
+        __UUPSUpgradeable_init();
 
         lootVault = ILootVault(_lootVault);
         buildingManager = IBuildingManager(_buildingManager);
@@ -25,6 +26,8 @@ contract RangedAttack is AttackCommand, ReentrancyGuardUpgradeable {
         battleground = IBattleground(_battleground);
         clanEmblems = ClanEmblems(_clanEmblems);
     }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     function rangedAttack(
         IBattleground.Coordinates memory from,

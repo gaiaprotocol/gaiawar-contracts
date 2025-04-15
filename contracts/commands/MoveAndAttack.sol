@@ -17,6 +17,7 @@ contract MoveAndAttack is AttackCommand {
         address _clanEmblems
     ) external initializer {
         __Ownable_init(msg.sender);
+        __UUPSUpgradeable_init();
 
         lootVault = ILootVault(_lootVault);
         buildingManager = IBuildingManager(_buildingManager);
@@ -24,6 +25,8 @@ contract MoveAndAttack is AttackCommand {
         battleground = IBattleground(_battleground);
         clanEmblems = ClanEmblems(_clanEmblems);
     }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     function moveAndAttack(
         IBattleground.Coordinates memory from,

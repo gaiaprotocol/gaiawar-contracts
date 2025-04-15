@@ -2,9 +2,10 @@
 pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "./IUnitManager.sol";
 
-contract UnitManager is OwnableUpgradeable, IUnitManager {
+contract UnitManager is OwnableUpgradeable, IUnitManager, UUPSUpgradeable {
     using TokenAmountLib for TokenAmountLib.TokenAmount[];
 
     uint16 public nextUnitId;
@@ -12,9 +13,12 @@ contract UnitManager is OwnableUpgradeable, IUnitManager {
 
     function initialize() external initializer {
         __Ownable_init(msg.sender);
+        __UUPSUpgradeable_init();
 
         nextUnitId = 1;
     }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     function addUnit(Unit calldata unit) external onlyOwner {
         require(unit.trainingBuildingIds.length > 0, "Training building IDs must be provided");
